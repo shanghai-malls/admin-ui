@@ -1,0 +1,28 @@
+.menu-group {
+    border-radius: 0;
+    padding: 5px 15px;
+    overflow: hidden;
+    background-color: #fff;
+    .menu-item-container {
+        transition-duration: .3s;
+        transition-timing-function: cubic-bezier(.86, 0, .07, 1);
+        > a {
+            padding: 6px;
+            box-sizing: border-box;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #6d7879;
+            display: block;
+
+            :visited, :link {
+                color: #607D8B;
+            }
+
+            :hover {
+                color: #039be5;
+                background-color: #CFD8DC;
+            }
+        }
+    }
+}

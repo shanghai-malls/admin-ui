@@ -1,0 +1,62 @@
+<nz-card *ngIf="view.searchFormItems.length > 0" style="margin-bottom: 16px">
+    <form nz-form >
+        <div nz-row >
+            <form-item *ngFor="let item of view.searchFormItems" [formGroup]="searchForm" [item]="item" nzFlex></form-item>
+        </div>
+        <div nz-row>
+            <div nz-col [nzSpan]="24" style="text-align: right;">
+                <button nz-button (click)="searchForm.reset()">清除查询条件</button>
+                <button nz-button [nzType]="'primary'" (click)="search()">查询</button>
+                <a *ngIf="totalCols > 24" style="margin-left:8px;font-size:12px;" (click)="toggleCollapse()">
+                    {{isCollapse ? '展开':'折叠'}}<i class="anticon" [class.anticon-down]="isCollapse" [class.anticon-up]="!isCollapse"></i>
+                </a>
+            </div>
+        </div>
+    </form>
+</nz-card>
+<ng-template #modalBody>
+    <form nz-form [formGroup]="modalForm" style="padding-left: 12px;padding-right: 12px;">
+        <div nz-row>
+            <form-item *ngFor="let item of modalFormItems" [formGroup]="modalForm" [item]="item" nzFlex></form-item>
+        </div>
+    </form>
+</ng-template>
+
+<div style="text-align: right;padding-bottom: 10px;">
+    <ng-container *ngFor="let action of view.topActions" >
+        <button nz-button (click)="triggerAction(action, path)" [nzType]="action.actionType" [ngClass]="{hide: action.mode === 'none'}">{{action.displayName}}</button>
+    </ng-container>
+</div>
+
+<nz-table #contentTable
+          [nzFrontPagination]="false"
+          [nzData]="page.content"
+          [nzTotal]="page.totalElements"
+          [nzShowSizeChanger]="true"
+          [nzBordered]="true"
+          [nzShowPagination]="view.action.responseBodyIsPagination()"
+          [nzScroll]="{x: '980px'}"
+          [(nzPageIndex)]="page.number"
+          [(nzPageSize)]="page.size"
+          (nzPageIndexChange)="search()"
+          (nzPageSizeChange)="search()">
+    <thead>
+    <tr *ngFor="let row of view.headers;index as i">
+        <th *ngFor="let header of row" [ngClass]="{hide: false}" [attr.rowspan]="header.rowspan" [attr.colspan]="header.colspan">{{header.displayName}}</th>
+        <th *ngIf="i == 0 && view.rowActions.length > 0" nzRight="0px" [attr.rowspan]="view.headers.length">Operation</th>
+    </tr>
+    </thead>
+    <tbody >
+    <tr *ngFor="let item of contentTable.data; index as i" >
+        <td *ngFor="let column of view.columns" [innerHTML]="column.formatText(item)"></td>
+        <td nzRight="0px" *ngIf="view.rowActions.length > 0">
+            <button *ngIf="subject" nz-button (click)="select(item)">选择</button>
+            <ng-container *ngIf="!subject">
+                <ng-container *ngFor="let action of view.rowActions" >
+                    <button nz-button (click)="triggerAction(action, action.format(item, view.api.getDomainModel()), item)" [nzType]="action.actionType" [ngClass]="{hide: action.mode === 'none'}">{{action.displayName}}</button>
+                </ng-container>
+            </ng-container>
+        </td>
+    </tr>
+    </tbody>
+</nz-table>

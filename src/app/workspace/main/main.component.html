@@ -1,0 +1,5 @@
+<ng-container [ngSwitch]="type">
+    <app-table *ngSwitchCase="'list'" [view]="view" [path]="path"></app-table>
+    <app-detail *ngSwitchCase="'detail'" [view]="view" [path]="path"></app-detail>
+    <h1 *ngSwitchCase="'welcome'" style="font-size: 32px;">欢迎光临</h1>
+</ng-container>
