@@ -1,0 +1,95 @@
+<div class="table-top-bar">
+    <button nz-button [nzType]="'primary'" (click)="addMenu()">添加菜单组</button>
+</div>
+
+
+<nz-table #contentTable
+          [nzData]="menus"
+          [nzBordered]="false"
+          [nzShowPagination]="false"
+          [nzScroll]="{x: '100%'}">
+    <thead>
+    <tr>
+        <th nzShowExpand></th>
+        <th>图标</th>
+        <th>名字</th>
+        <th>描述</th>
+        <th>路由地址</th>
+        <th>操作</th>
+    </tr>
+    </thead>
+    <tbody>
+    <ng-template #trTemplate let-items="items" let-level="level" >
+        <ng-container *ngFor="let item of items; index as i;" >
+            <tr>
+                <td [nzShowExpand]="item.children && item.children.length > 0" [(nzExpand)]="item.expand"></td>
+                <td [nzIndentSize]="level*30" >
+                    <ng-container *ngIf="!item.edit">
+                        <i class="{{item.icon  || 'anticon anticon-edit' }}"></i>
+                    </ng-container>
+                    <ng-container *ngIf="item.edit">
+                        <button nz-button (click)="selectIcon(items, i)"><i class="{{item.icon  || 'anticon anticon-edit' }}"></i></button>
+                    </ng-container>
+                </td>
+                <td>
+                    <ng-container *ngIf="!item.edit">
+                        {{item.displayName}}
+                    </ng-container>
+                    <ng-container *ngIf="item.edit">
+                        <input nz-input type="text" [(ngModel)]="item.displayName"/>
+                    </ng-container>
+                </td>
+                <td>
+                    <ng-container *ngIf="!item.edit">
+                        {{item.description}}
+                    </ng-container>
+                    <ng-container *ngIf="item.edit">
+                        <input nz-input type="text" [(ngModel)]="item.description"/>
+                    </ng-container>
+                </td>
+                <td>
+                    <ng-container *ngIf="!item.edit">
+                        <a title="查看此视图" [routerLink]="['/views/design']" [queryParams]="{id: item.viewId}">{{item.path}}</a>
+                    </ng-container>
+                    <ng-container *ngIf="item.edit">
+                        <nz-input-group [nzSuffix]="inputSuffix" class="input-group">
+                            <input type="text" nz-input readonly placeholder="请选择视图" value="{{item.path}}"
+                                   (mouseover)="item.hover = true" (mouseleave)="item.hover = false" (click)="selectView(items, i)"> />
+                        </nz-input-group>
+                        <ng-template #inputSuffix>
+                            <i (mouseover)="item.hover = true" (click)="clearView(item)"
+                               [class.anticon-close-circle]="item.hover"
+                               [class.anticon-filter]="!item.hover" class="anticon" ></i>
+                        </ng-template>
+                    </ng-container>
+                </td>
+                <td>
+                    <ng-container *ngIf="item.edit">
+                        <button nz-button [nzType]="'primary'" (click)="saveEdit(items, i)">保存</button>
+                        <nz-popconfirm [nzTitle]="'确认取消保存?'" (nzOnConfirm)="cancelEdit(items, i)">
+                            <button nz-button [nzType]="'danger'"  nz-popconfirm>取消</button>
+                        </nz-popconfirm>
+                    </ng-container>
+                    <ng-container *ngIf="!item.edit">
+                        <nz-dropdown-button [nzPlacement]="'bottomCenter'" (click)="startEdit(items, i)">
+                            修改
+                            <ul nz-menu>
+                                <li nz-menu-item (click)="addMenu(item)">添加子菜单</li>
+                            </ul>
+                        </nz-dropdown-button>
+                        <nz-popconfirm [nzTitle]="'确认删除菜单组?'" (nzOnConfirm)="doDelete(items, i)">
+                            <button nz-button [nzType]="'danger'" nz-popconfirm>删除</button>
+                        </nz-popconfirm>
+                        <button nz-button [disabled]="i == 0"       (click)="up(items, i)"      >上移</button>
+                        <button nz-button [disabled]="i == length"  (click)="down(items, i)"    >下移</button>
+                    </ng-container>
+                </td>
+            </tr>
+            <ng-container *ngIf="item.expand">
+                <ng-container *ngTemplateOutlet="trTemplate;context:{items: item.children, level: level + 1}"></ng-container>
+            </ng-container>
+        </ng-container>
+    </ng-template>
+    <ng-container *ngTemplateOutlet="trTemplate;context:{items: menus, level: 0}"></ng-container>
+    </tbody>
+</nz-table>

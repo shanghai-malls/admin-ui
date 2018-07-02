@@ -1,0 +1,22 @@
+<ng-container *ngIf="buttons">
+    <nz-input-group [nzPrefix]="InputPrefix" [nzSuffix]="InputSuffix" *ngIf="setting">
+        <input nz-input [(ngModel)]="button.text"  (blur)="setting=false" />
+    </nz-input-group>
+</ng-container>
+<ng-container *ngIf="!buttons">
+    <nz-input-group [nzPrefix]="InputPrefix" *ngIf="setting">
+        <input nz-input [(ngModel)]="button.text"  (blur)="setting=false" />
+    </nz-input-group>
+</ng-container>
+
+<ng-template #InputPrefix>
+    <i class="anticon anticon-setting" style="cursor: pointer" (click)="openButtonSettingModal()"></i>
+</ng-template>
+<ng-template #InputSuffix>
+    <i class="anticon anticon-delete" style="cursor: pointer" (click)="deleteIt()"></i>
+</ng-template>
+<button nz-button (click)="setting=true" *ngIf="!setting" [nzType]="button.classType">{{button.text}}</button>
+<ng-template #modalBody>
+    <v-form [form]="buttonMetadata" [value]="button"></v-form>
+</ng-template>
+

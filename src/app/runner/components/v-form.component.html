@@ -1,0 +1,8 @@
+<form nz-form>
+    <div nz-row [nzGutter]="form.horizontal * 2" [nzType]="form.flex ? 'flex':null" [nzJustify]="form.justify" [nzAlign]="form.align">
+        <div *ngFor="let cell of form.children; let i = index" nz-col [nzSpan]="cell.width"
+             [style.marginTop.px]="form.vertical" [style.marginBottom.px]="form.vertical" [ngClass]="{hide: i > markCollapseIndex}">
+            <v-part *ngFor="let v of cell.children" [view]="v" ></v-part>
+        </div>
+    </div>
+</form>

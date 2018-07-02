@@ -1,0 +1,38 @@
+<div class="table-top-bar">
+    <button nz-button nzType="primary" (click)="edit()">新建视图</button>
+</div>
+<nz-table [nzFrontPagination]="false" [nzShowPagination]="false" [nzScroll]="{x: '100%'}" [nzData]="displayViews">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>
+            名字
+            <nz-dropdown nzTrigger="click" [nzClickHide]="false">
+                <i class="anticon anticon-smile-o ant-table-filter-icon" nz-dropdown></i>
+                <div class="custom-filter-dropdown">
+                    <input type="text" nz-input placeholder="Search name" [(ngModel)]="searchValue">
+                    <button nz-button [nzType]="'primary'" (click)="filter({name:searchValue})">Search</button>
+                </div>
+            </nz-dropdown>
+        </th>
+        <th>语言</th>
+        <th>路径</th>
+        <th nzRight="0px" style="min-width:120px">操作</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let view of displayViews; index as index">
+        <td>{{view.viewId}}</td>
+        <td>{{view.name}}</td>
+        <td>{{languages[view.language]}}</td>
+        <td>{{view.path}}</td>
+        <td nzRight="0px">
+            <button nz-button (click)="select(view)" *ngIf="subject">选择</button>
+            <ng-container *ngIf="!subject">
+                <button nz-button (click)="edit(view.viewId)" nzType="primary">编辑</button>
+                <button nz-button (click)="delete(view.viewId, index, contentTable.data)" nzType="danger">删除</button>
+            </ng-container>
+        </td>
+    </tr>
+    </tbody>
+</nz-table>

@@ -1,0 +1,36 @@
+@import "../main/workspace.component.less";
+
+
+.@{layout-prefix-cls} {
+    background: @body-background;
+    &-sider {
+        margin-bottom: 81px;
+        .sider-inner-group-list  {
+            padding: 20px;
+            .sider-inner-group-item {
+                line-height: 2.0;
+                margin-top:10px;
+                &:first-child {
+                    margin-top: 7px;
+                }
+                > h4 {
+                    border-bottom: @border-style-base @border-width-base @border-color-base;
+                }
+                &-body {
+                    padding-left: 8px;
+                    > div > div:hover > a {
+                        color: @primary-color !important;
+                    }
+                    a {
+                        color: @text-color;
+                    }
+                }
+            }
+        }
+    }
+    &-content {
+        margin-bottom: 81px;
+    }
+}
+.content-body {
+}

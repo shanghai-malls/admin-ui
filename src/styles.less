@@ -1,54 +1,37 @@
-@import "../node_modules/ng-zorro-antd/src/ng-zorro-antd.less";
+@import "~ng-zorro-antd/src/ng-zorro-antd.less";
+@import "icon";
 
-fieldset {
-    width:100%;
-    border: 1px dashed #e9e9e9;
-    legend {
-        display: block;
-        width: initial !important;
-        padding: 0;
-        font-size: 14px;
-        line-height: inherit;
-        color: rgba(0, 0, 0, 0.43);
-        border: 0;
-        border-bottom: none !important;
-        margin: 1px;
-        margin-left: 5px;
-        margin-bottom: initial !important;
-    }
-    fieldset {
-        padding: 2px;
-        border-left: none;
-        border-right: none;
-        border-bottom: none;
-        legend {
-            margin-left: 25px;
-        }
-    }
+@primary-color: @red-4;
+
+
+
+@slider-track-background-color:       @primary-4;
+@slider-track-background-color-hover: @primary-5;
+@slider-handle-color:                 @primary-4;
+@slider-handle-color-hover:           @primary-5;
+
+
+.disabled{
+    cursor: not-allowed !important;
+    opacity: 0.7;
+}
+.hide {
+    display: none
 }
 
-
-
-.hide {
-    display: none !important;
+.@{input-number-prefix-cls} {
+    width: 100%;
 }
 
 .@{table-prefix-cls}{
     &-thead > tr > th ,
     &-tbody > tr > td {
         word-break: keep-all;
+        text-align: center;
     }
 }
-
 .@{form-prefix-cls}-item-label {
     text-overflow: ellipsis;
-    > label {
-        font-size: 12px;
-    }
-}
-a.active {
-    color: #f5222d !important;
 }
 
-@primary-color          : #373d41;
-@primary-1: color(~`colorPalette("@{blue-6}", 1)`);
+

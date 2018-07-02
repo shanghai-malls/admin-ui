@@ -1,0 +1,93 @@
+@import "../../main/workspace.component.less";
+:host {
+    display: block;
+}
+
+@toolbar-width : @font-size-base + 6px;
+
+.toolbar{
+    display: none;
+    height: auto;
+    width: @toolbar-width;
+    white-space: initial;
+    background: @primary-color;
+    color: #fff;
+    z-index: @zindex-affix;
+    i {
+        cursor: pointer;
+        font-size: @font-size-base;
+        padding: 3px;
+        &:hover {
+            padding-left: 1px;
+            padding-right: 1px;
+            font-size: @font-size-base + 4px;
+        }
+
+        &.delimiter {
+            margin-top: 3px;
+            padding-top: 6px;
+            border-top: @border-color-split @border-width-base @border-style-base;
+        }
+    }
+}
+
+.filter-trigger  .@{iconfont-css-prefix} {
+    color: rgba(0,0,0,0.25);
+}
+
+
+.box {
+    display: -webkit-box;
+    min-height: 90px;
+    &:hover {
+        box-shadow: @box-shadow-base;
+        > .toolbar {
+            display: inline-block;
+        }
+        > .wrapper {
+            .box {
+                box-shadow: @box-shadow-base;
+            }
+            > d-part {
+                >.box,
+                >form >.box {
+                    box-shadow: none;
+                    > .toolbar {
+                        display: none;
+                    }
+                }
+            }
+        }
+    }
+    .wrapper {
+        flex: 1;
+        height: 100%;
+
+        .legend {
+            display: block;
+            width: 100%;
+            max-width: 100%; // 1
+            padding: 0;
+            margin-bottom: .5em;
+            font-size: 1.5em;
+            line-height: inherit;
+            color: inherit; // 2
+            white-space: normal;
+            border-bottom: @border-color-split @border-width-base @border-style-base;
+
+        }
+
+        .required:before {
+            display: inline-block;
+            margin-right: 4px;
+            content: "*";
+            font-family: SimSun;
+            line-height: 1;
+            font-size: @font-size-base;
+            color: @label-required-color;
+        }
+        .selected {
+            background: @background-color-base;
+        }
+    }
+}

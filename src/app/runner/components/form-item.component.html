@@ -1,0 +1,6 @@
+<nz-form-item nzFlex [nzGutter]="12">
+    <nz-form-label [nzSpan]="24 - item.width" [nzRequired]="item.required">{{item.label}}</nz-form-label>
+    <nz-form-control [nzSpan]="item.width" >
+        <ng-content></ng-content>
+    </nz-form-control>
+</nz-form-item>

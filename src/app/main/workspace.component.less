@@ -1,0 +1,158 @@
+@import "../../styles.less";
+@layout-sider-background: @component-background;
+@layout-footer-background: @component-background;
+@layout-header-background: @primary-color;
+@layout-body-background: @background-color-base;
+@layout-content-body-min-height: 360px;
+@header-padding: 16px;
+@content-body-padding: 24px;
+@layout-ease: cubic-bezier(.25, 0, .15, 1);
+@full-logo-width: 200px;
+
+.@{layout-prefix-cls} {
+    &-header {
+        .header-panel {
+            background: inherit;
+            padding: 0 @header-padding;
+            position: fixed;
+            top: 0;
+            left: 0;
+            display: flex;
+            align-items: center;
+            width: 100%;
+            box-shadow: 0 1px 10px rgba(0, 0, 0, 0.2);
+            z-index: @zindex-affix;
+            .logo {
+                width: @full-logo-width;
+                transition: width .2s @layout-ease;
+                margin-left: -@header-padding;
+                a {
+                    display: block;
+                    text-align: center;
+                }
+                img {
+                    vertical-align: middle;
+                    max-width: 100%;
+                    animation: fadeIn 1s;
+                    &.collapsed {
+                        display: none;
+                    }
+                    &.expanded {
+                        display: inline;
+                    }
+                }
+            }
+            .top-nav-wrap {
+                flex: 1;
+                display: flex;
+                justify-content: space-between;
+
+                .top-nav {
+                    margin: 0;
+                    padding: 0;
+                    display: flex;
+                    align-items: center;
+                    > li {
+                        display: inline-block;
+                        vertical-align: middle;
+                    }
+                    .item {
+                        display: block;
+                        border-radius: @border-radius-sm;
+                        text-align: center;
+                        line-height: 100%;
+                        padding: 8px 2px;
+                        min-width: 50px;
+                        transition: background-color 300ms;
+                        cursor: pointer;
+                        outline: none;
+                        &:hover {
+                            background-color: rgba(255, 255, 255, 0.2) !important;
+                        }
+                        i {
+                            font-size: 18px;
+                            line-height: 100%;
+                        }
+
+                    }
+                    .item, nz-badge {
+                        color: #fff !important;
+                    }
+                }
+
+            }
+        }
+    }
+    &-sider {
+        border-right: @border-width-base @border-style-base @border-color-split;
+        &-collapsed {
+            i {
+                //font-size: 18px !important;
+            }
+        }
+    }
+    &-footer {
+        position: fixed;
+        left:0;
+        bottom: 0;
+        width: 100%;
+        border-top: @border-width-base @border-style-base @border-color-split;
+        z-index: @zindex-affix;
+    }
+}
+
+.@{menu-prefix-cls} {
+    &-inline {
+        border-right: none;
+    }
+}
+
+.content-title-well {
+    padding: 1px @header-padding*2;
+    background: @component-background;
+    border-bottom: @border-width-base @border-style-base @border-color-base;
+}
+.content-body {
+    padding:@content-body-padding;
+    min-height: @layout-content-body-min-height;
+    overflow: auto;
+}
+
+.top-nav-wrap::ng-deep {
+    .input-group-blur {
+        .ant-input ,
+        .ant-input-group-addon {
+            background-color: rgba(255,255,255,.2);
+            color: #fff;
+            border: none;
+        }
+        .ant-input::placeholder {
+            color: @text-color-dark
+        }
+    }
+    .input-group-focus {
+        .ant-input ,
+        .ant-input-group-addon {
+            background: @body-background;
+            color: @text-color;
+            border: none;
+        }
+        .ant-input:focus {
+            box-shadow: none;
+            &::placeholder {
+                color: @text-color-secondary
+            }
+        }
+    }
+
+    .ant-select-selection {
+        background-color: rgba(255,255,255,.2);
+        color: #fff;
+        border: none;
+        &:focus {
+            background: @body-background;
+            color: @text-color;
+            border: none;
+        }
+    }
+}
