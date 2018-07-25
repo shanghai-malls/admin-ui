@@ -1,16 +1,19 @@
-import {Component, Input, OnInit} from '@angular/core';
-import {Subject} from 'rxjs/Subject';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {Subject} from 'rxjs';
+import {Selectable} from '../../model/Selectable';
 
 @Component({
     templateUrl: 'icon-management.component.html',
     styleUrls: ['icon-management.component.less']
 })
-export class IconManagementComponent implements OnInit {
-    @Input() subject?: Subject<any>;
+export class IconManagementComponent implements OnInit,Selectable {
     iconResource: any;
     prefix = "anticon anticon-";
     icons: string[];
     searchText: string;
+    mode: "select" | "view" = 'select';
+    @Output()
+    onSelect: EventEmitter<string> = new EventEmitter<string>();
 
 
     ngOnInit(): void {
@@ -725,9 +728,7 @@ export class IconManagementComponent implements OnInit {
     filterIcon() {
         this.icons = this.iconResource.list.filter(item => item.k.indexOf(this.searchText) != -1).map(item => item.k);
     }
-    select(icon: string){
-        if(this.subject) {
-            this.subject.next(this.prefix + icon);
-        }
+    doSelect(icon: string){
+        this.onSelect.next(this.prefix + icon);
     }
 }

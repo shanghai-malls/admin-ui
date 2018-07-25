@@ -1,79 +1,84 @@
-import {Component, Input, OnInit} from '@angular/core';
-import {Subject} from 'rxjs/Subject';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {View, ViewService} from '../../model/view.service';
-import {NzModalService} from 'ng-zorro-antd';
-import {modalZIndex} from '../../model/function';
-import {Router} from '@angular/router';
 import {LANG} from '../../model/message-source';
 import {I18nService} from '../../model/i18n.service';
+import {ModalService} from '../../model/modal.service';
+import {Selectable} from '../../model/Selectable';
 
 @Component({
     templateUrl: 'view-management.component.html',
     styleUrls: ['view-management.component.less']
 })
-export class ViewManagementComponent implements OnInit {
-    @Input() subject?: Subject<any>;
+export class ViewManagementComponent implements OnInit,Selectable {
+
+    @Output()
+    onSelect: EventEmitter<any> = new EventEmitter();
+
+    @Input()
+    mode: 'select' | 'view' = 'view';
+
     views: View[] = [];
     displayViews: View[];
-    languageFilters: { text: string; value: string }[];
     languages = LANG;
-    searchValue: string;
 
-    constructor(private viewService: ViewService, private i18n: I18nService, private modalService: NzModalService, private router: Router) {
-        this.viewService.subscribe(views=>{
-            this.views = views;
-            this.displayViews = [...this.views];
-        })
+    filter: { path?: string; name?: string; } = {};
+
+
+    constructor(private viewService: ViewService, private i18n: I18nService, private modalService: ModalService) {
+
     }
 
     ngOnInit(): void {
-        this.languageFilters = [];
-        for (let lang in this.languages) {
-            this.languageFilters.push({value: lang, text: this.languages[lang]})
-        }
-    }
-
-
-    filter(params: any) {
-        this.displayViews = this.views.filter((v,i)=>{
-            let filter = true;
-            if(params.language) {
-                filter = v.language == params.language;
-            }
-            if(params.name) {
-                filter = filter && v.name.indexOf(params.name) != -1;
-            }
-            return filter;
+        this.viewService.getViews().then(views => {
+            this.views = views;
+            this.displayViews = [...this.views];
+        });
+        this.i18n.subscribe(language => {
+            this.viewService.getViews(language).then(views => {
+                this.views = views;
+                this.displayViews = [...this.views];
+            });
         });
     }
 
-    select(view: any) {
-        if (this.subject) {
-            this.subject.next(view);
-        }
+
+    search() {
+        this.displayViews = this.views.filter((v, i) => {
+            let filtered = true;
+            if (this.filter.name) {
+                filtered = v.name.indexOf(this.filter.name) != -1;
+            }
+            if (this.filter.path) {
+                filtered = filtered && v.path.indexOf(this.filter.path) != -1;
+            }
+            return filtered;
+        });
     }
 
-    delete(viewId: number, index: number, content: any[]) {
+    reset() {
+        this.filter = {};
+        this.displayViews = [...this.views];
+    }
+
+    emit(view: any) {
+        this.onSelect.next(view);
+    }
+
+    delete(path: string) {
         let modalAgent = this.modalService.confirm({
             nzContent: `确定删除视图？`,
-            nzZIndex: modalZIndex(),
-            nzOnCancel: () => {
-                modalAgent.destroy();
-            },
             nzOnOk: () => {
-                this.viewService.deleteView(viewId).then(() => {
-                    content.splice(index, 1);
+                this.viewService.deleteView(path).then(() => {
+                    let index = this.views.findIndex(v => v.path === path);
+                    this.views.splice(index, 1);
+
+                    let displayIndex = this.displayViews.findIndex(v => v.path === path);
+                    this.displayViews.splice(displayIndex, 1);
+
                     modalAgent.destroy();
                 });
             }
         }, 'warning');
     }
 
-    edit(viewId?: number) {
-        let extras;
-        if (viewId != null) {
-            extras = {queryParams: {id: viewId}};
-        }
-        this.router.navigate(["/views/design"], extras);
-    }
 }

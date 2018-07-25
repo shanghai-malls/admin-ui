@@ -1,3 +1,5 @@
+import {FormGroup} from '@angular/forms';
+
 export class Raml {
     ramlVersion: string;
     title: string;
@@ -137,3 +139,37 @@ export const Invisible = {
     detailPageProperties: ['version', 'commandId'],
     formProperties: ['version', 'deleted', 'active', 'createdAt','createdBy', 'updatedAt', 'updatedBy', 'commandId']
 };
+
+
+//
+/**
+ * TODO 现在是为了兼容，将来会删掉这段代码
+ * 上面的toString_前后端都提供了实现，是因为要填id为复杂类型序列化为path的坑
+ * 下面这两个方法也都是为了填各种奇怪字段的坑，像delete，active这样的字段我实在不知道有何意义？ 如果是为了审计，有更好更细粒度的实现，如果不是为了审计，那么这两个字段也是多余。
+ */
+export namespace raml{
+    export function processQueryParameters(queryParameters: any, headers: any[][]){
+        for (let row of headers) {
+            for (let header of row) {
+                if(header.field === 'deleted'){
+                    queryParameters.deleted = false;
+                    break;
+                }
+            }
+        }
+    }
+
+    export function processFormBody(formGroup: FormGroup){
+        if(formGroup.value.hasOwnProperty('active')) {
+            if(formGroup.value.active === null || formGroup.value.active === undefined){
+                formGroup.patchValue({active: true});
+            }
+        }
+        if(formGroup.value.hasOwnProperty('deleted')) {
+            if(formGroup.value.deleted === null || formGroup.value.deleted === undefined){
+                formGroup.patchValue({deleted: false});
+            }
+        }
+    }
+}
+

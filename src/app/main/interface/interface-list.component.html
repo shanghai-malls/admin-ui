@@ -1,36 +1,7 @@
-<ng-template #trTemplate let-resource="resource" let-level="level">
-    <tr>
-        <td [nzShowExpand]="resource.resources" [(nzExpand)]="resource.expand"></td>
-        <td [nzIndentSize]="level*30" >{{resource.relativeUri}}</td>
-        <td>{{resource.displayName}}</td>
-        <td>{{resource.description}}</td>
-        <td>
-            <button *ngIf="subject" (click)="selected(resource)" nz-button>选择</button>
-            <nz-dropdown-button *ngIf="!subject" [nzPlacement]="'bottomCenter'">
-                查看视图
-                <ul nz-menu>
-                    <li nz-menu-item nzDisabled>方法列表</li>
-                    <li nz-menu-divider></li>
-                    <li nz-menu-item *ngFor="let method of resource.methods">
-                        <a [routerLink]="['/views','design']" [queryParams]="{path: resource.qualifiedPath,  method: method.method}" >
-                            <span style="margin-left: 5px">{{method.displayName}}({{method.method | uppercase}})</span>
-                        </a>
-                    </li>
-                </ul>
-            </nz-dropdown-button>
-        </td>
-    </tr>
-    <ng-container *ngIf="resource.expand">
-        <ng-container *ngFor="let subResource of resource.resources">
-            <ng-container *ngTemplateOutlet="trTemplate;context:{resource: subResource, level: level + 1}"></ng-container>
-        </ng-container>
-    </ng-container>
-</ng-template>
 <nz-table #contentTable
           [nzData]="raml.resources || []"
           [nzBordered]="false"
-          [nzShowPagination]="false"
-          [nzScroll]="{x: '100%'}">
+          [nzShowPagination]="false">
     <thead>
     <tr>
         <th nzShowExpand></th>
@@ -41,6 +12,45 @@
     </tr>
     </thead>
     <tbody>
+    <ng-template #trTemplate let-resource="resource" let-level="level">
+        <tr>
+            <td [nzShowExpand]="resource.resources" [(nzExpand)]="resource.expand"></td>
+            <td [nzIndentSize]="level*30" >{{resource.relativeUri}}</td>
+            <td>{{resource.displayName}}</td>
+            <td>{{resource.description}}</td>
+            <td>
+                <nz-dropdown-button *ngIf="mode === 'select'"  [nzPlacement]="'bottomCenter'">
+                    选择
+                    <ul nz-menu>
+                        <li nz-menu-item nzDisabled>方法列表</li>
+                        <li nz-menu-divider></li>
+                        <li nz-menu-item *ngFor="let method of resource.methods" [nzDisabled]="method.body !=null || method.queryParameters != null">
+                            <a (click)="emit(resource,method)">
+                                <span style="margin-left: 5px">{{method.displayName}}({{method.method | uppercase }}) </span>
+                            </a>
+                        </li>
+                    </ul>
+                </nz-dropdown-button>
+                <nz-dropdown-button *ngIf="mode === 'view'" [nzPlacement]="'bottomCenter'">
+                    查看视图
+                    <ul nz-menu>
+                        <li nz-menu-item nzDisabled>方法列表</li>
+                        <li nz-menu-divider></li>
+                        <li nz-menu-item *ngFor="let method of resource.methods">
+                            <a (click)="navigate(resource, method)">
+                                <span style="margin-left: 5px">{{method.displayName}}({{method.method | uppercase }})</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nz-dropdown-button>
+            </td>
+        </tr>
+        <ng-container *ngIf="resource.expand">
+            <ng-container *ngFor="let subResource of resource.resources">
+                <ng-container *ngTemplateOutlet="trTemplate;context:{resource: subResource, level: level + 1}"></ng-container>
+            </ng-container>
+        </ng-container>
+    </ng-template>
     <ng-container *ngFor="let resource of raml.resources">
         <ng-container *ngTemplateOutlet="trTemplate;context:{resource: resource, level: 0 }"></ng-container>
     </ng-container>

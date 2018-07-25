@@ -1,9 +1,9 @@
-import {Component, HostListener, Input, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {Component, Input, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {NzModalService} from 'ng-zorro-antd';
 import {DesignService} from '../../model/design.service';
 import {Cell, Component as UIComponent, Container, Form, Row} from '../../model/ui';
 import {modalZIndex} from '../../model/function';
-import {metadata} from '../../model/design-metadata';
+import {RowSettingComponent} from './settings/row-setting.component';
 
 
 @Component({
@@ -11,7 +11,7 @@ import {metadata} from '../../model/design-metadata';
     templateUrl: 'd-part.component.html',
     styleUrls: ['d-part.component.less']
 })
-export class DesignablePartComponent implements OnInit{
+export class DPartComponent implements OnInit{
     @Input() view: UIComponent;
     @Input() type?: string;
 
@@ -31,19 +31,24 @@ export class DesignablePartComponent implements OnInit{
     }
 
     clear() {
-        this.confirm("确定清空？", () => (<Container>this.view).children = [])
+        this.confirm("确定清空？", () => (<Container<UIComponent>>this.view).children = [])
     }
+
+    settings = {
+        row: RowSettingComponent
+    };
 
     settingComponent(component: any, event: MouseEvent) {
         event.stopPropagation();
-        this.setting = metadata[component.type];
         this.formValue = component;
 
+        let content = this.settings[component.type];
         let agent = this.modalService.create({
             nzWidth: '61.8%',
             nzZIndex: modalZIndex(),
             nzTitle: "设置组件",
-            nzContent: this.modalBody,
+            nzContent: content,
+            nzComponentParams: {value: component},
             nzMaskStyle: {
                 'background-color': 'rgba(0,0,0,0.3)'
             },
@@ -118,9 +123,6 @@ export class DesignablePartComponent implements OnInit{
         return this.designService.isSelected(input);
     }
 
-    hasChildren(cell: Cell){
-        return cell.children && cell.children.length > 0;
-    }
 
     confirm(title: string, callback: () => void) {
         let agent = this.modalService.confirm({
@@ -159,7 +161,7 @@ export class DesignablePartComponent implements OnInit{
     }
 
 
-    @HostListener('document:keydown',['$event'])
+    // @HostListener('document:keydown',['$event'])
     onKeyPress(event: KeyboardEvent){
         event.stopPropagation();
         console.log(event);

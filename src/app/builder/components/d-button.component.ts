@@ -1,53 +1,51 @@
-import {Component, Input, TemplateRef, ViewChild} from '@angular/core';
-import {Button, Form} from '../../model/ui';
-import {NzModalService} from 'ng-zorro-antd';
-import {FormHelper} from '../../model/form';
+import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {Button} from '../../model/ui';
+import {ModalService} from '../../model/modal.service';
+import {ButtonSettingComponent} from './settings/button-setting.component';
 
 @Component({
     selector: 'd-button',
     templateUrl: 'd-button.component.html',
-    styles:[`
+    styles: [`
         :host {
             display: inline-block;
             max-width: 130px;
         }
     `]
 })
-export class DesignableButtonComponent{
-    @Input() button:Button;
-    @Input() buttons: Button[];
+export class DButtonComponent {
+    @Input()
+    button: Button;
 
-    setting: boolean;
+    @Input()
+    removeable?: boolean = false;
 
-    buttonMetadata: Form;
+    @Output()
+    onDelete: EventEmitter<Button> = new EventEmitter<Button>();
 
-    @ViewChild('modalBody')
-    modalBody: TemplateRef<any>;
+    focused: boolean;
 
 
-    constructor(private modalService: NzModalService) {
-
+    constructor(private modalService: ModalService) {
     }
 
-    deleteIt(){
-        let index = this.buttons.indexOf(this.button);
-        this.buttons.splice(index, 1);
+    doDelete() {
+        this.onDelete.next(this.button);
     }
 
-    openButtonSettingModal(){
-        this.buttonMetadata = FormHelper.valueBindForm(  Button.metadata  as Form,  this.button);
-        let agent = this.modalService.create({
-            nzTitle: '设置' + this.button.text +"按钮",
-            nzContent: this.modalBody,
-            nzWidth: '61.8%',
-            nzMaskStyle: {
-                'background-color': 'rgba(0,0,0,0.35)'
-            },
-            nzBodyStyle: {
-                'padding:': '0 40px'
-            },
-            nzOnCancel: () => agent.destroy(),
-            nzOnOk: () => agent.destroy()
-        })
+    doSetting() {
+        this.modalService.openDesignSetting('设置' + this.button.text + '按钮',ButtonSettingComponent, {value: this.button});
+    }
+
+    focus(input: HTMLInputElement) {
+        this.focused = true;
+        setTimeout(() => input.focus(), 50);
+    }
+
+    blur(input: HTMLInputElement) {
+        setTimeout(() => {
+            this.focused = false;
+            input.blur();
+        }, 300);
     }
 }

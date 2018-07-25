@@ -1,4 +1,4 @@
-<ng-template #row let-view="view">
+<ng-container *ngIf="type === 'row'">
     <div class="box">
         <div class="toolbar">
             <span>
@@ -12,7 +12,7 @@
             </span>
         </div>
         <div class="wrapper" [style.paddingLeft.px]="view.vertical" [style.paddingRight.px]="view.vertical">
-            <div nz-row [nzGutter]="view.horizontal * 2" [nzType]="view.flex? 'flex':null"  [nzJustify]="view.justify" [nzAlign]="view.align">
+            <div nz-row [nzGutter]="view.horizontal * 2" nzType="flex" nzJustify="start" nzAlign="top" >
                 <div nz-col [nzSpan]="24" *ngIf="view.label">
                     <div class="legend" [ngClass]="{required: view.required}">
                         {{view.label || view.field || 'legend'}}
@@ -23,8 +23,8 @@
                      [nzSpan]="cell.width"
                      [style.marginTop.px]="view.vertical"
                      [style.marginBottom.px]="view.vertical"
-                     (click)="selectedCell($event, view, i)"
                      draggable="true"
+                     (click)="selectedCell($event, view, i)"
                      (dragstart)="dragstart(i, $event)"
                      (dragover)="dragover($event)"
                      (drop)="drop(i, view.children, $event)" >
@@ -32,52 +32,43 @@
                     <div class="box" [ngClass]="{selected: isSelected(cell)}">
                         <div class="toolbar">
                             <span>
-                                <ng-container *ngIf="hasChildren(cell)">
-                                    <i class="anticon anticon-setting"  (click)="settingComponent(cell.children[0], $event)"></i>
+                                <ng-container *ngIf="cell.content">
+                                    <i class="anticon anticon-setting"  (click)="settingComponent(cell.content, $event)"></i>
                                 </ng-container>
                                 <i class="au au-zoom-in" (click)="zoom(cell, false)"></i>
                                 <i class="au au-zoom-out" (click)="zoom(cell, true)"></i>
-                                <ng-container *ngIf="hasChildren(cell) && cell.children[0].flex != null">
-                                    <i class="au au-arrows-expand-h"    (click)="setSpacing(cell.children[0], true, false)"></i>
-                                    <i class="au au-arrows-shrink-h"    (click)="setSpacing(cell.children[0], true, true)"></i>
-                                    <i class="au au-arrows-expand-v"    (click)="setSpacing(cell.children[0], false,true)"></i>
-                                    <i class="au au-arrows-shrink-v"    (click)="setSpacing(cell.children[0], false, false)"></i>
-                                    <i class="anticon anticon-plus"     (click)="addCell(cell.children[0], $event)"></i>
+                                <ng-container *ngIf="cell.content && cell.content.flex != null">
+                                    <i class="au au-arrows-expand-h"    (click)="setSpacing(cell.content, true, false)"></i>
+                                    <i class="au au-arrows-shrink-h"    (click)="setSpacing(cell.content, true, true)"></i>
+                                    <i class="au au-arrows-expand-v"    (click)="setSpacing(cell.content, false,true)"></i>
+                                    <i class="au au-arrows-shrink-v"    (click)="setSpacing(cell.content, false, false)"></i>
+                                    <i class="anticon anticon-plus"     (click)="addCell(cell.content, $event)"></i>
                                 </ng-container>
                                 <ng-container *ngIf="type !== 'map'">
                                     <i class="anticon anticon-delete delimiter" (click)="removeChild(view,i)"></i>
                                 </ng-container>
                             </span>
                         </div>
-                        <div class="wrapper" *ngFor="let item of cell.children">
-                            <d-part [view]="item"></d-part>
-                        </div>
+                        <ng-container *ngIf="cell.content">
+                            <d-part [view]="cell.content"></d-part>
+                        </ng-container>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</ng-template>
-<ng-container *ngIf="type === 'row'">
-    <ng-container *ngTemplateOutlet="row;context:{view: view}"></ng-container>
 </ng-container>
+
 <ng-container *ngIf="type === 'form'">
-    <form nz-form>
-        <ng-container *ngTemplateOutlet="row;context:{view: view}"></ng-container>
-    </form>
-</ng-container>
-<ng-container *ngIf="type === 'fieldset'">
-    <ng-container *ngTemplateOutlet="row;context:{view: view}"></ng-container>
-</ng-container>
-<ng-container *ngIf="type === 'array'">
-    <ng-container *ngTemplateOutlet="row;context:{view: view}"></ng-container>
-</ng-container>
-<ng-container *ngIf="type === 'map'">
-    <ng-container *ngTemplateOutlet="row;context:{view: view}"></ng-container>
+    <d-form [form]="view"></d-form>
 </ng-container>
 <ng-container *ngIf="type === 'table'">
     <d-table [table]="view"></d-table>
 </ng-container>
+<ng-container *ngIf="type === 'detail-panel'">
+    <d-detail [detailPanel]="view"></d-detail>
+</ng-container>
+
 <ng-container *ngIf="type === 'tab'">
     <nz-tab></nz-tab>
 </ng-container>
@@ -86,106 +77,3 @@
 
     </nz-card>
 </ng-container>
-<ng-container *ngIf="type === 'date'">
-    <d-form-item [item]="view">
-        <nz-date-picker
-            [(ngModel)]="view.value"
-            [nzShowTime]="view.showTime"
-            [nzFormat]="view.format"
-            [nzPlaceholder]="view.description || ''"
-            [nzDisabledDate]="view.disabledDate"></nz-date-picker>
-    </d-form-item>
-</ng-container>
-<ng-container *ngIf="type === 'date-range'">
-    <d-form-item [item]="view">
-        <nz-range-picker
-            [(ngModel)]="view.value"
-            [nzShowTime]="view.showTime"
-            [nzFormat]="view.format"
-            [nzPlaceholder]="[ '开始时间', '结束时间' ]"
-            [nzDisabledDate]="view.disabledDate"></nz-range-picker>
-    </d-form-item>
-</ng-container>
-<ng-container *ngIf="type === 'time'">
-    <d-form-item [item]="view">
-        <nz-time-picker [(ngModel)]="view.value" [nzFormat]="view.format"></nz-time-picker>
-    </d-form-item>
-</ng-container>
-<ng-container *ngIf="type === 'textarea'">
-    <d-form-item [item]="view">
-        <textarea nz-input [(ngModel)]="view.value"  [placeholder]="view.description || ''" [nzAutosize]="view.size || view.auto"></textarea>
-    </d-form-item>
-</ng-container>
-<ng-container *ngIf="type === 'text'">
-    <d-form-item [item]="view">
-        <input nz-input [(ngModel)]="view.value"  [placeholder]="view.description || ''" />
-    </d-form-item>
-</ng-container>
-<ng-container *ngIf="type === 'rich-text'">
-    <d-form-item [item]="view">
-        <textarea nz-input [(ngModel)]="view.value"  [placeholder]="view.description || ''" [nzAutosize]="view.size || view.auto"></textarea>
-    </d-form-item>
-</ng-container>
-<ng-container *ngIf="type === 'number'">
-    <d-form-item [item]="view">
-        <nz-input-number [(ngModel)]="view.value" [nzStep]="view.stride" [nzMax]="view.max" [nzMin]="view.min"></nz-input-number>
-    </d-form-item>
-</ng-container>
-<ng-container *ngIf="type === 'slider'">
-    <d-form-item [item]="view">
-        <nz-slider [(ngModel)]="view.value" [nzStep]="view.stride" [nzMax]="view.max" [nzMin]="view.min" ></nz-slider>
-    </d-form-item>
-</ng-container>
-<ng-container *ngIf="type === 'rate'">
-    <d-form-item [item]="view">
-        <nz-rate [(ngModel)]="view.value" [nzAllowHalf]="view.half" [nzCount]="view.count"></nz-rate>
-    </d-form-item>
-</ng-container>
-<ng-container *ngIf="type === 'select'">
-    <d-form-item [item]="view">
-        <nz-select [(ngModel)]="view.value" [nzPlaceHolder]="view.description || ''" style="width: 100%">
-            <nz-option  *ngFor="let option of view.options" [nzValue]="option.value" [nzLabel]="option.label"></nz-option>
-        </nz-select>
-    </d-form-item>
-</ng-container>
-<ng-container *ngIf="type === 'radio'">
-    <d-form-item [item]="view">
-        <nz-radio-group [(ngModel)]="view.value">
-            <label *ngFor="let option of view.options" nz-radio [nzValue]="option.value">{{option.label}}</label>
-        </nz-radio-group>
-    </d-form-item>
-</ng-container>
-<ng-container *ngIf="type === 'checkbox'">
-    <d-form-item [item]="view">
-        <nz-checkbox-group [(ngModel)]="view.options"></nz-checkbox-group>
-    </d-form-item>
-</ng-container>
-<ng-container *ngIf="type === 'switch'">
-    <d-form-item [item]="view">
-        <nz-switch          *ngIf="view.mode == 'switch'"   [(ngModel)]="view.value"></nz-switch>
-        <label nz-checkbox  *ngIf="view.mode == 'checkbox'" [(ngModel)]="view.value"></label>
-    </d-form-item>
-</ng-container>
-<ng-container *ngIf="type === 'data-picker'">
-    <d-form-item [item]="view">
-        <nz-input-group [nzSuffix]="inputSuffix" class="filter-trigger">
-            <input [(ngModel)]="view.value" nz-input readonly [placeholder]="view.description || ''" (mouseover)="view.hover = true" (mouseleave)="view.hover = false" (click)="showReferenceDialog()"/>
-        </nz-input-group>
-        <ng-template #inputSuffix>
-            <i class="anticon" [ngClass]="{'anticon-close-circle': view.hover, 'anticon-filter': !view.hover}" (mouseover)="view.hover = true" (click)="clearData(items, i)"></i>
-        </ng-template>
-    </d-form-item>
-</ng-container>
-<ng-container *ngIf="type === 'display'">
-    <d-form-item [item]="view">{{view.value}}</d-form-item>
-</ng-container>
-<ng-container *ngIf="type === 'upload'">
-    <d-form-item [item]="view">
-        <nz-upload nzAction="https://jsonplaceholder.typicode.com/posts/">
-            <button nz-button><i class="anticon anticon-upload"></i><span>上传文件</span></button>
-        </nz-upload>
-    </d-form-item>
-</ng-container>
-<ng-template #modalBody>
-    <v-form [form]="setting" [value]="formValue"></v-form>
-</ng-template>

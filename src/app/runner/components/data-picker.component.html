@@ -1,0 +1,12 @@
+<nz-input-group [nzSuffix]="inputSuffix" class="filter-trigger">
+    <input nz-input [readonly]="!editable" [placeholder]="placeholder"
+           (mouseover)="hover = true"
+           (mouseleave)="hover = false"
+           (click)="showReferenceDialog()"
+           (blur)="doTouched()"
+           [(ngModel)]="value"
+    />
+</nz-input-group>
+<ng-template #inputSuffix>
+    <i class="anticon lighter-icon" [class.anticon-close-circle]="hover" [class.anticon-filter]="!hover" (mouseover)="hover = true" (click)="doClear()"></i>
+</ng-template>

@@ -2,42 +2,43 @@ import {Injectable} from '@angular/core';
 import {
     ArrayTypeDeclaration,
     DocumentationItem,
-    Invisible,
     Method,
     ObjectTypeDeclaration,
     PageType,
     Raml,
     Resource,
-    Response,
+    Response, RevisionType,
     SimpleTypeDeclaration,
     TypeDeclaration
 } from './raml';
-import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/toPromise';
+
 import {HttpService} from './http.service';
 import {I18nService} from './i18n.service';
 import {View, ViewService} from './view.service';
 import {
-    ArrayFieldSet,
+    ArrayField,
     Button,
     Card,
     Cell,
     Column,
     Component,
-    DateRangePicker,
+    DatePicker,
+    DateRangePicker, DetailPanel, DisplayText,
     FieldSet,
     Form,
     FormItem,
     InputNumber,
-    MapFieldSet,
+    MapField,
     Row,
     Select,
-    Switch,
-    Table,
+    Switch, Tab,
+    Table, TabSet,
     Text,
     TextArea,
     UploadPicker
 } from './ui';
+import {Setting, SettingService} from './setting.service';
+import {capitalize, isContainsChinese, parseCamelCase} from './function';
 
 @Injectable()
 export class RamlService {
@@ -45,18 +46,18 @@ export class RamlService {
     private response: any;
     private raml: Raml;
 
-    private views: View[];
     private baseUri: string;
 
-    private url = "/api/actuator/metadata";
+    private url = '/api/api.json';
+    private settings: Setting;
 
-    constructor(private http: HttpService, private i18n: I18nService, private viewService: ViewService) {
-
+    constructor(private http: HttpService, private i18n: I18nService, private viewService: ViewService, private settingsService: SettingService) {
+        this.settingsService.subscribe(settings => this.settings = settings);
     }
 
     public getRaml(): Promise<Raml> {
         if (!this.promise) {
-            this.promise = this.http.get<any>(this.url).then(response=> this.mapToRaml(response));
+            this.promise = this.http.get<any>(this.url).then(response => this.mapToRaml(response));
         }
         return this.promise;
     }
@@ -68,16 +69,16 @@ export class RamlService {
         this.raml.description = response.description;
         this.raml.version = response.version;
         if (response.ramlVersion) {
-            this.raml.ramlVersion = response.ramlVersion
+            this.raml.ramlVersion = response.ramlVersion;
         }
         if (response.baseUri) {
-            this.raml.baseUri = response.baseUri
+            this.raml.baseUri = response.baseUri;
         }
         if (response.protocols) {
-            this.raml.protocols = response.protocols
+            this.raml.protocols = response.protocols;
         }
         if (response.mediaType) {
-            this.raml.mediaType = response.mediaType
+            this.raml.mediaType = response.mediaType;
         }
         if (response.documentation) {
             this.raml.documentation = response.documentation.map(r => new DocumentationItem(r.title, r.content));
@@ -95,7 +96,7 @@ export class RamlService {
             }
         }
         if (response.baseUriParameters) {
-            this.raml.baseUriParameters = response.baseUriParameters.map(t => this.resolveType(t))
+            this.raml.baseUriParameters = response.baseUriParameters.map(t => this.resolveType(t));
         }
         if (response.resources) {
             this.raml.resources = response.resources.map(r => this.mapToResource(r));
@@ -117,7 +118,7 @@ export class RamlService {
             resource.methods = res.methods.map(m => this.mapToMethod(m));
         }
         if (res.resources) {
-            resource.resources = res.resources.map(r => this.mapToResource(r, resource)).sort((a,b)=>{
+            resource.resources = res.resources.map(r => this.mapToResource(r, resource)).sort((a, b) => {
                 if (a.resources) {
                     return 1;
                 } else if (b.resources) {
@@ -185,11 +186,11 @@ export class RamlService {
         let properties = [];
 
         if (object.name !== object.type && object.type !== 'object') {
-            let referenceType : TypeDeclaration = this.raml.types[object.type];
+            let referenceType: TypeDeclaration = this.raml.types[object.type];
             if (!referenceType) {
                 let referenceObject = this.response.types[object.type];
                 if (!referenceObject) {
-                    throw new Error("找不到类型" + object.type);
+                    throw new Error('找不到类型' + object.type);
                 }
                 referenceType = this.resolveType(referenceObject);
             }
@@ -219,76 +220,64 @@ export class RamlService {
      * @returns {Promise<View[]>}
      */
     getViews(): Promise<View[]> {
-        return this.getRaml().then(raml=>{
-            this.views = [];
+        return this.getRaml().then(raml => {
+            let views = [];
             this.baseUri = this.raml.baseUri;
             if (this.baseUri.endsWith('/')) {
                 this.baseUri = this.baseUri.substring(0, this.baseUri.length - 1);
             }
             for (let resource of raml.resources) {
-                this.convertResource(resource);
+                this.convertResource(resource, views);
             }
-            return this.views;
+            return views;
         });
     }
 
-    private convertResource(resource: Resource) {
+    private convertResource(resource: Resource, views: View[]) {
         if (resource.methods) {
             for (let method of resource.methods) {
-                if(method.method === 'get') {
-                    this.createView(resource, method);
-                }
+                views.push(this.createView(resource, method));
             }
         }
         if (resource.resources) {
             for (let subResource of resource.resources) {
-                this.convertResource(subResource);
+                this.convertResource(subResource, views);
             }
         }
     }
 
-    private createView(resource: Resource, method: Method){
-        let view = new View();
-        this.views.push(view);
+    private createView(resource: Resource, method: Method): View {
 
-        view.viewId = this.viewService.getCurrentId();
-        view.language = this.i18n.getLocale();
-        view.name = method.description;
-        if(method.method === 'get') {
-            view.path = resource.qualifiedPath;
-            view.data = this.createGetPage(resource, method);
+        let language = this.i18n.getLocale();
+        let name = method.description;
+
+        let path, data;
+        if (method.method === 'get') {
+            path = resource.qualifiedPath;
+            data = this.createGetPage(resource, method);
         } else {
-            view.path = resource.qualifiedPath + "." + method.method;
-            view.data = this.createNonGetPage(resource, method);
+            path = resource.qualifiedPath + '.' + method.method;
+            data = this.createNonGetPage(resource, method);
         }
 
-        return view;
+        return {language, name, path, data};
     }
 
-
-    private createGetPage(resource: Resource, action: Method): Row{
+    private createGetPage(resource: Resource, action: Method): Component {
         let {queryParameters, responses} = action;
         let response = responses.find(resp => resp.code === 200);
         let body = response.body[0];
 
-        let children = [];
         if (body.type === PageType || body instanceof ArrayTypeDeclaration) {
-            children.push(this.createTable(resource, action, body, queryParameters));
+            return this.createTable(resource, action, body, queryParameters);
         } else {
-            children.push(this.createCard(body));
+            return this.createDetailPanel(resource, action, body);
         }
 
-        return new Row({
-            children: [
-                new Cell({width: 24, children})
-            ]
-        });
     }
 
     private createTable(resource: Resource, method: Method, body: TypeDeclaration, queryParameters: TypeDeclaration[]) {
         let table = new Table();
-        table.url = this.baseUri + resource.qualifiedPath;
-        table.bordered = false;
 
         let elementType;
 
@@ -300,15 +289,30 @@ export class RamlService {
             elementType = (<ArrayTypeDeclaration>body).items;
         }
 
-        table.columns = this.elementTypeToColumns(elementType);
+        table.columns = this.elementTypeToColumns(elementType, table);
+
+        let path = this.baseUri + resource.qualifiedPath;
+        table.queryForm = new Form({
+            path,
+            method: 'get',
+            buttonsPlacement: 'line-end',
+            submitButton:   new Button({text: this.translateTextToEnglish('查询'), triggerType: 'none', classType: 'primary'}),
+            clearButton:    new Button({text: this.translateTextToEnglish('清除'), triggerType: 'none'})
+        });
 
         if (queryParameters && queryParameters.length > 0) {
-
-            let children = this.queryParametersToForm(queryParameters);
+            let children = this.propertiesToCells('q', queryParameters);
             if (children.length > 0) {
-                table.queryForm = new Form({children});
-                table.queryButton = new Button({text: this.translateTextToEnglish('查询'), triggerType: 'none', classType: 'primary'});
-                table.clearButton = new Button({text: this.translateTextToEnglish('清除'), triggerType: 'none'});
+                let collapsible = false;
+                let totalWidth = 8; //buttons width
+                for (let cell of children) {
+                    totalWidth += cell.width;
+                }
+                if (totalWidth > 24) {
+                    collapsible = true;
+                }
+                table.queryForm.collapsible = collapsible;
+                table.queryForm.children = children;
             }
         }
 
@@ -320,100 +324,376 @@ export class RamlService {
             let itemResource = resource.resources[0];
             table.operationColumnButtons = itemResource.methods
                 .filter(action => action.method !== 'patch')
-                .map(action => this.methodToButton(resource, action));
+                .map(action => this.methodToButton(itemResource, action));
         }
 
 
         return table;
     }
 
-    private createCard( body: TypeDeclaration) {
+    private createDetailPanel(resource: Resource, method: Method, body: TypeDeclaration) {
+
+        let path = this.baseUri + resource.qualifiedPath;
+
+
         let properties = [body];
         if (body instanceof ObjectTypeDeclaration) {
             properties = body.properties;
         }
 
-        return new Card({
-            children: [
-                new Form({
-                    children: properties
-                        .map(p => this.propertyToFormItem(p, true))
-                        .map(RamlService.wrappedInCell)
-                })
-            ]
+        let resultForm = new Form({
+            autoLoadUrl: path,
+            buttonsPlacement: 'none',
+            header: method.description,
+            children: this.propertiesToCells('d', properties),
+        });
+
+        let tabset;
+        if (resource.resources) {
+            let children = [];
+            for (let subResource of resource.resources) {
+                if (subResource.methods) {
+                    for (let subMethod of subResource.methods) {
+                        if (subMethod.method === 'get') {
+                            let path = subResource.qualifiedPath;
+                            let title = subMethod.description;
+                            children.push(new Tab({path, title}));
+                        }
+                    }
+                }
+            }
+            if (children.length > 0) {
+                tabset = new TabSet({children});
+            }
+        }
+
+        return new DetailPanel({
+            title: method.description, resultForm, tabset
         });
     }
 
     private createNonGetPage(resource: Resource, action: Method): Form {
-        let path = resource.qualifiedPath;
-        let method = action.method;
+        let {queryParameters, headers, body, description, method} = action;
+        let path = this.baseUri + resource.qualifiedPath;
+        let contentType = 'application/x-www-form-urlencoded';
+        let formParameters = queryParameters;
+        let header = description;
+        let autoLoadUrl;
 
-        let {queryParameters, headers, body} = action;
+
         if (body && body.length > 0) {
             let bodyItem = body[0]; //TODO 后面增加contentType的切换功能，以便能支持同一视图多种形态（目前仅patch存在这种情况)
-
-            let contentType = bodyItem.name;
-            let params = [bodyItem];
+            contentType = bodyItem.name;
+            let bodyParameters = [bodyItem];
             if (bodyItem instanceof ObjectTypeDeclaration) {
-                params = bodyItem.properties.filter(p => !(p instanceof ArrayTypeDeclaration));
+                bodyParameters = bodyItem.properties;
             }
-            return this.createForm(params, headers, {path, method, contentType});
-        } else if (queryParameters) {
-            return this.createForm(queryParameters, headers, {path, method});
+            formParameters = bodyParameters;
+
+            if (method === 'put') {
+                for (let m1 of resource.methods) {
+                    if (m1.method === 'get') {
+                        for (let resp of m1.responses) {
+                            if (resp.code < 300 && resp.code > 199) {
+                                if (resp.body[0].type === body[0].type) {
+                                    autoLoadUrl = path;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if (headers && headers.length > 0) {
+            // formParameters.splice(0, 0, new ObjectTypeDeclaration({name: "Header", type: 'object'}, headers));
+        }
+
+        let children = this.propertiesToCells('f', formParameters || []);
+
+
+        return new Form({
+            path,
+            method,
+            contentType,
+            header,
+            children,
+            autoLoadUrl
+        });
+    }
+
+    private propertiesToCells(mode: string, properties: TypeDeclaration[]) {
+        let items: FormItem[] = [];
+        for (let property of properties) {
+            this.flatTypeDeclarationAndConvertToFormItem(mode, items, property);
+        }
+        this.processI18NInvisible(mode, items);
+
+        let cells = [];
+        for (let item of items) {
+            if (item.hide) {
+                cells.push(new Cell({width: 0, content: item}));
+            } else if (item instanceof FieldSet || item instanceof ArrayField || item instanceof MapField) {
+                cells.push(new Cell({width: 24, content: item}));
+            } else if (item instanceof TextArea) {
+                cells.push(new Cell({width: 16, content: item}));
+            } else {
+                cells.push(new Cell({width: 8, content: item}));
+            }
+        }
+        return cells;
+    }
+
+    private flatTypeDeclarationAndConvertToFormItem(mode: string, items: FormItem[], property: TypeDeclaration, prefix?: string) {
+        if (property instanceof ObjectTypeDeclaration) {
+            if(property.additionalProperties) {
+                let {required, description, name, displayName, defaultValue} = property;
+                items.push(new MapField({required, description, name, displayName, defaultValue}));
+            } else {
+                for (let innerProperty of property.properties) {
+                    let currentPrefix = property.name;
+                    if (prefix) {
+                        currentPrefix = prefix + '.' + currentPrefix;
+                    }
+                    this.flatTypeDeclarationAndConvertToFormItem(mode, items, innerProperty, currentPrefix);
+                }
+            }
+        } else if (property instanceof SimpleTypeDeclaration) {
+            items.push(this.convertToFormItem(mode, property, prefix));
+        } else if (property instanceof ArrayTypeDeclaration) {
+            let {required, description, name, displayName, defaultValue} = property;
+            items.push(new ArrayField({required, description, name, displayName, defaultValue}));
         }
     }
 
-    private createForm(params: TypeDeclaration[], headers: TypeDeclaration[], def: any): Form {
-        let form = new Form(def);
+    private convertToFormItem(mode: string, q: SimpleTypeDeclaration, prefix?: string){
 
-        let children = [];
-        if (headers && headers.length > 0) {
-            children.push(
-                new FieldSet({
-                    field: 'headers',
-                    label: '请求头信息',
-                    children: headers.map(h => this.propertyToFormItem(h, false))
-                })
-            );
+        let {required, description, name, displayName, defaultValue} = q;
+
+        let field = prefix ? prefix + '.' + name : name;
+
+        let def: any = {
+            required,
+            field,
+            description,
+            label: displayName,
+            value: defaultValue,
+        };
+
+        this.translateToEnglish(def);
+
+        if(mode === 'd') {
+            return new DisplayText(def);
         }
 
-        for (let param of params) {
-            if(param instanceof ArrayTypeDeclaration) {
-                if(!(param.items instanceof SimpleTypeDeclaration)) {
+        if(mode === 'f') {
+            if (q.type === 'boolean') {
+                return new Switch(def);
+            }
+
+            if (q.hasOwnProperty('options')) {
+                return new Select({...def, options: q['options']});
+            }
+
+            if (q.type === 'number' || q.type === 'integer') {
+                return new InputNumber({...def, max: q.maximum, min: q.minimum,});
+            }
+
+            if (q.type === 'datetime') {
+                return new DatePicker(def);
+            }
+
+            if (q.type === 'date-only') {
+                return new DatePicker({...def, showTime: false});
+            }
+
+            if (q.type === 'file') {
+                return new UploadPicker(def);
+            }
+
+            def.minLength = q.minLength;
+            def.maxLength = q.maxLength;
+
+            if (q.type === 'any' || q.type === 'string') {
+                if (q.maxLength > 255) {
+                    return new TextArea({...def, width: 20});
+                }
+            }
+
+            return new Text(def);
+        }
+
+        if(mode === 'q') {
+            if (q.type === 'boolean') {
+                return new Switch(def);
+            }
+
+            if (q.hasOwnProperty('options')) {
+                return new Select({...def, options: q['options']});
+            }
+
+            if (q.type === 'number' || q.type === 'integer') {
+                return new InputNumber({...def,});
+            }
+
+            if (q.type === 'datetime') {
+                return new DateRangePicker(def);
+            }
+            if (q.type === 'date-only') {
+                return new DateRangePicker({...def, showTime: false});
+            }
+
+            if (q.type === 'any' || q.type === 'string') {
+                if (q.maxLength > 255) {
+                    return new TextArea({...def, width: 20});
+                }
+            }
+            return new Text(def);
+        }
+
+    }
+
+    private elementTypeToColumns(elementType: ObjectTypeDeclaration, table: Table): Column[] {
+        let columns = [];
+        for (let p of elementType.properties) {
+
+            if(p instanceof ArrayTypeDeclaration) {
+                continue;
+            }
+
+            if(elementType.type === RevisionType) {
+                if(p.name === 'revisionNumber' || p.name === 'revisionDate') {
                     continue;
                 }
             }
-            let cell = RamlService.wrappedInCell(this.propertyToFormItem(param, false));
-            if(Invisible.formProperties.indexOf(param.name) !== -1) {
-                cell.width = 0;
-            }
-            children.push(cell);
-        }
 
-        form.children = children;
-
-        return form;
-    }
-
-    private propertyToFormItem(q: TypeDeclaration, readonly: boolean): Component {
-        if (q instanceof SimpleTypeDeclaration) {
-            let def = {
-                field: q.name,
-                label: q.displayName,
-                description: q.description,
-                readonly,
+            let def: any = {
+                type: p.type,
+                field: p.name,
+                title: p.displayName,
+                index: columns.length
             };
-
             this.translateToEnglish(def);
 
+            if (this.settings.invisibleColumns.indexOf(p.name) !== -1) {
+                def.hide = true;
+            }
+
+            if (p instanceof ObjectTypeDeclaration) {
+                def.columns = this.elementTypeToColumns(p, table);
+                table.bordered = true;
+            }
+
+            columns.push(new Column(def));
+        }
+        return columns;
+    }
+
+    private processI18NInvisible(mode: string, items: FormItem[]){
+        let hideProperties;
+        if (mode === 'q') {
+            hideProperties = this.settings.invisibleQueryParameters;
+        } else if (mode === 'd') {
+            hideProperties = this.settings.invisibleDetailPageProperties;
+        } else if (mode === 'f') {
+            hideProperties = this.settings.invisibleFormProperties;
+        }
+
+        if(hideProperties) {
+            items.forEach(item => item.hide = hideProperties.indexOf(item.field) !== -1);
+        }
+    }
+
+    private translateToEnglish(def: any) {
+        if (this.i18n.getLocale() === 'en') {
+            if (def.hasOwnProperty('title')) {
+                if (isContainsChinese(def.title)) {
+                    def.title = capitalize(parseCamelCase(def.field));
+                }
+            } else if (def.hasOwnProperty('label')) {
+                if (isContainsChinese(def.label)) {
+                    def.label = capitalize(parseCamelCase(def.field));
+                }
+                if (isContainsChinese(def.description)) {
+                    def.description = def.label;
+                }
+            }
+        }
+    }
+
+    private translateTextToEnglish(text: string) {
+        if (this.i18n.getLocale() === 'en') {
+            if (text === '查询') {
+                return 'Query';
+            }
+            if (text === '清除') {
+                return 'Clear';
+            }
+            if (text === '修改') {
+                return 'Edit';
+            }
+            if (text === '删除') {
+                return 'Delete';
+            }
+            if (text === '查看') {
+                return 'Go';
+            }
+            if (text === '新建') {
+                return 'New';
+            }
+        }
+        return text;
+    }
+
+    private methodToButton(resource: Resource, action: Method): Button {
+        const text = this.translateTextToEnglish(action.displayName);
+        const description = action.description;
+        const method = action.method;
+        let path = this.baseUri + resource.qualifiedPath;
+
+        if ((action.body && action.body.length > 0) || (action.queryParameters && action.queryParameters.length > 0)) {
+            path = resource.qualifiedPath + '.' + action.method;
+            return Button.modal({text, method, description, path});
+        }
+
+        if (action.method === 'get') {
+            path = resource.qualifiedPath;
+            return Button.link({text, method, description, path});
+        }
+
+        return Button.danger({text, method, description, path});
+    }
+
+
+    /************************************不用的代码********************************************/
+
+    private isSimpleFormItem(item: FormItem): boolean {
+        return !(item instanceof FieldSet || item instanceof MapField || item instanceof ArrayField);
+    }
+
+    private isSimpleFormItemOrFieldSet(item: FormItem): boolean {
+        return item instanceof FieldSet || !(item instanceof MapField || item instanceof ArrayField);
+    }
+
+    private propertyToFormItem2(q: TypeDeclaration, readonly: boolean): FormItem | FieldSet {
+        let def: any = {
+            required: q.required,
+            field: q.name,
+            label: q.displayName,
+            description: q.description,
+            readonly,
+        };
+        this.translateToEnglish(def);
+
+        if (q instanceof SimpleTypeDeclaration) {
             if (q.type === 'boolean') {
-                return new Switch(def)
+                return new Switch(def);
             }
 
             if (q.hasOwnProperty('options')) {
                 return new Select({
                     ...def, options: q['options'],
-                })
+                });
             }
 
             if (q.type === 'number' || q.type === 'integer') {
@@ -423,75 +703,78 @@ export class RamlService {
             }
 
             if (q.type === 'datetime') {
-                return new DateRangePicker(def)
+                return new DatePicker(def);
             }
 
             if (q.type === 'date-only') {
-                return new DateRangePicker({
+                return new DatePicker({
                     ...def, showTime: false,
-                })
+                });
             }
 
             if (q.type === 'file') {
-                return new UploadPicker(def)
+                return new UploadPicker(def);
             }
+
+            def.minLength = q.minLength;
+            def.maxLength = q.maxLength;
 
             if (q.type === 'any' || q.type === 'string') {
                 if (q.maxLength > 255) {
                     return new TextArea({
                         ...def, width: 20,
-                    })
+                    });
                 }
             }
 
-            return new Text(def)
+            return new Text(def);
         }
         else if (q instanceof ObjectTypeDeclaration) {
             if (q.additionalProperties) {
-                let keyTypeDeclaration = {type: 'string', pattern: q.properties[0].name};
+                let valueType = q.properties[0];
+                let pattern = valueType.name;
 
-                let keyType = new SimpleTypeDeclaration(keyTypeDeclaration);
-                keyType.displayName = '请输入key';
-                keyType.description = '请输入key';
-                keyType.name = 'key';
 
-                let valueType = new SimpleTypeDeclaration(q.properties[0]);
+                if (valueType instanceof SimpleTypeDeclaration) {
+                    valueType = new SimpleTypeDeclaration(valueType);
+                }
+                else if (valueType instanceof ObjectTypeDeclaration) {
+                    valueType = new ObjectTypeDeclaration(valueType, valueType.properties);
+                }
+                else if (valueType instanceof ArrayTypeDeclaration) {
+                    valueType = new ArrayTypeDeclaration(valueType, valueType.items);
+                }
                 valueType.displayName = '请输入value';
                 valueType.description = '请输入value';
-                valueType.name = 'value';
+                valueType.name = 'val';
 
-                let children = [
-                    new Cell({order: 0, children: [this.propertyToFormItem(keyType, readonly)]}),
-                    new Cell({order: 1, children: [this.propertyToFormItem(valueType, readonly)]}),
-                ];
+                let keyType = new SimpleTypeDeclaration({
+                    name: 'key',
+                    type: 'string',
+                    required: true,
+                    pattern: pattern,
+                    displayName: '请输入key',
+                    description: '请输入key'
+                });
 
-                return new MapFieldSet({children});
+
+                def.key = this.propertyToFormItem2(keyType, readonly);
+                def.val = this.propertyToFormItem2(valueType, readonly);
+                def.minLength = q.minProperties;
+                def.maxLength = q.maxProperties;
+
+                return new MapField(def);
             } else {
-                return new FieldSet({children: q.properties.map(prop => this.propertyToFormItem(prop, readonly)).map(RamlService.wrappedInCell)});
+                def.children = q.properties.map(prop => this.propertyToFormItem2(prop, readonly)).map(RamlService.wrappedInCell);
+                return new FieldSet(def);
             }
         }
         else if (q instanceof ArrayTypeDeclaration) {
-            let itemType = q.items;
-            let children;
-            if (itemType instanceof ObjectTypeDeclaration) {
-                children = itemType.properties.map(prop => this.propertyToFormItem(prop, readonly))
-            } else {
-                children = [this.propertyToFormItem(itemType, readonly)];
-            }
-            return new ArrayFieldSet({children: children.map(RamlService.wrappedInCell)});
+            def.minLength = q.minItems;
+            def.maxLength = q.maxItems;
+            def.items = this.propertyToFormItem2(q.items, readonly);
+            return new ArrayField(def);
         }
-    }
-
-    private queryParametersToForm(queryParameters: TypeDeclaration[]): Cell[] {
-        let children = [];
-        for (let q of queryParameters) {
-            if (q instanceof SimpleTypeDeclaration) {
-                if (Invisible.queryParameters.indexOf(q.name) === -1) {
-                    children.push(this.queryParameterToFormItem(q));
-                }
-            }
-        }
-        return children.map(RamlService.wrappedInCell);
     }
 
     private queryParameterToFormItem(q: SimpleTypeDeclaration): FormItem {
@@ -500,127 +783,55 @@ export class RamlService {
             label: q.displayName,
             description: q.description
         };
-        this.translateToEnglish(def);
 
         if (q.type === 'boolean') {
-            return new Switch(def)
+            return new Switch(def);
         }
 
         if (q.hasOwnProperty('options')) {
-            return new Select({...def, options: q['options'],})
+            return new Select({...def, options: q['options']});
         }
 
         if (q.type === 'number' || q.type === 'integer') {
-            return new InputNumber({...def, max: q.maximum, min: q.minimum,});
+            return new InputNumber({...def,});
         }
 
         if (q.type === 'datetime') {
-            return new DateRangePicker(def)
+            return new DateRangePicker(def);
         }
         if (q.type === 'date-only') {
-            return new DateRangePicker({...def, showTime: false})
+            return new DateRangePicker({...def, showTime: false});
         }
 
         if (q.type === 'any' || q.type === 'string') {
             if (q.maxLength > 255) {
                 def['width'] = 20;
-                return new TextArea(def)
+                return new TextArea(def);
             }
         }
 
-        return new Text(def)
+        return new Text(def);
     }
 
-    private static wrappedInCell(item: Component): Cell {
-        if (item instanceof Row) {
-            return new Cell({width: 24, children: [item]});
+    private static wrappedInCell(item: FormItem | FieldSet): Cell {
+
+        if (item instanceof Row || item instanceof ArrayField || item instanceof MapField) {
+            return new Cell({width: 24, content: item});
         } else if (item instanceof TextArea) {
-            return new Cell({width: 16, children: [item]});
+            return new Cell({width: 16, content: item});
         } else {
-            return new Cell({children: [item]});
+            return new Cell({width: 8, content: item});
         }
     }
 
-    private translateToEnglish(def: any){
-        if(this.i18n.getLocale() === 'en') {
-            if(def.hasOwnProperty('title')) {
-                if(/.*[\u4e00-\u9fa5]+.*$/.test(def.title)) {
-                    def.title = def.field.replace(/([a-z](?=[A-Z]))/g, '$1 ');
-                    def.title = def.title[0].toUpperCase() + def.title.slice(1);
-                }
-            } else {
-                if(/.*[\u4e00-\u9fa5]+.*$/.test(def.label)) {
-                    def.label = def.field.replace(/([a-z](?=[A-Z]))/g, '$1 ');
-                    def.label = def.label[0].toUpperCase() + def.label.slice(1);
-                }
-                if(/.*[\u4e00-\u9fa5]+.*$/.test(def.description)) {
-                    def.description = def.label;
-                }
-            }
+    private queryParametersToForm(queryParameters: TypeDeclaration[]): Cell[] {
+        let children = [];
+        for (let queryParameter of queryParameters) {
+            this.flatTypeDeclarationAndConvertToFormItem('q', children, queryParameter)
         }
+        this.processI18NInvisible('q', children);
+        return null;
     }
 
-    private translateTextToEnglish(text: string){
-        if(this.i18n.getLocale() === 'en'){
-            if(text === '查询') {
-                return 'Query';
-            }
-            if(text === '清除') {
-                return 'Clear';
-            }
-            if(text === '修改') {
-                return 'Edit';
-            }
-            if(text === '删除') {
-                return 'Delete';
-            }
-            if(text === '查看') {
-                return 'Go';
-            }
-        }
-        return text;
-    }
 
-    private elementTypeToColumns(elementType: ObjectTypeDeclaration): Column[] {
-        let columns = [];
-        for (let p of elementType.properties) {
-            if(p instanceof ArrayTypeDeclaration) {
-                continue;
-            }
-            let def: any = {
-                field: p.name,
-                title: p.displayName,
-                index: columns.length,
-            };
-            this.translateToEnglish(def);
-
-            if(Invisible.columns.indexOf(p.name) !== -1) {
-                def.hide = true;
-            }
-
-            if (p instanceof ObjectTypeDeclaration) {
-                def.columns = this.elementTypeToColumns(p);
-            }
-            columns.push(new Column(def));
-        }
-        return columns;
-    }
-
-    private methodToButton(resource: Resource, action: Method): Button {
-        const text = this.translateTextToEnglish(action.displayName);
-        const description = action.description;
-        const method = action.method;
-        const path = resource.qualifiedPath;
-
-        if ((action.body && action.body.length > 0) || (action.queryParameters && action.queryParameters.length > 0)) {
-            const {path} = this.createView(resource, action);
-            return Button.modal({text, description, method, path});
-        }
-
-        if (action.method === 'get') {
-            return new Button({text, description, method, path});
-        }
-
-        return Button.danger({text, description, method, path});
-    }
 }

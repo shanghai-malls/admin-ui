@@ -1,62 +1,61 @@
-<nz-card *ngIf="table.queryForm">
-    <d-part [view]="table.queryForm"></d-part>
-    <div style="text-align: right;padding-bottom: 10px; ">
-        <d-button [button]="table.queryButton"></d-button>
-        <d-button [button]="table.clearButton"></d-button>
-        <a routerLink="#" style="margin-left:8px;color: black; font-weight: 600"><i class="anticon anticon-up"></i></a>
-    </div>
-</nz-card>
+<div>
+    <d-form [form]="table.queryForm"></d-form>
 
-
-<div class="table-top-bar">
-    <ng-container *ngFor="let button of table.buttons">
-        <d-button [button]="button" [buttons]="table.buttons"></d-button>
-    </ng-container>
-    <button nz-button [nzType]="'dashed'" (click)="addTopButton()" title="添加按钮"><i class="anticon anticon-plus"></i></button>
-</div>
-
-<nz-table [nzData]="[1]"
-          [nzShowPagination]="table.showPagination"
-          [nzBordered]="table.bordered"
-          [nzScroll]="{x: '100%'}">
-    <thead>
-    <tr *ngFor="let row of headers;let first = first">
-        <ng-container *ngFor="let header of row; let j = index;">
-            <th *ngIf="header.show"
-                [attr.rowspan]="header.rowspan"
-                [attr.colspan]="header.colspan"
-
-                draggable="true"
-                (dragstart)="dragstart(j, $event)"
-                (dragover)="dragover($event)"
-                (drop)="drop(j, header, $event)">
-                <span *ngIf="!header.onedit" (click)="header.onedit = true">{{header.title}}</span>
-                <input *ngIf="header.onedit"  nz-input [(ngModel)]="header.title"  (blur)="header.onedit=false"  style="min-width: 150px"/>
-            </th>
-        </ng-container>
-        <th *ngIf="first" colspan="1" nzWidth="400px" nzRight="0px" [attr.rowspan]="headers.length">
-            <nz-popover [nzTitle]="'选择隐藏的列'" [nzTrigger]="'click'">
-                操作<i style="cursor: pointer" class="anticon anticon-down" nz-popover ></i>
-                <ng-template #nzTemplate>
-                    <d-column-list [columns]="table.columns"></d-column-list>
-                </ng-template>
-            </nz-popover>
-        </th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-        <ng-container *ngFor="let column of dataColumns" >
-            <td *ngIf="!column.hide"></td>
-        </ng-container>
-        <td nzRight="0px">
-            <div class="table-top-bar" style="text-align: left">
-                <ng-container *ngFor="let button of table.operationColumnButtons">
-                    <d-button [button]="button" [buttons]="table.operationColumnButtons"></d-button>
+    <ng-template #buttons>
+        <ul class="d-buttons">
+            <li>
+                <nz-switch [(ngModel)]="table.bordered" [nzCheckedChildren]="'显示边框'" [nzUnCheckedChildren]="'隐藏边框'"></nz-switch>
+            </li>
+            <li>
+                <ng-container *ngFor="let button of table.buttons">
+                    <d-button [button]="button" [removeable]="true" (onDelete)="deleteTopButton($event)"></d-button>
                 </ng-container>
-                <button nz-button [nzType]="'dashed'" (click)="addOperationColumnButton()"  title="添加按钮"><i class="anticon anticon-plus"></i></button>
-            </div>
-        </td>
-    </tr>
-    </tbody>
-</nz-table>
+                <button class="hover-show" nz-button [nzType]="'dashed'" (click)="addTopButton()" title="添加按钮"><i class="anticon anticon-plus"></i></button>
+            </li>
+        </ul>
+    </ng-template>
+
+    <nz-table [nzData]="[1]" [nzShowPagination]="table.showPagination" [nzBordered]="table.bordered" [nzScroll]="{x: '100%'}" [nzTitle]="buttons">
+        <thead>
+        <tr *ngFor="let row of headers; let i = index; let first = first">
+            <ng-container *ngFor="let header of row; let j = index;">
+                <th *ngIf="header.show"
+                    class="header"
+                    [attr.rowspan]="header.rowspan"
+                    [attr.colspan]="header.colspan"
+
+                    draggable="true"
+                    (dragstart)="dragstart(j, $event)"
+                    (dragover)="dragover($event)"
+                    (drop)="drop(j, header, $event)">
+
+                    <d-header [header]="header" (onEnter)="focusChild($event)"> </d-header>
+                </th>
+            </ng-container>
+            <th *ngIf="first" colspan="1" style="min-width: 200px" nzRight="0px" [attr.rowspan]="headers.length">
+                <nz-popover [nzTitle]="'选择隐藏的列'" [nzTrigger]="'click'">
+                    操作<i style="cursor: pointer" class="anticon anticon-down" nz-popover ></i>
+                    <ng-template #nzTemplate>
+                        <d-column-list [columns]="table.columns"></d-column-list>
+                    </ng-template>
+                </nz-popover>
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <ng-container *ngFor="let column of dataColumns" >
+                <td *ngIf="!column.hide"></td>
+            </ng-container>
+            <td nzRight="0px">
+                <div style="text-align: left" class="d-buttons">
+                    <ng-container *ngFor="let button of table.operationColumnButtons">
+                        <d-button [button]="button" [removeable]="true" (onDelete)="deleteOperationColumnButton($event)"></d-button>
+                    </ng-container>
+                    <button nz-button [nzType]="'dashed'" (click)="addOperationColumnButton()"  title="添加按钮"><i class="anticon anticon-plus"></i></button>
+                </div>
+            </td>
+        </tr>
+        </tbody>
+    </nz-table>
+</div>

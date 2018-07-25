@@ -4,10 +4,8 @@ import zh from '@angular/common/locales/zh';
 import en from '@angular/common/locales/en';
 import * as zorro from 'ng-zorro-antd';
 import {TranslateService} from './translate.service';
-import * as ms from './message-source'
-import {Observable} from 'rxjs/Observable';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {Subject} from 'rxjs/Subject';
+import * as ms from './message-source';
+import {Subject} from 'rxjs';
 
 @Injectable()
 export class I18nService {
@@ -15,11 +13,13 @@ export class I18nService {
     private localeKey = 'locale';
     private localeSubject = new Subject();
 
-    constructor(private nzI18n: zorro.NzI18nService, private translateService: TranslateService) {}
+    constructor(private nzI18n: zorro.NzI18nService, private translateService: TranslateService) {
+
+    }
 
 
     setLocale(locale: string) {
-        if(this.locale !== locale) {
+        if (this.locale !== locale) {
             this.locale = locale;
             localStorage.setItem(this.localeKey, locale);
             this.localeSubject.next(locale);
@@ -35,13 +35,13 @@ export class I18nService {
         }
     }
 
-    getLocale(){
-        if(!this.locale) {
-            let locale = localStorage.getItem(this.localeKey);
-            if(locale) {
+    getLocale() {
+        if (!this.locale) {
+            const locale = localStorage.getItem(this.localeKey);
+            if (locale) {
                 this.setLocale(locale);
             } else {
-                this.setLocale(navigator.language.substring(0,2));
+                this.setLocale(navigator.language.substring(0, 2));
             }
         }
         return this.locale;

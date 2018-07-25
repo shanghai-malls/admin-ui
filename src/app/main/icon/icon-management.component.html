@@ -1,5 +1,5 @@
 <nz-card>
-    <div style="padding-right: 30px">
+    <div>
         <h2>
             图标列表
             <nz-popover [nzTitle]="null" [nzPlacement]="'right'" [nzTrigger]="'click'">
@@ -10,8 +10,8 @@
             </nz-popover>
         </h2>
 
-        <ul class="anticon-list">
-            <li *ngFor="let icon of icons" (click)="select(icon)" >
+        <ul class="icons">
+            <li *ngFor="let icon of icons" (click)="doSelect(icon)" >
                 <i class="{{prefix}}{{icon}}"></i><span class="anticon-class"><span class="ant-badge">{{icon}}</span></span>
             </li>
         </ul>

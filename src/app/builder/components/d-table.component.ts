@@ -1,6 +1,9 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnInit, QueryList, ViewChildren} from '@angular/core';
 import {Button, Column, Table} from '../../model/ui';
 import {Header} from '../../model/header';
+import {removeElement} from '../../model/function';
+import {DFormItemComponent} from './d-form-item.component';
+import {DHeaderComponent} from './d-header.component';
 
 
 @Component({
@@ -8,7 +11,7 @@ import {Header} from '../../model/header';
     templateUrl: 'd-table.component.html',
     styleUrls: ['d-table.component.less']
 })
-export class DesignableTableComponent implements OnInit {
+export class DTableComponent implements OnInit {
     @Input() table: Table;
     headers: Header[][];
     dataColumns: Column[];
@@ -29,8 +32,8 @@ export class DesignableTableComponent implements OnInit {
             headers.push(secondRow);
             let thirdRow = [];
             for (let column of secondRow) {
-                if (column.headers) {
-                    thirdRow.push(...column.headers);
+                if (column.children) {
+                    thirdRow.push(...column.children);
                 }
             }
             secondRow = thirdRow;
@@ -59,11 +62,20 @@ export class DesignableTableComponent implements OnInit {
         }));
     }
 
+    deleteTopButton(button:Button){
+        removeElement(this.table.buttons, button);
+    }
+
     addOperationColumnButton(){
         this.table.operationColumnButtons.push(new Button({
             text: '按钮'
         }));
     }
+
+    deleteOperationColumnButton(button:Button){
+        removeElement(this.table.operationColumnButtons, button);
+    }
+
 
     dragstart(i:number, event:DragEvent) {
         this.startDraggingElement = event.srcElement;
@@ -81,20 +93,29 @@ export class DesignableTableComponent implements OnInit {
         if(this.startDraggingElement === event.toElement) {
             return;
         }
-        if(this.startDraggingElement.parentElement === event.toElement.parentElement) {
-            let y = parseInt(event.dataTransfer.getData("index"));
-            if(y === x) {
-                return;
-            }
-            if(header.parent) {
-                let parent = header.parent;
-                parent.column.columns[x] = parent.column.columns[y];
-                parent.column.columns[y] = header.column;
-            } else {
-                this.table.columns[x] = this.table.columns[y];
-                this.table.columns[y] = header.column;
-            }
-            this.ngOnInit();
+        let y = parseInt(event.dataTransfer.getData("index"));
+        if(y === x) {
+            return;
+        }
+        if(header.parent) {
+            let parent = header.parent;
+            parent.column.columns[x] = parent.column.columns[y];
+            parent.column.columns[y] = header.column;
+        } else {
+            this.table.columns[x] = this.table.columns[y];
+            this.table.columns[y] = header.column;
+        }
+        this.ngOnInit();
+    }
+
+    @ViewChildren(DHeaderComponent)
+    viewChildren: QueryList<DHeaderComponent>;
+
+    focusChild(child: DHeaderComponent){
+        let children = this.viewChildren.toArray();
+        let index = children.findIndex(item=>item===child);
+        if (index < children.length - 1) {
+            children[index + 1].focus();
         }
     }
 }

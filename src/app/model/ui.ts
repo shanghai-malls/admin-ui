@@ -5,7 +5,6 @@ import {Type} from '@angular/core';
  */
 export class Component {
     type: string;
-    static metadata: any = {};
 
     constructor(definition?: any) {
         if (definition) {
@@ -26,11 +25,11 @@ export class Component {
         if (definition.type == 'card') {
             return new Card(definition);
         }
+        if (definition.type == 'tab-set') {
+            return new TabSet(definition);
+        }
         if (definition.type == 'tab') {
             return new Tab(definition);
-        }
-        if (definition.type == 'tab-item') {
-            return new TabItem(definition);
         }
         if (definition.type == 'table') {
             return new Table(definition);
@@ -104,30 +103,18 @@ export class Component {
 
 }
 
-export class Container<T extends Component> extends Component {
+export class Container<T extends Component = Component> extends Component {
     children: T[] = [];
 }
 
-interface RowInterface {
-    flex: boolean;
-    justify: string;
-    align: string;
-    horizontal: number;
-    vertical: number;
+export class Wrapper<T extends Component = Component> extends Component {
+    content: T;
 }
 
-interface FieldInterface {
-    field: string;
-    label: string;
-    required: boolean;
-    parentValue: any;
-}
 
-export class Row extends Container<Cell> implements RowInterface {
+
+export class Row extends Container<Cell> {
     type = 'row';
-    flex = true;
-    justify = 'start';
-    align = 'top';
     horizontal = 6;
     vertical = 6;
 
@@ -137,7 +124,7 @@ export class Row extends Container<Cell> implements RowInterface {
     }
 }
 
-export class Cell extends Container<Component> {
+export class Cell extends Wrapper<Component> {
     type = 'cell';
     width: number = 8;
 
@@ -195,6 +182,7 @@ export class Table extends Component {
 export class Column {
     title: string;
     field: string;
+    type: string;
     columns: Column[];
     index: number;
     hide = false;
@@ -240,35 +228,38 @@ export class Button extends Component {
         button.triggerType = 'modal';
         return button;
     }
+    static link(input: any){
+        return new Button(input);
+    }
 }
 
-export class List extends Container<ListItem> {
-    type = 'list';
-    header: string;
-    footer: string;
-}
-
-export class ListItem extends Container<Component> {
-    type = 'list-item';
-}
-
-export class Card extends Container<Component> {
-    type = 'card';
+export class DetailPanel extends Component {
+    type = 'detail-panel';
     title: string;
-
+    resultForm: Form;
+    tabset: TabSet;
     constructor(definition?: any) {
         super();
         copy(this, definition);
     }
 }
 
-export class Tab extends Container<TabItem> {
-    type = 'tab';
+export class TabSet extends Container<Tab> {
+    type = 'tab-set';
+    constructor(definition?: any) {
+        super();
+        copy(this, definition);
+    }
 }
 
-export class TabItem extends Container<Component> {
-    type = 'tab-item';
+export class Tab extends Wrapper<Component> {
+    type = 'tab';
     title: string;
+    path: string;
+    constructor(definition?: any) {
+        super();
+        copy(this, definition);
+    }
 }
 
 export class Form extends Row {
@@ -276,72 +267,74 @@ export class Form extends Row {
     path: string;
     method: string;
     contentType: string;
-}
-
-export class FieldSet extends Row implements FieldInterface {
-
-    type = 'fieldset';
-    label = '字段集';
-    field: string;
-    required = false;
-    parentValue: any;
-
+    collapsible = false;
+    /**
+     * 如果不为null，则从后台获取数据
+     * @type {boolean}
+     */
+    autoLoadUrl: string;
+    header: string;
+    buttonsPlacement: 'footer' | 'line-end' | 'none' = 'footer';
+    submitButton: Button;
+    clearButton: Button;
     constructor(definition?: any) {
         super();
         copy(this, definition);
+        if (! this.submitButton) {
+            this.submitButton = new Button({classType: 'primary', text: '提交'});
+
+            this.clearButton = new Button({classType: 'default', text: '取消'});
+        }
     }
 }
 
-export class ArrayFieldSet extends FieldSet {
-    type = 'array';
-    label = '数组字段';
-
-    constructor(definition?: any) {
-        super();
-        copy(this, definition);
-    }
-}
-
-export class MapFieldSet extends ArrayFieldSet {
-    type = 'map';
-    label = 'Map字段';
-    children = [
-        new Cell({
-            order: 0,
-            children: [
-                new Text({
-                    label: '请输入key',
-                    field: 'key'
-                })
-            ]
-        }),
-        new Cell({
-            order: 1,
-            children: [
-                new Text({
-                    label: '请输入value',
-                    field: 'value'
-                })
-            ]
-        })
-    ];
-
-    constructor(definition: any) {
-        super();
-        copy(this, definition);
-    }
-}
-
-export class FormItem extends Component implements FieldInterface {
+export class FormItem extends Component {
     field: string;
     label: string;
     description: string;
     value: any;
     required: boolean = false;
-    readonly: boolean = false;
+    hide: boolean = false;
     width: number = 16;
-    parentValue: any;
 
+    constructor(definition?: any) {
+        super();
+        copy(this, definition);
+    }
+}
+
+export class FieldSet extends FormItem implements Row {
+
+    type = 'fieldset';
+    children: Cell[];
+    horizontal: number;
+    vertical: number;
+
+    constructor(definition?: any) {
+        super();
+        Object.assign<FieldSet, Row>(this, new Row());
+        copy(this, definition);
+    }
+}
+
+export class ArrayField extends FormItem {
+    type = 'array';
+    items: FormItem | FieldSet;
+    minLength: number;
+    maxLength: number;
+
+    constructor(definition?: any) {
+        super();
+        copy(this, definition);
+    }
+}
+
+export class MapField extends FormItem {
+    type = 'map';
+    key: Text;
+    val: FormItem | FieldSet;
+    minLength: number;
+    maxLength: number;
     constructor(definition?: any) {
         super();
         copy(this, definition);
@@ -368,6 +361,10 @@ export class TextArea extends Text {
     constructor(definition: any) {
         super();
         copy(this, definition);
+    }
+
+    static repair(textarea: TextArea){
+        Object.setPrototypeOf(textarea, TextArea.prototype);
     }
 }
 
@@ -403,16 +400,18 @@ export type Option = {
     value: string | number | boolean;
     children?: Option[];
     checked?: boolean;
+    isLeaf?: boolean;
 }
 
 export class Choice extends FormItem {
-    options: Option [] = [
+    static DEFAULT_OPTIONS: Option[]= [
         {label: '选项1', value: 1},
         {label: '选项2', value: 2},
         {label: '选项3', value: 3},
     ];
+    options: Option [] = Choice.DEFAULT_OPTIONS;
 
-    constructor(definition: any) {
+    constructor(definition?: any) {
         super();
         copy(this, definition);
     }
@@ -420,6 +419,16 @@ export class Choice extends FormItem {
 
 export class Cascader extends Choice {
     type = 'cascader';
+    static DEFAULT_OPTIONS = [
+        {label: '选项1', value: 1, isLeaf: true},
+        {label: '选项2', value: 2, isLeaf: true},
+        {label: '选项3', value: 3, isLeaf: true},
+    ];
+    options= Cascader.DEFAULT_OPTIONS;
+    constructor(definition: any) {
+        super();
+        copy(this, definition);
+    }
 }
 
 export class Select extends Choice {
@@ -455,12 +464,15 @@ export class Rate extends FormItem {
     }
 }
 
+
+
 export class DatePicker extends FormItem {
     type = 'date';
     format: string = 'yyyy-MM-dd HH:mm:ss';
     showTime: boolean = true;
     startDate: Date;
     endDate: Date;
+
     disabledDate = (current: Date) => {
         let result = false;
         if (this.startDate) {
@@ -476,6 +488,7 @@ export class DatePicker extends FormItem {
         super();
         copy(this, definition);
     }
+
 }
 
 export class DateRangePicker extends DatePicker {
@@ -493,6 +506,7 @@ export class TimePicker extends FormItem {
 }
 
 export class UploadPicker extends FormItem {
+    type = 'upload-picker';
     fileType: string[];
     listType: 'text' | 'picture' | 'picture-card';
     size: number;
@@ -505,9 +519,6 @@ export class DataPicker extends FormItem {
     ref: string;
     view: string | Type<any>;
 
-    onReceive(selectedRow: any) {
-
-    }
 
     constructor(definition: any) {
         super();
@@ -515,51 +526,78 @@ export class DataPicker extends FormItem {
     }
 }
 
+export class DisplayText extends FormItem {
+    type = 'display-text';
+}
+
+/******************************************************************************************************/
+
+export class List extends Container<ListItem> {
+    type = 'list';
+    header: string;
+    footer: string;
+}
+
+export class ListItem extends Container<Component> {
+    type = 'list-item';
+}
+
+export class Card extends Container {
+    type = 'card';
+    title: string;
+
+    constructor(definition?: any) {
+        super();
+        copy(this, definition);
+    }
+}
+
+export class ArrayFieldSet extends FieldSet {
+    type = 'array';
+    label = '数组字段';
+
+    constructor(definition?: any) {
+        super();
+        copy(this, definition);
+    }
+}
+
+export class MapFieldSet extends FieldSet {
+    type = 'map';
+    label = 'Map字段';
+    children = [
+        new Cell({
+            order: 0,
+            children: [
+                new Text({
+                    label: '请输入key',
+                    field: 'key'
+                })
+            ]
+        }),
+        new Cell({
+            order: 1,
+            children: [
+                new Text({
+                    label: '请输入value',
+                    field: 'value'
+                })
+            ]
+        })
+    ];
+
+    constructor(definition: any) {
+        super();
+        copy(this, definition);
+    }
+}
+
+
 function copy(target: any, definition?: any) {
     if (definition) {
         Object.assign<any, any>(target, definition);
         if (definition.children) {
             target.children = definition.children.map(e=>Component.create(e));
-        }
-    }
-}
-
-declare type SelectorFunction = (component: any) => boolean;
-
-export class ObjectSelector {
-
-    static querySelectorAll<T>(node: any, ...filters: SelectorFunction[]): T[] {
-        let result = [];
-        let matchAll = true;
-        for (let filter of filters) {
-            matchAll = matchAll && filter(node);
-        }
-        if (matchAll) {
-            result.push(node);
-        }
-        if (node.hasOwnProperty('children')) {
-            for (let child of node.children) {
-                result.push(...ObjectSelector.querySelectorAll(child, ...filters));
-            }
-        }
-        return result as T[];
-    }
-
-    static querySelector<T>(node: any, ...filters: SelectorFunction[]): T {
-        let matchAll = true;
-        for (let filter of filters) {
-            matchAll = matchAll && filter(node);
-        }
-        if (matchAll) {
-            return node as T;
-        }
-        if (node.hasOwnProperty('children')) {
-            for (let child of node.children) {
-                let matchedResult = ObjectSelector.querySelector<T>(child, ...filters);
-                if (matchedResult) {
-                    return matchedResult;
-                }
-            }
         }
     }
 }

@@ -1,11 +1,10 @@
 import {Component, OnInit} from '@angular/core';
-import {NzModalService} from 'ng-zorro-antd';
 import {IconManagementComponent} from '../icon/icon-management.component';
-import {Subject} from 'rxjs/Subject';
+import {Subject} from 'rxjs';
 import {ViewManagementComponent} from '../view/view-management.component';
-import {modalZIndex} from '../../model/function';
 import {MenuService} from '../../model/menu.service';
 import {I18nService} from '../../model/i18n.service';
+import {ModalService} from '../../model/modal.service';
 
 @Component({
     templateUrl: 'menu-management.component.html',
@@ -15,13 +14,15 @@ export class MenuManagementComponent implements OnInit{
     menus: any[] = [];
     copyMenu: any;
 
+    mmc = ViewManagementComponent;
 
-    constructor(private modalService: NzModalService, private menuService: MenuService,  private i18n: I18nService) {
-        this.menuService.subscribe(menus => this.menus = menus)
+    constructor(private modalService: ModalService, private menuService: MenuService,  private i18n: I18nService) {
+
     }
 
     ngOnInit(): void {
-
+        this.menuService.getMenus().then(menus => this.menus = menus);
+        this.i18n.subscribe(language => this.menuService.getMenus(language, false).then(menus => this.menus = menus));
     }
 
     addMenu(menu?: any) {
@@ -31,7 +32,7 @@ export class MenuManagementComponent implements OnInit{
             }
             menu.expand = true;
             menu.children.push({
-                parentId: menu.menuId,
+                parent: menu.path,
                 language: this.i18n.getLocale(),
                 index: menu.children.length,
                 displayName: '菜单名字',
@@ -53,17 +54,17 @@ export class MenuManagementComponent implements OnInit{
 
     startEdit(menus: any[], i: number) {
         this.copyMenu = {...menus[i]};
-        menus[i].edit = true;
+        menus[i].focused = true;
     }
 
     doDelete(menus: any[], i: number) {
-        this.menuService.deleteMenu(menus[i].menuId).then(() => {
+        this.menuService.deleteMenu(menus[i].path).then(() => {
             menus.splice(i, 1);
         })
     }
 
     saveEdit(menus: any[], i: number) {
-        menus[i].edit = false;
+        menus[i].focused = false;
         this.menuService.saveMenu(menus[i]).then(menu => {
             Object.assign(menus[i], menu);
         });
@@ -74,42 +75,20 @@ export class MenuManagementComponent implements OnInit{
     }
 
     selectIcon(menus: any[], i: number) {
-        let subject = new Subject<any>();
         let agent = this.modalService.create({
-            nzWidth: '61.8%',
-            nzZIndex: modalZIndex(),
             nzTitle: "请选择图标",
             nzContent: IconManagementComponent,
-            nzComponentParams: {subject},
+            channels: {
+                onSelect: (result)=>{
+                    menus[i].icon = result;
+                    agent.destroy();
+                }
+            },
             nzFooter: null
-        });
-        subject.subscribe(result => {
-            menus[i].icon = result;
-            agent.destroy();
         });
     }
 
-    selectView(menus: any[], i: number) {
-        let subject = new Subject<any>();
-        let agent = this.modalService.create({
-            nzWidth: '61.8%',
-            nzZIndex: modalZIndex(),
-            nzTitle: "请选择视图",
-            nzContent: ViewManagementComponent,
-            nzComponentParams: {subject},
-            nzFooter: null
-        });
-        subject.subscribe(result => {
-            menus[i].viewId = result.viewId;
-            menus[i].path = result.path;
-            agent.destroy();
-        });
-    }
 
-    clearView(item: any) {
-        item.viewId = null;
-        item.path = null;
-    }
 
     up(menus: any[], i: number) {
         let current = menus[i];

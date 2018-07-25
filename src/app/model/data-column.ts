@@ -1,19 +1,20 @@
 import {Column} from './ui';
 
-export class DataColumn extends Column{
+
+export class DataColumn extends Column {
 
     parent: DataColumn;
 
     constructor(column: any, parent?: DataColumn) {
         super(column);
         this.parent = parent;
-        if(column.columns) {
+        if (column.columns) {
             this.columns = column.columns.map(c => new DataColumn(c, this));
         }
     }
 
-    formatText(data: any){
-        let fields = [this.field];
+    formatText(data: any) {
+        const fields = [this.field];
         let p = this.parent;
         while (p) {
             fields.push(p.field);
@@ -21,9 +22,10 @@ export class DataColumn extends Column{
         }
 
         let value = data;
-        for (let field of fields.reverse()) {
+        for (const field of fields.reverse()) {
             value = value[field];
         }
+
         return value;
     }
 }

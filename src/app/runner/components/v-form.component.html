@@ -1,8 +1,94 @@
 <form nz-form>
-    <div nz-row [nzGutter]="form.horizontal * 2" [nzType]="form.flex ? 'flex':null" [nzJustify]="form.justify" [nzAlign]="form.align">
-        <div *ngFor="let cell of form.children; let i = index" nz-col [nzSpan]="cell.width"
-             [style.marginTop.px]="form.vertical" [style.marginBottom.px]="form.vertical" [ngClass]="{hide: i > markCollapseIndex}">
-            <v-part *ngFor="let v of cell.children" [view]="v" ></v-part>
+    <div class="header" *ngIf="form.header">
+        <div class="title">{{form.header}}</div>
+    </div>
+
+    <div class="body">
+        <div nz-row [nzGutter]="form.horizontal * 2" [formGroup]="formGroup" nzType="flex" nzJustify="start" nzAlign="top" >
+            <div nz-col *ngFor="let cell of form.children; let i = index" [nzSpan]="cell.width"
+                 [style.marginTop.px]="form.vertical"
+                 [style.marginBottom.px]="form.vertical" [class.hide]="i > markCollapseIndex">
+                <nz-form-item nzFlex [nzGutter]="12" >
+                    <nz-form-label [nzSpan]="24 - cell.content.width" [nzRequired]="cell.content.required">{{cell.content.label}}</nz-form-label>
+                    <nz-form-control [nzSpan]="cell.content.width">
+                        <ng-container *ngIf="cell.content.type === 'display-text'">
+                            {{formGroup.value[cell.content.field] || '无'}}
+                        </ng-container>
+                        <ng-container *ngIf="cell.content.type === 'date'">
+                            <nz-date-picker [formControlName]="cell.content.field" [nzShowTime]="cell.content.showTime" [nzFormat]="cell.content.format" [nzDisabledDate]="cell.content.disabledDate" [nzDisabled]="cell.content.readonly"></nz-date-picker>
+                        </ng-container>
+                        <ng-container *ngIf="cell.content.type === 'date-range'">
+                            <nz-range-picker [formControlName]="cell.content.field" [nzShowTime]="cell.content.showTime" [nzFormat]="cell.content.format" [nzDisabledDate]="cell.content.disabledDate" [nzDisabled]="cell.content.readonly"></nz-range-picker>
+                        </ng-container>
+                        <ng-container *ngIf="cell.content.type === 'time'">
+                            <nz-time-picker [formControlName]="cell.content.field" [nzFormat]="cell.content.format" [nzDisabled]="cell.content.readonly"></nz-time-picker>
+                        </ng-container>
+                        <ng-container *ngIf="cell.content.type === 'textarea'">
+                            <textarea nz-input [formControlName]="cell.content.field" [placeholder]="cell.content.description || cell.content.label" [nzAutosize]="cell.content.auto || cell.content.size" [readonly]="cell.content.readonly"></textarea>
+                        </ng-container>
+                        <ng-container *ngIf="cell.content.type === 'rich-text'">
+                            <textarea nz-input [formControlName]="cell.content.field" [placeholder]="cell.content.description || cell.content.label" [nzAutosize]="cell.content.auto || cell.content.size" [readonly]="cell.content.readonly"></textarea>
+                        </ng-container>
+                        <ng-container *ngIf="cell.content.type === 'text'">
+                            <input nz-input [formControlName]="cell.content.field" [readonly]="cell.content.readonly"/>
+                        </ng-container>
+                        <ng-container *ngIf="cell.content.type === 'number'">
+                            <nz-input-number [formControlName]="cell.content.field" [nzStep]="cell.content.stride" [nzMax]="cell.content.max" [nzMin]="cell.content.min" [nzDisabled]="cell.content.readonly"></nz-input-number>
+                        </ng-container>
+                        <ng-container *ngIf="cell.content.type === 'slider'">
+                            <nz-slider [formControlName]="cell.content.field" [nzStep]="cell.content.stride" [nzMax]="cell.content.max" [nzMin]="cell.content.min" [nzDisabled]="cell.content.readonly"></nz-slider>
+                        </ng-container>
+                        <ng-container *ngIf="cell.content.type === 'rate'">
+                            <nz-rate [formControlName]="cell.content.field" [nzAllowHalf]="cell.content.half" [nzCount]="cell.content.count" [nzDisabled]="cell.content.readonly"></nz-rate>
+                        </ng-container>
+                        <ng-container *ngIf="cell.content.type === 'select'">
+                            <nz-select [nzPlaceHolder]="cell.content.description" [formControlName]="cell.content.field" [nzDisabled]="cell.content.readonly">
+                                <nz-option *ngFor="let option of cell.content.options" [nzValue]="option.value" [nzLabel]="option.label"></nz-option>
+                            </nz-select>
+                        </ng-container>
+                        <ng-container *ngIf="cell.content.type === 'cascader'">
+                            <nz-cascader [formControlName]="cell.content.field" [nzOptions]="cell.content.options" [nzDisabled]="cell.content.readonly"></nz-cascader>
+                        </ng-container>
+                        <ng-container *ngIf="cell.content.type === 'radio'">
+                            <nz-radio-group [formControlName]="cell.content.field" [nzDisabled]="cell.content.readonly">
+                                <label *ngFor="let option of cell.content.options" nz-radio [nzValue]="option.value">{{option.label}}</label>
+                            </nz-radio-group>
+                        </ng-container>
+                        <ng-container *ngIf="cell.content.type === 'checkbox'">
+                            <nz-checkbox-group ></nz-checkbox-group>
+                        </ng-container>
+                        <ng-container *ngIf="cell.content.type === 'switch'">
+                            <nz-switch *ngIf="cell.content.mode == 'switch'" [formControlName]="cell.content.field" [nzDisabled]="cell.content.readonly"></nz-switch>
+                            <label nz-checkbox *ngIf="cell.content.mode == 'checkbox'" [formControlName]="cell.content.field" [nzDisabled]="cell.content.readonly"></label>
+                        </ng-container>
+                        <ng-container *ngIf="cell.content.type === 'data-picker'">
+                            <data-picker [formControlName]="cell.content.field" [view]="cell.content.view" [referenceExp]="cell.content.ref" ></data-picker>
+                        </ng-container>
+                        <ng-container *ngIf="cell.content.type === 'upload'">
+                            <nz-upload nzAction="/api/settings/aliyun-oss" [nzListType]="cell.content.listType" [nzShowButton]="cell.content.multiple">
+                                <i class="anticon anticon-plus"></i>
+                                <div class="ant-upload-text">Upload</div>
+                            </nz-upload>
+                        </ng-container>
+                    </nz-form-control>
+                </nz-form-item>
+            </div>
+            <div nz-col *ngIf="form.buttonsPlacement ==='line-end'"
+                 [nzSpan]="buttonGroupWidth"
+                 [style.marginTop.px]="form.vertical"
+                 [style.marginBottom.px]="form.vertical"
+                 style="text-align: right">
+                <a class="motion-collapse" (click)="toggleCollapse()">
+                    <i class="anticon" [class.anticon-down]="markCollapseIndex !== form.children.length" [class.anticon-up]="markCollapseIndex === form.children.length"></i>
+                </a>
+                <button nz-button [nzType]="form.submitButton.classType" (click)="submit()">{{form.submitButton.text}}</button>
+                <button nz-button [nzType]="form.clearButton.classType" (click)="cancel()">{{form.clearButton.text}}</button>
+            </div>
         </div>
+    </div>
+
+    <div class="footer" *ngIf="form.buttonsPlacement ==='footer'">
+        <button nz-button [nzType]="form.submitButton.classType" (click)="submit()">{{form.submitButton.text}}</button>
+        <button nz-button [nzType]="form.clearButton.classType" (click)="cancel()">{{form.clearButton.text}}</button>
     </div>
 </form>

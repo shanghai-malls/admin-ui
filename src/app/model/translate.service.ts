@@ -7,11 +7,17 @@ export class TranslateService {
 
 
 
-    translate(path: string, data?: any): string {
-        let content = this.getLocaleValue(this.locale, path) as string;
+    translate(path: string, data?: any): any {
+        let content = this.getLocaleValue(this.locale, path);
         if (typeof content === 'string') {
             if (data) {
-                Object.keys(data).forEach((key) => content = content.replace(new RegExp(`%${key}%`, 'g'), data[key]));
+                let result = content as string;
+                for (let key of Object.keys(data)) {
+                    let value:string = data[key] as string;
+                    let regexp = new RegExp(`%${key}%`, 'g');
+                    result = result.replace(regexp, value);
+                }
+                return result;
             }
             return content;
         }

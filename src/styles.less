@@ -1,37 +1,103 @@
-@import "~ng-zorro-antd/src/ng-zorro-antd.less";
-@import "icon";
+/* You can add global styles to this file, and also import other style files */
+@import "theme";
 
-@primary-color: @red-4;
-
-
-
-@slider-track-background-color:       @primary-4;
-@slider-track-background-color-hover: @primary-5;
-@slider-handle-color:                 @primary-4;
-@slider-handle-color-hover:           @primary-5;
-
-
-.disabled{
+.disabled {
     cursor: not-allowed !important;
     opacity: 0.7;
 }
+
 .hide {
-    display: none
+    display: none !important;
 }
 
 .@{input-number-prefix-cls} {
     width: 100%;
 }
 
-.@{table-prefix-cls}{
-    &-thead > tr > th ,
-    &-tbody > tr > td {
+
+.@{table-prefix-cls} {
+    &-thead > tr > th,
+    &-tbody > tr > td
+    {
         word-break: keep-all;
         text-align: center;
     }
 }
+
 .@{form-prefix-cls}-item-label {
     text-overflow: ellipsis;
 }
 
+[nz-button],nz-dropdown-button {
+    margin: 2px 4px;
+}
+nz-dropdown-button {
+    [nz-button] {
+        margin-left: 0;
+        margin-right: 0;
+    }
+}
 
+.box-group {
+    > *:not(:last-child) {
+        margin-bottom: @card-padding-base;
+    }
+}
+
+.gb-table-button-group {
+    position: relative;
+    text-align: right;
+    padding-right: @card-padding-base;
+}
+
+.gb-form {
+    padding: @card-padding-base;
+    background: @body-background;
+}
+
+
+
+.d-actions {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height:22px;
+    width: 100%;
+    background-color: rgba(99, 99, 99, .3);
+    zoom: 1;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    opacity: 0;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    &:hover {
+        opacity: 1;
+    }
+    & > li {
+        > i {
+            cursor: pointer;
+            color: #fff;
+        }
+    }
+}
+
+
+.d-buttons {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    &:hover {
+        .hover-show {
+            display: inline-block;
+        }
+    }
+    .hover-show {
+        display: none;
+    }
+
+}

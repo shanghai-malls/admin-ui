@@ -1,11 +1,7 @@
-@import "../../styles.less";
-@layout-sider-background: @component-background;
-@layout-footer-background: @component-background;
-@layout-header-background: @primary-color;
-@layout-body-background: @background-color-base;
-@layout-content-body-min-height: 360px;
+@import "../base.less";
+@import "../../theme.less";
+
 @header-padding: 16px;
-@content-body-padding: 24px;
 @layout-ease: cubic-bezier(.25, 0, .15, 1);
 @full-logo-width: 200px;
 
@@ -113,11 +109,10 @@
     border-bottom: @border-width-base @border-style-base @border-color-base;
 }
 .content-body {
-    padding:@content-body-padding;
-    min-height: @layout-content-body-min-height;
+    padding: @card-padding-base;
+    min-height: 360px;
     overflow: auto;
 }
-
 .top-nav-wrap::ng-deep {
     .input-group-blur {
         .ant-input ,

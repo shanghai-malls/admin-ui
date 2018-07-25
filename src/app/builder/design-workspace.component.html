@@ -9,8 +9,8 @@
         </div>
     </nz-header>
     <nz-layout>
-        <nz-layout>
-            <nz-sider [(nzCollapsed)]="isCollapsed">
+        <nz-layout class="workplace">
+            <nz-sider>
                 <div class="sider-inner-group-list">
                     <div *ngFor="let group of groups" class="sider-inner-group-item">
                         <h4><i class="anticon anticon-{{group.icon}}"></i> {{group.name}}</h4>
@@ -28,16 +28,16 @@
                 <div class="content-title-well">
                     <nz-breadcrumb style="margin:16px 0;">
                         <nz-breadcrumb-item>
-                            <i class="anticon anticon-setting"></i>
+                            视图设计工作台
                         </nz-breadcrumb-item>
                     </nz-breadcrumb>
                 </div>
                 <div class="content-body" >
-                    <d-part [view]="data" ></d-part>
+                    <d-part *ngIf="view?.data" [view]="view?.data" ></d-part>
                 </div>
             </nz-content>
         </nz-layout>
-        <nz-footer style="text-align: right;">
+        <nz-footer class="footer">
             <button nz-button (click)="preview()"><i class="anticon anticon-eye" ></i>预览</button>
             <button nz-button [nzType]="'primary'" (click)="saveView()"><i class="anticon anticon-save"></i>保存</button>
             <button nz-button [nzType]="'danger'" (click)="deleteView()"><i class="anticon anticon-delete"></i>删除</button>
@@ -49,17 +49,16 @@
 <ng-template #saveBody>
     <div nz-form >
         <nz-form-item>
-            <nz-form-label [nzSpan]="8" nzRequired>视图名字</nz-form-label>
-            <nz-form-control [nzSpan]="14" >
+            <nz-form-label [nzSpan]="6" nzRequired>视图名字(必填)</nz-form-label>
+            <nz-form-control [nzSpan]="18" >
                 <input nz-input [(ngModel)]="view.name" />
             </nz-form-control>
         </nz-form-item>
         <nz-form-item>
-            <nz-form-label [nzSpan]="8" nzRequired>路由地址</nz-form-label>
-            <nz-form-control [nzSpan]="14" >
+            <nz-form-label [nzSpan]="6" nzRequired>路由地址(必填)</nz-form-label>
+            <nz-form-control [nzSpan]="18" >
                 <input nz-input [(ngModel)]="view.path" />
             </nz-form-control>
         </nz-form-item>
     </div>
 </ng-template>
-<ng-template #previewBody><v-part [view]="data"></v-part></ng-template>

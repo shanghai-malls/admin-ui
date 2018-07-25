@@ -1,23 +1,20 @@
 import {Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {DesignService} from '../model/design.service';
-import { Row} from '../model/ui';
+import {Row, Component as UIComponent} from '../model/ui';
 import {View, ViewService} from '../model/view.service';
-import {modalZIndex} from '../model/function';
-import {NzModalService} from 'ng-zorro-antd';
-import {SettingsService} from '../model/settings.service';
+import {SettingService} from '../model/setting.service';
 import {I18nService} from '../model/i18n.service';
+import {VPartComponent} from '../runner/components/v-part.component';
+import {ModalService} from '../model/modal.service';
 
 @Component({
     templateUrl: 'design-workspace.component.html',
     styleUrls: ['design-workspace.component.less']
 })
 export class DesignWorkspaceComponent implements OnInit {
-    data = new Row();
+
     view: View;
-
-    isCollapsed: boolean;
-
 
     @ViewChild('modalHeader')
     modalHeader: TemplateRef<any>;
@@ -25,16 +22,12 @@ export class DesignWorkspaceComponent implements OnInit {
     @ViewChild('saveBody')
     saveBody: TemplateRef<any>;
 
-    @ViewChild('previewBody')
-    previewBody: TemplateRef<any>;
-
-
     groups: { icon: string; name: string; components: { type: string; name: string }[] }[] = [
         {
             icon: 'layout',
             name: '布局/容器',
             components: [{
-                type: 'data',
+                type: 'row',
                 name: '栅格'
             }, {
                 type: 'card',
@@ -113,86 +106,57 @@ export class DesignWorkspaceComponent implements OnInit {
             }, {
                 type: 'data-picker',
                 name: '数据引用'
+            }, {
+                type: 'display-text',
+                name: '文本展示'
             }]
         }
     ];
 
-    constructor(private route: ActivatedRoute, private modalService: NzModalService,
+    constructor(private route: ActivatedRoute, private router: Router,
+                private modalService: ModalService,
                 private designService: DesignService,
-                private themeService: SettingsService,
+                private themeService: SettingService,
                 private i18nService: I18nService,
                 private viewService: ViewService) {
     }
 
     ngOnInit(): void {
-        this.route.queryParams.subscribe(params=>{
-            let id = params.id;
-            if (id) {
-                this.viewService.getViewById(id).then(view => {
-                    if(view) {
-                        this.view = view;
-                        if(view.data) {
-                            this.data = view.data;
-                        } else {
-                            this.view.data = this.data;
-                        }
-                    } else {
-                        this.view = new View();
-                        this.view.data = this.data;
-                        this.view.language = this.i18nService.getLocale();
-                    }
-                });
-            } else {
-                this.view = new View();
-                this.view.data = this.data;
-                this.view.language = this.i18nService.getLocale();
-            }
-        });
+        let route = decodeURIComponent(this.router.url.replace('/designs', ''));
+        if (route === '' || route === '/') {
+            this.view = {language: this.i18nService.getLocale(), path: '/please-input-unique-path', name: 'view name', data: new Row()};
+        } else {
+            this.viewService.getCompatibleView(route).then(view=>this.view = view);
+        }
     }
 
     addComponent(type: string){
-        this.designService.addComponentToCell(type);
+        if(this.view.data) {
+            this.designService.addComponentToCell(type);
+        } else {
+            this.view.data = UIComponent.create({type});
+        }
     }
 
     saveView(){
         let agent = this.modalService.create({
             nzWidth: '40%',
-            nzZIndex: modalZIndex(),
             nzTitle: this.modalHeader,
             nzContent: this.saveBody,
-            nzFooter: [{
-                label: '取消',
-                type: 'default',
-                onClick: () => {
-                    agent.destroy();
-                }
-            }, {
-                label: '提交',
-                type: 'primary',
-                disabled: () => {
-                    return !(this.view.name && this.view.path);
-                },
-                onClick: () => {
-                    this.view.data = this.data;
+            nzOnOk: ()=>{
+                if(this.view.name && this.view.path) {
                     this.viewService.saveOrUpdateView(this.view);
                     agent.destroy();
                 }
-            }]
+            }
         });
     }
 
     deleteView(){
-        this.viewService.deleteView(null);
+        this.viewService.deleteView(this.view.path);
     }
 
-    preview(){
-        let agent = this.modalService.create({
-            nzWidth: '80%',
-            nzZIndex: modalZIndex(),
-            nzContent: this.previewBody,
-            nzTitle: this.modalHeader,
-            nzOnCancel: () => agent.destroy(),
-            nzOnOk: () => agent.destroy()
-        });
+    preview() {
+        this.modalService.create({nzWidth: '80%', nzContent: VPartComponent, nzTitle: this.modalHeader});
     }
 }

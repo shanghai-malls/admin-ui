@@ -1,166 +1,28 @@
-<ng-container *ngIf="type === 'row'">
-    <div nz-row [nzGutter]="view.horizontal * 2" [nzType]="view.flex ? 'flex':null" [nzJustify]="view.justify" [nzAlign]="view.align">
-        <div *ngFor="let cell of view.children" nz-col [nzSpan]="cell.width" [style.marginTop.px]="view.vertical" [style.marginBottom.px]="view.vertical">
-            <v-part *ngFor="let v of cell.children" [view]="v" ></v-part>
+<ng-container *ngIf="data.type ==='row'">
+    <div nz-row [nzGutter]="data.horizontal * 2" nzType="flex" nzJustify="start" nzAlign="top" >
+        <div nz-col *ngFor="let cell of data.children" [nzSpan]="cell.width" [style.marginTop.px]="data.vertical" [style.marginBottom.px]="data.vertical">
+            <v-part [path]="path" [route]="route" [data]="cell.children[0]" [onActions]="onActions"></v-part>
         </div>
     </div>
 </ng-container>
-<ng-container *ngIf="type === 'table'">
-    <v-table [table]="view"></v-table>
+
+<ng-container *ngIf="data.type ==='form'">
+    <v-form [path]="path" [route]="route" [form]="data" [onActions]="onActions" [value]="initValue"></v-form>
 </ng-container>
-<ng-container *ngIf="type === 'tab'">
+
+<ng-container *ngIf="data.type ==='table'">
+    <v-table [path]="path" [route]="route" [table]="data" [onActions]="onActions"></v-table>
+</ng-container>
+
+<ng-container *ngIf="data.type ==='detail-panel'">
+    <v-detail [path]="path" [route]="route" [detailPanel]="data" [onActions]="onActions"></v-detail>
+</ng-container>
+
+<ng-container *ngIf="data.type ==='tab'">
     <nz-tab></nz-tab>
 </ng-container>
-<ng-container *ngIf="type === 'card'">
-    <nz-card></nz-card>
-</ng-container>
-<ng-container *ngIf="type === 'fieldset'">
-    <fieldset>
-        <legend>{{view.label || view.field }}</legend>
-        <v-part [view]="view" [type]="'row'"></v-part>
-    </fieldset>
-</ng-container>
-<ng-container *ngIf="type === 'form'">
-    <v-form [form]="view"></v-form>
-</ng-container>
-<ng-container *ngIf="type === 'array'">
-    <fieldset >
-        <legend>
-            {{view.label || view.field}}
-        </legend>
-        <ng-container  *ngFor="let element of parentValue[view.field]; let last = last; let i = index" >
-            <div nz-row [nzGutter]="view.horizontal * 2" [nzType]="view.flex ? 'flex':null" [nzJustify]="view.justify" [nzAlign]="view.align" class="array-row" >
-                <div *ngFor="let cell of view.children" nz-col [nzSpan]="cell.width" [style.marginTop.px]="view.vertical" [style.marginBottom.px]="view.vertical" >
-                    <v-part *ngFor="let v of cell.children" [view]="v" [parentValue]="element"></v-part>
-                </div>
-                <div nz-col [nzSpan]="4" class="array-row-button-group" [style.marginTop.px]="view.vertical" [style.marginBottom.px]="view.vertical" >
-                    <nz-form-item nzFlex [nzGutter]="12">
-                        <nz-form-control [nzSpan]="24">
-                            <i class="anticon anticon-minus-circle-o dynamic-delete-button" (click)="removeDynamicChildren(i)"></i>
-                            <i class="anticon anticon-plus-circle-o dynamic-delete-button"  (click)="addDynamicChildren()" *ngIf="last"></i>
-                        </nz-form-control>
-                    </nz-form-item>
-                </div>
-            </div>
-        </ng-container>
-    </fieldset>
-</ng-container>
-<ng-container *ngIf="type === 'map'">
-    <fieldset>
-        <legend>{{view.label || view.field}}</legend>
-        <div nz-row [nzGutter]="view.horizontal * 2" [nzType]="view.flex ? 'flex':null" [nzJustify]="view.justify" [nzAlign]="view.align" class="array-row">
-            <div *ngFor="let cell of view.children" nz-col [nzSpan]="cell.width" [style.marginTop.px]="view.vertical" [style.marginBottom.px]="view.vertical">
-                <v-part *ngFor="let v of cell.children" [view]="v" ></v-part>
-            </div>
-            <div nz-col [nzSpan]="4" [style.marginTop.px]="view.vertical" [style.marginBottom.px]="view.vertical" class="array-row-button-group">
-                <nz-form-item nzFlex [nzGutter]="12">
-                    <nz-form-control [nzSpan]="24">
-                        <i class="anticon anticon-minus-circle-o dynamic-delete-button" (click)="remove(i)"></i>
-                        <i class="anticon anticon-plus-circle-o dynamic-delete-button"  (click)="add()"></i>
-                    </nz-form-control>
-                </nz-form-item>
-            </div>
-        </div>
-    </fieldset>
-</ng-container>
-<ng-container *ngIf="type === 'date'">
-    <form-item [item]="view">
-        <nz-date-picker
-            [formControlName]="view.field"
-            [nzShowTime]="view.showTime"
-            [nzFormat]="view.format"
-            [nzPlaceholder]="view.description"
-            [nzDisabledDate]="view.disabledDate"
-            [(ngModel)]="parentValue[view.field]"></nz-date-picker>
-    </form-item>
-</ng-container>
-<ng-container *ngIf="type === 'date-range'">
-    <form-item [item]="view">
-        <nz-range-picker
-            [(ngModel)]="parentValue[view.field]"
-            [nzShowTime]="view.showTime"
-            [nzFormat]="view.format"
-            [nzPlaceholder]="[ '开始时间', '结束时间' ]"
-            [nzDisabledDate]="view.disabledDate"></nz-range-picker>
-    </form-item>
-</ng-container>
-<ng-container *ngIf="type === 'time'">
-    <form-item [item]="view">
-        <nz-time-picker [(ngModel)]="parentValue[view.field]" [nzFormat]="view.format"></nz-time-picker>
-    </form-item>
-</ng-container>
-<ng-container *ngIf="type === 'textarea'">
-    <form-item [item]="view">
-        <textarea nz-input [(ngModel)]="parentValue[view.field]"  [placeholder]="view.description || view.label" [nzAutosize]="view.size || view.auto"></textarea>
-    </form-item>
-</ng-container>
-<ng-container *ngIf="type === 'text'">
-    <form-item [item]="view">
-        <input nz-input [(ngModel)]="parentValue[view.field]" [placeholder]="view.description || view.label" />
-    </form-item>
-</ng-container>
-<ng-container *ngIf="type === 'number'">
-    <form-item [item]="view">
-        <nz-input-number [(ngModel)]="parentValue[view.field]" [nzStep]="view.stride" [nzMax]="view.max" [nzMin]="view.min"></nz-input-number>
-    </form-item>
-</ng-container>
-<ng-container *ngIf="type === 'slider'">
-    <form-item [item]="view">
-        <nz-slider [(ngModel)]="parentValue[view.field]" [nzStep]="view.stride" [nzMax]="view.max" [nzMin]="view.min" ></nz-slider>
-    </form-item>
-</ng-container>
-<ng-container *ngIf="type === 'rate'">
-    <form-item [item]="view">
-        <nz-rate [(ngModel)]="parentValue[view.field]" [nzAllowHalf]="view.half" [nzCount]="view.count"></nz-rate>
-    </form-item>
-</ng-container>
-<ng-container *ngIf="type === 'select'">
-    <form-item [item]="view">
-        <nz-select [(ngModel)]="parentValue[view.field]" [nzPlaceHolder]="view.description" >
-            <nz-option  *ngFor="let option of view.options" [nzValue]="option.value" [nzLabel]="option.label"></nz-option>
-        </nz-select>
-    </form-item>
-</ng-container>
-<ng-container *ngIf="type === 'cascader'">
-    <form-item [item]="view">
-        <nz-cascader [(ngModel)]="parentValue[view.field]" [nzOptions]="view.options"></nz-cascader>
-    </form-item>
-</ng-container>
-<ng-container *ngIf="type === 'radio'">
-    <form-item [item]="view">
-        <nz-radio-group  [(ngModel)]="parentValue[view.field]">
-            <label *ngFor="let option of view.options" nz-radio [nzValue]="option.value">{{option.label}}</label>
-        </nz-radio-group>
-    </form-item>
-</ng-container>
-<ng-container *ngIf="type === 'checkbox'">
-    <form-item [item]="view">
-        <nz-checkbox-group [(ngModel)]="view.options"></nz-checkbox-group>
-    </form-item>
-</ng-container>
-<ng-container *ngIf="type === 'switch'">
-    <form-item [item]="view">
-        <nz-switch          *ngIf="view.mode == 'switch'"   [(ngModel)]="parentValue[view.field]"></nz-switch>
-        <label nz-checkbox  *ngIf="view.mode == 'checkbox'" [(ngModel)]="parentValue[view.field]"></label>
-    </form-item>
-</ng-container>
-<ng-container *ngIf="type === 'data-picker'">
-    <form-item [item]="view">
-        <nz-input-group [nzSuffix]="inputSuffix" class="filter-trigger">
-            <input nz-input readonly  [(ngModel)]="parentValue[view.field]" [placeholder]="view.description || view.label" (mouseover)="view.hover = true" (mouseleave)="view.hover = false" (click)="showReferenceDialog()"/>
-        </nz-input-group>
-        <ng-template #inputSuffix>
-            <i class="anticon" [ngClass]="{'anticon-close-circle': view.hover, 'anticon-filter': !view.hover}" (mouseover)="view.hover = true" (click)="clearData(items, i)"></i>
-        </ng-template>
-    </form-item>
-</ng-container>
-<ng-container *ngIf="type === 'display'">
-    <form-item [item]="view">{{view.value}}</form-item>
-</ng-container>
-<ng-container *ngIf="type === 'upload'">
-    <form-item [item]="view">
-        <nz-upload nzAction="https://jsonplaceholder.typicode.com/posts/">
-            <button nz-button><i class="anticon anticon-upload"></i><span>上传文件</span></button>
-        </nz-upload>
-    </form-item>
+<ng-container *ngIf="data.type ==='card'">
+    <nz-card>
+        <v-part [data]="data.content"></v-part>
+    </nz-card>
 </ng-container>

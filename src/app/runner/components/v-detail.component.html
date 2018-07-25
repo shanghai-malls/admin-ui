@@ -1,0 +1,20 @@
+<div class="box-group">
+    <v-form [form]="resultForm" [value]="result" [route]="route" [path]="path"></v-form>
+    <nz-card *ngIf="tabs" [nzBordered]="false" >
+        <nz-card-tab>
+            <nz-tabset nzSize="large" [(nzSelectedIndex)]="tabIndex">
+                <nz-tab *ngFor="let tab of tabs;" [nzTitle]="title">
+                    <ng-template #title>
+                        <div class="small-icon-wrapper">
+                            <span>{{tab.title}}</span>
+                            <a [routerLink]="tab.path" class="hover-show"><i class="anticon anticon-eye-o"></i></a>
+                        </div>
+                    </ng-template>
+                </nz-tab>
+            </nz-tabset>
+        </nz-card-tab>
+        <div *ngFor="let tab of tabs; let i = index;" [class.hide]="tabIndex !== i">
+            <v-part *ngIf="tab.content" [path]="tab.path" [route]="tab.route" [data]="tab.content"></v-part>
+        </div>
+    </nz-card>
+</div>

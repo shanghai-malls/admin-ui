@@ -13,28 +13,35 @@
                             <i class="anticon trigger" [class.anticon-menu-fold]="!isCollapsed" [class.anticon-menu-unfold]="isCollapsed" (click)="isCollapsed=!isCollapsed"></i>
                         </div>
                     </li>
-                    <li>
-                        <div class="item">
-                            <i class="anticon anticon-api"></i>
-                        </div>
-                    </li>
+
                 </ul>
 
                 <nz-input-group nzAddOnBeforeIcon="anticon anticon-search"
                                 [class.input-group-focus]="focusSearch"
                                 [class.input-group-blur]="!focusSearch">
-                    <input nz-input  (focus)="focusSearch = true" (blur)="focusSearch = false" [placeholder]="'header.search-placeholder' | translate">
+                    <input nz-input [(ngModel)]="searchText" [nzAutocomplete]="auto" [placeholder]="searchHint"
+                           (focus)="focusSearch = true" (blur)="focusSearch = false" (ngModelChange)="searchMenus($event)">
                 </nz-input-group>
 
+                <nz-autocomplete #auto>
+                    <ng-container *ngIf="menus != null">
+                        <nz-auto-optgroup *ngFor="let menu of menus | async" [nzLabel]="menu.displayName">
+                            <nz-auto-option *ngFor="let submenu of menu.children" [nzLabel]="submenu.displayName" [nzValue]="submenu.path">
+                                <div style="margin-left: 16px">{{submenu.displayName}}</div>
+                            </nz-auto-option>
+                        </nz-auto-optgroup>
+                    </ng-container>
+                </nz-autocomplete>
+
                 <ul class="top-nav">
-                    <li>
+                    <li class="hide">
                         <div class="item">
                             <nz-badge [nzCount]="5">
                                 <i class="anticon anticon-notification"></i>
                             </nz-badge>
                         </div>
                     </li>
-                    <li>
+                    <li class="hide">
                         <div class="item">
                             <nz-dropdown nzPlacement="bottomRight" nzTrigger="click">
                                 <div nz-dropdown><i class="anticon anticon-setting"></i></div>
@@ -48,8 +55,14 @@
                             </nz-dropdown>
                         </div>
                     </li>
+                    <li>
+                        <div class="item">
+                            <a href="/docs/index.html" style="color: #fff"><i class="anticon anticon-api"></i></a>
+                        </div>
+                    </li>
                 </ul>
-                <nz-select style="width: 88px;" [(ngModel)]="language" (ngModelChange)="switchLanguage($event)">
+
+                <nz-select style="width: 88px;margin-left: 1px" [(ngModel)]="language" (ngModelChange)="switchLanguage($event)">
                     <nz-option nzValue="zh" nzLabel="中文"></nz-option>
                     <nz-option nzValue="en" nzLabel="English"></nz-option>
                 </nz-select>
@@ -59,11 +72,11 @@
     <nz-layout>
         <nz-sider [(nzCollapsed)]="isCollapsed" >
             <ul nz-menu [nzMode]="'inline'" [nzInlineCollapsed]="isCollapsed">
-                <li nz-submenu *ngFor="let menu of menus | async">
+                <li nz-submenu *ngFor="let menu of menus | async" [nzOpen]="isOpen(menu)">
                     <span title><i [class]="menu.icon"></i><span class="nav-text">{{menu.displayName}}</span></span>
                     <ul>
-                        <li nz-menu-item  *ngFor="let submenu of menu.children">
-                            <a [routerLink]="submenu.path" routerLinkActive="active" title="{{submenu.displayName}}">
+                        <li nz-menu-item  *ngFor="let submenu of menu.children" [nzSelected]="submenu.path === currentRoute">
+                            <a [routerLink]="submenu.path" title="{{submenu.displayName}}">
                                 <i [class]="submenu.icon"></i><span class="nav-text" >{{submenu.displayName}}</span>
                             </a>
                         </li>
@@ -72,7 +85,7 @@
                 <li nz-submenu>
                     <span title><i class="anticon anticon-usb"></i><span class="nav-text">定制管理</span></span>
                     <ul>
-                        <li nz-menu-item><a routerLink="/settings"        routerLinkActive="active" title="主题定制"><i class="anticon anticon-skin"></i>主题定制</a></li>
+                        <li nz-menu-item><a routerLink="/setting"        routerLinkActive="active" title="主题定制"><i class="anticon anticon-skin"></i>主题定制</a></li>
                         <li nz-menu-item><a routerLink="/icons"         routerLinkActive="active" title="图标定制"><i class="anticon anticon-picture"></i>图标定制</a></li>
                         <li nz-menu-item><a routerLink="/menus"         routerLinkActive="active" title="菜单定制"><i class="anticon anticon-menu-unfold"></i>菜单定制</a></li>
                         <li nz-menu-item><a routerLink="/views"         routerLinkActive="active" title="视图定制"><i class="anticon anticon-file"></i>视图定制</a></li>
@@ -95,7 +108,7 @@
                     </nz-breadcrumb>
                 </div>
                 <div class="content-body">
-                    <router-outlet></router-outlet>
+                    <router-outlet ></router-outlet>
                 </div>
             </nz-content>
         </nz-layout>

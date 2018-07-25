@@ -40,6 +40,7 @@ import {Column} from '../../model/ui';
     `],
 })
 export class DesignableColumnListComponent {
-    @Input() columns: Column[];
+    @Input()
+    columns: Column[];
     selectedIndex: number;
 }
