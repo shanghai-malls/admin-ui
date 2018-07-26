@@ -3,7 +3,7 @@
         <div class="header-panel">
             <div class="logo">
                 <a [routerLink]="['/']">
-                    <img alt="logo" [src]="settings?.logo|| 'https://cipchk.github.io/ng-alain/assets/logo-full.svg'" style="max-height:40px;" >
+                    <img alt="logo" [src]=" settings?.logo || './assets/logo-full.svg'" style="max-height:40px;" >
                 </a>
             </div>
             <div class="top-nav-wrap">
@@ -19,14 +19,16 @@
                 <nz-input-group nzAddOnBeforeIcon="anticon anticon-search"
                                 [class.input-group-focus]="focusSearch"
                                 [class.input-group-blur]="!focusSearch">
-                    <input nz-input [(ngModel)]="searchText" [nzAutocomplete]="auto" [placeholder]="searchHint"
-                           (focus)="focusSearch = true" (blur)="focusSearch = false" (ngModelChange)="searchMenus($event)">
+                    <input nz-input [(ngModel)]="searchText" [nzAutocomplete]="auto" [placeholder]="'header.search-placeholder' | translate"
+                           (focus)="focusSearch = true" (blur)="focusSearch = false"
+                           (ngModelChange)="searchMenus($event)"
+                    />
                 </nz-input-group>
 
-                <nz-autocomplete #auto>
+                <nz-autocomplete #auto [nzBackfill]="true" (selectionChange)="selectionChange($event)" >
                     <ng-container *ngIf="menus != null">
-                        <nz-auto-optgroup *ngFor="let menu of menus | async" [nzLabel]="menu.displayName">
-                            <nz-auto-option *ngFor="let submenu of menu.children" [nzLabel]="submenu.displayName" [nzValue]="submenu.path">
+                        <nz-auto-optgroup *ngFor="let menu of menusForSearch" [nzLabel]="menu.displayName" >
+                            <nz-auto-option *ngFor="let submenu of menu.children" [nzLabel]="submenu.displayName" [nzValue]="submenu.path" >
                                 <div style="margin-left: 16px">{{submenu.displayName}}</div>
                             </nz-auto-option>
                         </nz-auto-optgroup>
@@ -71,8 +73,8 @@
     </nz-header>
     <nz-layout>
         <nz-sider [(nzCollapsed)]="isCollapsed" >
-            <ul nz-menu [nzMode]="'inline'" [nzInlineCollapsed]="isCollapsed">
-                <li nz-submenu *ngFor="let menu of menus | async" [nzOpen]="isOpen(menu)">
+            <ul nz-menu [nzMode]="'inline'" [nzInlineCollapsed]="isCollapsed" *ngIf="menus !== null">
+                <li nz-submenu *ngFor="let menu of menus" [nzOpen]="isOpen(menu)">
                     <span title><i [class]="menu.icon"></i><span class="nav-text">{{menu.displayName}}</span></span>
                     <ul>
                         <li nz-menu-item  *ngFor="let submenu of menu.children" [nzSelected]="submenu.path === currentRoute">
@@ -85,11 +87,11 @@
                 <li nz-submenu>
                     <span title><i class="anticon anticon-usb"></i><span class="nav-text">定制管理</span></span>
                     <ul>
-                        <li nz-menu-item><a routerLink="/setting"        routerLinkActive="active" title="主题定制"><i class="anticon anticon-skin"></i>主题定制</a></li>
-                        <li nz-menu-item><a routerLink="/icons"         routerLinkActive="active" title="图标定制"><i class="anticon anticon-picture"></i>图标定制</a></li>
-                        <li nz-menu-item><a routerLink="/menus"         routerLinkActive="active" title="菜单定制"><i class="anticon anticon-menu-unfold"></i>菜单定制</a></li>
-                        <li nz-menu-item><a routerLink="/views"         routerLinkActive="active" title="视图定制"><i class="anticon anticon-file"></i>视图定制</a></li>
-                        <li nz-menu-item><a routerLink="/interfaces"    routerLinkActive="active" title="完整接口列表"><i class="anticon anticon-api"></i>完整接口列表</a></li>
+                        <li nz-menu-item><a routerLink="/management/setting"        routerLinkActive="active" title="主题定制"><i class="anticon anticon-skin"></i>主题定制</a></li>
+                        <li nz-menu-item><a routerLink="/management/icons"         routerLinkActive="active" title="图标定制"><i class="anticon anticon-picture"></i>图标定制</a></li>
+                        <li nz-menu-item><a routerLink="/management/menus"         routerLinkActive="active" title="菜单定制"><i class="anticon anticon-menu-unfold"></i>菜单定制</a></li>
+                        <li nz-menu-item><a routerLink="/management/views"         routerLinkActive="active" title="视图定制"><i class="anticon anticon-file"></i>视图定制</a></li>
+                        <li nz-menu-item><a routerLink="/management/interfaces"    routerLinkActive="active" title="完整接口列表"><i class="anticon anticon-api"></i>完整接口列表</a></li>
                     </ul>
                 </li>
             </ul>

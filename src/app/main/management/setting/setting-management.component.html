@@ -1,0 +1,201 @@
+<nz-card [nzActions]="[cardActions]">
+    <form nz-form [formGroup]="formGroup" *ngIf="formGroup">
+        <div nz-row >
+            <div nz-col [nzSpan]="24">
+                <fieldset>
+                    <legend>基本设置</legend>
+                    <div nz-row>
+                        <div nz-col [nzSpan]="0">
+                            <nz-form-item *ngIf="formGroup.value.id" style="display: none">
+                                <nz-form-label [nzSpan]="8">主题Id</nz-form-label>
+                                <nz-form-control [nzSpan]="16">{{formGroup.value.id}}</nz-form-control>
+                            </nz-form-item>
+                        </div>
+                        <div nz-col [nzSpan]="24">
+                            <nz-form-item>
+                                <nz-form-label [nzSpan]="4">系统图标</nz-form-label>
+                                <nz-form-control [nzSpan]="12" >
+                                    <nz-upload class="logo-uploader" nzAction="/api/setting/aliyun-oss" nzListType="picture-card"
+                                               [nzShowUploadList]="false"
+                                               (nzChange)="onLogoChange($event)" [class.hide]="!inEditing">
+                                        <ng-container *ngIf="!formGroup.value.logo">
+                                            <i class="anticon anticon-plus"></i>
+                                            <div class="ant-upload-text">Upload</div>
+                                        </ng-container>
+                                        <img *ngIf="formGroup.value.logo" [src]="formGroup.value.logo" class="logo" >
+                                    </nz-upload>
+                                    <img [src]="formGroup.value.logo" class="logo" [class.hide]="inEditing" />
+                                </nz-form-control>
+                            </nz-form-item>
+                        </div>
+                        <div nz-col [nzSpan]="24">
+                            <nz-form-item>
+                                <nz-form-item>
+                                    <nz-form-label [nzSpan]="4">系统名字</nz-form-label>
+                                    <nz-form-control [nzSpan]="12" >
+                                        <input nz-input [class.hide]="!inEditing" formControlName="appName" />
+                                        <span [class.hide]="inEditing">{{formGroup.value.appName}}</span>
+                                    </nz-form-control>
+                                </nz-form-item>
+                            </nz-form-item>
+                        </div>
+                        <div nz-col [nzSpan]="24">
+                            <nz-form-item>
+                                <nz-form-label [nzSpan]="4">公司名字</nz-form-label>
+                                <nz-form-control [nzSpan]="12" >
+                                    <input nz-input [class.hide]="!inEditing" formControlName="company" />
+                                    <span [class.hide]="inEditing">{{formGroup.value.company}}</span>
+                                </nz-form-control>
+                            </nz-form-item>
+                        </div>
+                        <div nz-col [nzSpan]="24">
+                            <nz-form-item>
+                                <nz-form-label [nzSpan]="4">官方网址</nz-form-label>
+                                <nz-form-control [nzSpan]="12">
+                                    <input nz-input [class.hide]="!inEditing" formControlName="website" />
+                                    <span [class.hide]="inEditing" >{{formGroup.value.website}}</span>
+                                </nz-form-control>
+                            </nz-form-item>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+            <div nz-col [nzSpan]="24">
+                <fieldset formGroupName="aliyunOss">
+                    <legend>阿里云OSS设置</legend>
+                    <div nz-row>
+                        <div nz-col [nzSpan]="12">
+                            <nz-form-item>
+                                <nz-form-label [nzSpan]="8">Endpoint</nz-form-label>
+                                <nz-form-control [nzSpan]="16" >
+                                    <input nz-input [class.hide]="!inEditing" formControlName="endpoint" />
+                                    <span [class.hide]="inEditing">{{formGroup.value.aliyunOss.endpoint}}</span>
+                                </nz-form-control>
+                            </nz-form-item>
+                        </div>
+                        <div nz-col [nzSpan]="12">
+                            <nz-form-item>
+                                <nz-form-label [nzSpan]="8">存储空间</nz-form-label>
+                                <nz-form-control [nzSpan]="16" >
+                                    <input nz-input [class.hide]="!inEditing" formControlName="bucket" />
+                                    <span [class.hide]="inEditing">{{formGroup.value.aliyunOss.bucket}}</span>
+                                </nz-form-control>
+                            </nz-form-item>
+                        </div>
+                        <div nz-col [nzSpan]="12">
+                            <nz-form-item>
+                                <nz-form-label [nzSpan]="8">分组目录</nz-form-label>
+                                <nz-form-control [nzSpan]="16" >
+                                    <input nz-input [class.hide]="!inEditing" formControlName="folder" />
+                                    <span [class.hide]="inEditing">{{formGroup.value.aliyunOss.folder}}</span>
+                                </nz-form-control>
+                            </nz-form-item>
+                        </div>
+                        <div nz-col [nzSpan]="12">
+                            <nz-form-item>
+                                <nz-form-label [nzSpan]="8">Access Key Id</nz-form-label>
+                                <nz-form-control [nzSpan]="16" >
+                                    <input nz-input [class.hide]="!inEditing" formControlName="accessKeyId" />
+                                    <span [class.hide]="inEditing">{{formGroup.value.aliyunOss.accessKeyId}}</span>
+                                </nz-form-control>
+                            </nz-form-item>
+                        </div>
+                        <div nz-col [nzSpan]="12">
+                            <nz-form-item>
+                                <nz-form-label [nzSpan]="8">Access Key Secret</nz-form-label>
+                                <nz-form-control [nzSpan]="16" >
+                                    <input nz-input [class.hide]="!inEditing" formControlName="accessKeySecret" />
+                                    <span [class.hide]="inEditing">{{formGroup.value.aliyunOss.accessKeySecret}}</span>
+                                </nz-form-control>
+                            </nz-form-item>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+            <div nz-col [nzSpan]="24">
+                <fieldset class="array-field-set">
+                    <legend>视图设置(默认隐藏的字段）</legend>
+                    <div nz-row>
+                        <div nz-col [nzSpan]="12">
+                            <nz-form-item>
+                                <nz-form-label [nzSpan]="8">默认不可见的查询参数</nz-form-label>
+                                <nz-form-control [nzSpan]="16" formArrayName="invisibleQueryParameters">
+                                    <div [class.hide]="!inEditing">
+                                        <div *ngFor="let item of formGroup.get('invisibleQueryParameters').controls; let i = index;" >
+                                            <input nz-input [formControlName]="i"/>
+                                            <i class="anticon anticon-minus-circle-o dynamic-delete-button" (click)="formGroup.get('invisibleQueryParameters').removeAt(i)"></i>
+                                        </div>
+                                        <div>
+                                            <button nz-button nzType="dashed" (click)="addControl(formGroup.get('invisibleQueryParameters'))">添加字段</button>
+                                        </div>
+                                    </div>
+                                    <code [class.hide]="inEditing">{{formGroup.value.invisibleQueryParameters}}</code>
+                                </nz-form-control>
+                            </nz-form-item>
+                        </div>
+                        <div nz-col [nzSpan]="12">
+                            <nz-form-item>
+                                <nz-form-label [nzSpan]="8">默认不可见的表单字段</nz-form-label>
+                                <nz-form-control [nzSpan]="16" formArrayName="invisibleFormProperties">
+                                    <div [class.hide]="!inEditing">
+                                        <div *ngFor="let item of formGroup.get('invisibleFormProperties').controls; let i = index;" >
+                                            <input nz-input [formControlName]="i"/>
+                                            <i class="anticon anticon-minus-circle-o dynamic-delete-button" (click)="formGroup.get('invisibleFormProperties').removeAt(i)"></i>
+                                        </div>
+                                        <div>
+                                            <button nz-button nzType="dashed" (click)="addControl(formGroup.get('invisibleFormProperties'))">添加字段</button>
+                                        </div>
+                                    </div>
+                                    <code [class.hide]="inEditing">{{formGroup.value.invisibleFormProperties}}</code>
+                                </nz-form-control>
+                            </nz-form-item>
+                        </div>
+                    </div>
+                    <div nz-row>
+                        <div nz-col [nzSpan]="12">
+                            <nz-form-item>
+                                <nz-form-label [nzSpan]="8">默认不可见的列</nz-form-label>
+                                <nz-form-control [nzSpan]="16" formArrayName="invisibleColumns">
+                                    <div [class.hide]="!inEditing">
+                                        <div *ngFor="let item of formGroup.get('invisibleColumns').controls; let i = index;">
+                                            <input nz-input [class.hide]="!inEditing" [formControlName]="i" />
+                                            <i class="anticon anticon-minus-circle-o dynamic-delete-button" (click)="formGroup.get('invisibleColumns').removeAt(i)"></i>
+                                        </div>
+                                        <div>
+                                            <button nz-button nzType="dashed" (click)="addControl(formGroup.get('invisibleColumns'))">添加字段</button>
+                                        </div>
+                                    </div>
+                                    <code [class.hide]="inEditing">{{formGroup.value.invisibleColumns}}</code>
+                                </nz-form-control>
+                            </nz-form-item>
+                        </div>
+                        <div nz-col [nzSpan]="12">
+                            <nz-form-item>
+                                <nz-form-label [nzSpan]="8">默认不可见的详情页字段</nz-form-label>
+                                <nz-form-control [nzSpan]="16" formArrayName="invisibleDetailPageProperties">
+                                    <div [class.hide]="!inEditing">
+                                        <div *ngFor="let item of formGroup.get('invisibleDetailPageProperties').controls; let i = index;">
+                                            <input nz-input [class.hide]="!inEditing" [formControlName]="i" />
+                                            <i class="anticon anticon-minus-circle-o dynamic-delete-button" (click)="formGroup.get('invisibleDetailPageProperties').removeAt(i)"></i>
+                                        </div>
+                                        <div>
+                                            <button nz-button nzType="dashed" (click)="addControl(formGroup.get('invisibleDetailPageProperties'))">添加字段</button>
+                                        </div>
+                                    </div>
+                                    <code [class.hide]="inEditing">{{formGroup.value.invisibleDetailPageProperties}}</code>
+                                </nz-form-control>
+                            </nz-form-item>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+    </form>
+</nz-card>
+<ng-template #cardActions>
+    <div *ngIf="formGroup">
+        <button nz-button nzType="primary" [disabled]="!formGroup.valid && inEditing" (click)="submitOrEdit()">{{inEditing? '提交': '编辑'}}</button>
+        <button nz-button nzType="danger" [disabled]="inEditing" [nzLoading]="inBuilding === 'view'" (click)="buildViewsFromRaml()">自动构建视图</button>
+        <button nz-button nzType="danger" [disabled]="inEditing" [nzLoading]="inBuilding === 'menu'" (click)="buildMenusFromModules()">自动构建菜单</button>
+    </div>
+</ng-template>

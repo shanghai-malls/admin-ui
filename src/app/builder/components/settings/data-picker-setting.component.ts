@@ -1,6 +1,6 @@
 import {Component, Input, Type} from '@angular/core';
 import {DataPicker, Text} from '../../../model/ui';
-import {ViewManagementComponent} from '../../../main/view/view-management.component';
+import {ViewManagementComponent} from '../../../main/management/view/view-management.component';
 
 @Component({
     template: `

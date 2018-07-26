@@ -5,9 +5,13 @@ import {Menu, MenuService} from '../model/menu.service';
 import {Setting, SettingService} from '../model/setting.service';
 import {TranslateService} from '../model/translate.service';
 import {RouterEvent} from '@angular/router/src/events';
+import {NzAutocompleteOptionComponent} from 'ng-zorro-antd';
+import {Subject} from 'rxjs';
+import {delay} from 'rxjs/operators';
+import {likeIgnoreCase} from '../model/function';
 
 @Component({
-    selector: 'r-workspace',
+    selector: 'workspace',
     templateUrl: 'workspace.component.html',
     styleUrls: ['workspace.component.less']
 })
@@ -16,12 +20,14 @@ export class WorkspaceComponent{
     focusSearch = false;
     isCollapsed = false;
     links: { path: string; text: string }[];
-    user = {name: 'admin', avatar: 'https://cipchk.github.io/ng-alain/assets/tmp/img/avatar.jpg'};
+    user = {name: 'admin'};
     settings: Setting;
-    menus: Promise<Menu[]>;
+    menusForSearch : Menu[];
+    subjectForSearch = new Subject<string>();
+
+    menus: Menu[];
     language: string;
     searchText: string;
-    searchHint: string;
     currentRoute: string;
 
     constructor(private router: Router,
@@ -31,9 +37,36 @@ export class WorkspaceComponent{
                 private translateService: TranslateService) {
         this.router.events.subscribe(this.initRouterView);
         this.settingsService.subscribe(settings => this.settings = settings);
-        this.menuService.subscribe(menus => this.menus = Promise.resolve(menus));
+        this.menuService.subscribe(menus => {
+            this.menus = menus;
+            this.menusForSearch = menus;
+            this.subjectForSearch.pipe(delay(300)).subscribe((text)=>{
+                if(!text){
+                    this.menusForSearch = this.menus;
+                    return;
+                }
+                let menusForSearch = [];
+                for (let g of menus) {
+                    let group = {displayName: g.displayName, path: g.path, children: []};
+                    if(g.children) {
+                        for (let child of g.children) {
+                            let {displayName, path} = child;
+
+                            if (displayName && path) {
+                                if(likeIgnoreCase(displayName, text) || likeIgnoreCase(path, text)) {
+                                    group.children.push({displayName, path});
+                                }
+                            }
+                        }
+                        if(group.children.length > 0) {
+                            menusForSearch.push(group);
+                        }
+                    }
+                }
+                this.menusForSearch = menusForSearch;
+            })
+        });
         this.language = this.i18n.getLocale();
-        this.searchHint = this.translateService.translate('header.search-placeholder');
     }
 
 
@@ -77,11 +110,18 @@ export class WorkspaceComponent{
 
     switchLanguage(lang: string) {
         this.i18n.setLocale(lang);
-        this.searchHint = this.translateService.translate('header.search-placeholder');
+        this.router.navigate([this.currentRoute])
     }
 
-    searchMenus(path: string) {
-        this.currentRoute = path;
-        this.router.navigate([path]);
+
+
+
+    searchMenus(text: string) {
+        this.subjectForSearch.next(text);
+    }
+
+    selectionChange(selectedOption: NzAutocompleteOptionComponent) {
+        this.currentRoute = selectedOption.nzValue;
+        this.router.navigate([this.currentRoute]);
     }
 }

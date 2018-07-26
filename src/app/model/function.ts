@@ -180,3 +180,13 @@ export function removeElement<T = any>(array:T[], element: T){
     let index = array.findIndex(e=>element === e);
     array.splice(index, 1);
 }
+
+export function likeIgnoreCase(source: string, searchString: string): boolean {
+    if (!source) {
+        return false;
+    }
+    if (!searchString) {
+        return true;
+    }
+    return source.toLowerCase().indexOf(searchString.toLowerCase()) !== -1;
+}

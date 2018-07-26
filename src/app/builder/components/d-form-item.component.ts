@@ -6,12 +6,14 @@ import {ResizeEvent} from './resize.directive';
     selector: 'd-form-item',
     template: `
         <nz-form-item nzFlex>
-            <nz-form-label [nzSpan]="24 - item.width">
-                <span class="form-label" resize (onResize)="doResize($event)">
-                    <input #labelText nz-input [(ngModel)]="item.label" placeholder="请输入label" (blur)="blur()" (keydown)="keydown($event)"  [class.hide]="!focused"/>
-                    <span (click)="focus()" [class.hide]="focused" [class.required]="item.required" class="label">{{item.label || item.field || 'label'}}</span>
-                </span>
-            </nz-form-label>
+            <div nz-col [nzSpan]="24 - item.width" resize (onResize)="doResize($event)">
+                <nz-form-label [nzRequired]="item.required" [class.hide]="focused" style="width: 100%">
+                    <span (click)="focus()">{{item.label || item.field || 'label'}}</span>
+                </nz-form-label>
+                <nz-form-control [class.hide]="!focused">
+                    <input #labelText nz-input [(ngModel)]="item.label" placeholder="请输入label" (blur)="blur()" (keydown)="keydown($event)"  />
+                </nz-form-control>
+            </div>
             <nz-form-control [nzSpan]="item.width">
                 <ng-content></ng-content>
             </nz-form-control>

@@ -23,7 +23,10 @@ export class DesignService {
         try {
             if(type && this.cell) {
                 if(this.cell.content) {
-                    this.cell.content.type = type;
+                    if(this.cell.content.hasOwnProperty('field')) {
+                        let {field, label, description, value, required,width} = this.cell.content;
+                        this.cell.content = {field, label, description, value, required, width, type} as FormItem;
+                    }
                 } else {
                     this.cell.content = UIComponent.create({type});
                 }

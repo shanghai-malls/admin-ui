@@ -39,7 +39,7 @@ import {Column} from '../../model/ui';
         }
     `],
 })
-export class DesignableColumnListComponent {
+export class DColumnListComponent {
     @Input()
     columns: Column[];
     selectedIndex: number;

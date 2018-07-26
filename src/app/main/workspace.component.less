@@ -2,8 +2,6 @@
 @import "../../theme.less";
 
 @header-padding: 16px;
-@layout-ease: cubic-bezier(.25, 0, .15, 1);
-@full-logo-width: 200px;
 
 .@{layout-prefix-cls} {
     &-header {
@@ -19,8 +17,8 @@
             box-shadow: 0 1px 10px rgba(0, 0, 0, 0.2);
             z-index: @zindex-affix;
             .logo {
-                width: @full-logo-width;
-                transition: width .2s @layout-ease;
+                width: 200px;
+                transition: width .2s cubic-bezier(.25, 0, .15, 1);
                 margin-left: -@header-padding;
                 a {
                     display: block;

@@ -1,6 +1,6 @@
 import {Component, Input} from '@angular/core';
 import {Form} from '../../../model/ui';
-import {InterfaceListComponent} from '../../../main/interface/interface-list.component';
+import {InterfaceListComponent} from '../../../main/management/interface/interface-list.component';
 
 @Component({
     template: `

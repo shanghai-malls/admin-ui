@@ -1,9 +1,7 @@
-import {Component, Input, OnInit, Type} from '@angular/core';
-import {Button, Row} from '../../../model/ui';
-import {ModalService} from '../../../model/modal.service';
-import {InterfaceListComponent} from '../../../main/interface/interface-list.component';
-import {ViewManagementComponent} from '../../../main/view/view-management.component';
-import {Subject} from 'rxjs';
+import {Component, Input} from '@angular/core';
+import {Button} from '../../../model/ui';
+import {InterfaceListComponent} from '../../../main/management/interface/interface-list.component';
+import {ViewManagementComponent} from '../../../main/management/view/view-management.component';
 
 @Component({
     template: `

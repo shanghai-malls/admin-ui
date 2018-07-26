@@ -21,6 +21,7 @@
     {
         word-break: keep-all;
         text-align: center;
+        font-size: 14px;
     }
 }
 
@@ -50,12 +51,19 @@ nz-dropdown-button {
     padding-right: @card-padding-base;
 }
 
+
+
 .gb-form {
     padding: @card-padding-base;
     background: @body-background;
 }
-
-
+.@{dialog-prefix-cls}-body {
+    .gb-form {
+        background: #f9f9f9;
+        border-radius: @border-radius-base;
+        border: @border-width-base @border-style-base #f6f6f6
+    }
+}
 
 .d-actions {
     position: absolute;
