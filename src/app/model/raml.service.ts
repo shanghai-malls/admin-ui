@@ -435,8 +435,6 @@ export class RamlService {
                 cells.push(new Cell({width: 0, content: item}));
             } else if (item instanceof FieldSet || item instanceof ArrayField || item instanceof MapField) {
                 cells.push(new Cell({width: 24, content: item}));
-            } else if (item instanceof TextArea) {
-                cells.push(new Cell({width: 16, content: item}));
             } else {
                 cells.push(new Cell({width: 8, content: item}));
             }

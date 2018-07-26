@@ -5,6 +5,7 @@ import {View, ViewService} from '../model/view.service';
 import {VPartComponent} from '../main/runner/components/v-part.component';
 import {ModalService} from '../model/modal.service';
 import {DMainComponent} from './d-main.component';
+import {Setting, SettingService} from '../model/setting.service';
 
 @Component({
     templateUrl: 'd-workspace.component.html',
@@ -19,6 +20,8 @@ export class DWorkspaceComponent {
 
     @ViewChild('saveBody')
     saveBody: TemplateRef<any>;
+
+    setting: Setting;
 
     groups: { icon: string; name: string; components: { type: string; name: string }[] }[] = [
         {
@@ -113,7 +116,9 @@ export class DWorkspaceComponent {
 
     constructor(private modalService: ModalService,
                 private designService: DesignService,
+                private settingsService: SettingService,
                 private viewService: ViewService) {
+        this.settingsService.subscribe(setting => this.setting = setting);
     }
 
 

@@ -21,7 +21,7 @@ export class WorkspaceComponent{
     isCollapsed = false;
     links: { path: string; text: string }[];
     user = {name: 'admin'};
-    settings: Setting;
+    setting: Setting;
     menusForSearch : Menu[];
     subjectForSearch = new Subject<string>();
 
@@ -33,10 +33,9 @@ export class WorkspaceComponent{
     constructor(private router: Router,
                 private i18n: I18nService,
                 private settingsService: SettingService,
-                private menuService: MenuService,
-                private translateService: TranslateService) {
+                private menuService: MenuService) {
         this.router.events.subscribe(this.initRouterView);
-        this.settingsService.subscribe(settings => this.settings = settings);
+        this.settingsService.subscribe(setting => this.setting = setting);
         this.menuService.subscribe(menus => {
             this.menus = menus;
             this.menusForSearch = menus;

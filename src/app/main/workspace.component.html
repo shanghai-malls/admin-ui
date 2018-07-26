@@ -3,7 +3,7 @@
         <div class="header-panel">
             <div class="logo">
                 <a [routerLink]="['/']">
-                    <img alt="logo" [src]=" settings?.logo || './assets/logo-full.svg'" style="max-height:40px;" >
+                    <img alt="logo" [src]=" setting?.logo || './assets/logo-full.svg'">
                 </a>
             </div>
             <div class="top-nav-wrap">
@@ -73,7 +73,7 @@
     </nz-header>
     <nz-layout>
         <nz-sider [(nzCollapsed)]="isCollapsed" >
-            <ul nz-menu [nzMode]="'inline'" [nzInlineCollapsed]="isCollapsed" *ngIf="menus !== null">
+            <ul nz-menu [nzMode]="'inline'" [nzInlineCollapsed]="isCollapsed" *ngIf="menus !== null" class="height-100">
                 <li nz-submenu *ngFor="let menu of menus" [nzOpen]="isOpen(menu)">
                     <span title><i [class]="menu.icon"></i><span class="nav-text">{{menu.displayName}}</span></span>
                     <ul>
@@ -97,22 +97,20 @@
             </ul>
         </nz-sider>
 
-        <nz-layout>
-            <nz-content>
-                <div class="content-title-well">
-                    <nz-breadcrumb style="margin:16px 0;">
-                        <nz-breadcrumb-item>
-                            <a routerLink="">Home</a>
-                        </nz-breadcrumb-item>
-                        <nz-breadcrumb-item *ngFor="let segment of links">
-                            <a routerLink="{{segment.path}}">{{segment.text}}</a>
-                        </nz-breadcrumb-item>
-                    </nz-breadcrumb>
-                </div>
-                <div class="content-body">
-                    <router-outlet ></router-outlet>
-                </div>
-            </nz-content>
-        </nz-layout>
+        <nz-content>
+            <div class="content-title-well">
+                <nz-breadcrumb style="margin:16px 0;">
+                    <nz-breadcrumb-item>
+                        <a routerLink="">Home</a>
+                    </nz-breadcrumb-item>
+                    <nz-breadcrumb-item *ngFor="let segment of links">
+                        <a routerLink="{{segment.path}}">{{segment.text}}</a>
+                    </nz-breadcrumb-item>
+                </nz-breadcrumb>
+            </div>
+            <div class="content-body">
+                <router-outlet ></router-outlet>
+            </div>
+        </nz-content>
     </nz-layout>
 </nz-layout>

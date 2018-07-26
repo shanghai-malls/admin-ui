@@ -24,7 +24,7 @@ export class DesignService {
             if(type && this.cell) {
                 if(this.cell.content) {
                     if(this.cell.content.hasOwnProperty('field')) {
-                        let {field, label, description, value, required,width} = this.cell.content;
+                        let {field, label, description, value, required,width} = this.cell.content as FormItem;
                         this.cell.content = {field, label, description, value, required, width, type} as FormItem;
                     }
                 } else {

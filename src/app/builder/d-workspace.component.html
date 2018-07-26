@@ -3,7 +3,7 @@
         <div class="header-panel">
             <div class="logo">
                 <a [routerLink]="['/']">
-                    <img alt="logo" src="assets/logo-full.svg" style="max-height:40px;" >
+                    <img alt="logo" [src]=" setting?.logo || './assets/logo-full.svg'">
                 </a>
             </div>
         </div>
@@ -11,13 +11,13 @@
     <nz-layout>
         <nz-layout class="workplace">
             <nz-sider>
-                <div class="sider-inner-group-list">
-                    <div *ngFor="let group of groups" class="sider-inner-group-item">
-                        <h4><i class="anticon anticon-{{group.icon}}"></i> {{group.name}}</h4>
-                        <div class="sider-inner-group-item-body">
+                <div class="add-component-panel">
+                    <div *ngFor="let group of groups" class="add-component-group">
+                        <h4 class="group-title"><i class="anticon anticon-{{group.icon}}"></i> {{group.name}}</h4>
+                        <div class="group-body">
                             <div nz-row [nzGutter]="12">
                                 <div *ngFor="let component of group.components" nz-col [nzSpan]="12">
-                                    <a (click)="addComponent(component.type)">{{component.name}}</a>
+                                    <a class="add-component-link" (click)="addComponent(component.type)">{{component.name}}</a>
                                 </div>
                             </div>
                         </div>
