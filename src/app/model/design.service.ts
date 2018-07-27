@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {NzMessageService} from 'ng-zorro-antd';
-import {Cell, Component as UIComponent, Component, FormItem} from './ui';
+import {Cell, Component, Component as UIComponent, FormItem} from './ui';
 
 @Injectable()
 export class DesignService {
@@ -25,7 +25,7 @@ export class DesignService {
                 if(this.cell.content) {
                     if(this.cell.content.hasOwnProperty('field')) {
                         let {field, label, description, value, required,width} = this.cell.content as FormItem;
-                        this.cell.content = {field, label, description, value, required, width, type} as FormItem;
+                        this.cell.content = Component.create({field, label, description, value, required, width, type});
                     }
                 } else {
                     this.cell.content = UIComponent.create({type});

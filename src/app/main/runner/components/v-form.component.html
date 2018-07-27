@@ -55,7 +55,7 @@
                             </nz-radio-group>
                         </ng-container>
                         <ng-container *ngIf="cell.content.type === 'checkbox'">
-                            <nz-checkbox-group ></nz-checkbox-group>
+                            <nz-checkbox-group [formControlName]="cell.content.field" [nzDisabled]="cell.content.readonly"></nz-checkbox-group>
                         </ng-container>
                         <ng-container *ngIf="cell.content.type === 'switch'">
                             <nz-switch *ngIf="cell.content.mode == 'switch'" [formControlName]="cell.content.field" [nzDisabled]="cell.content.readonly"></nz-switch>

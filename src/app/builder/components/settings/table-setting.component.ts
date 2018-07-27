@@ -1,5 +1,5 @@
 import {Component, Input} from '@angular/core';
-import {Table, Text} from '../../../model/ui';
+import {Table} from '../../../model/ui';
 
 @Component({
     template: `

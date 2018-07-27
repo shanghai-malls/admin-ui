@@ -177,8 +177,8 @@ export function capitalize(text: string){
 
 
 export function removeElement<T = any>(array:T[], element: T){
-    let index = array.findIndex(e=>element === e);
-    array.splice(index, 1);
+    let ii = array.findIndex(e=>element === e);
+    array.splice(ii, 1);
 }
 
 export function likeIgnoreCase(source: string, searchString: string): boolean {
@@ -190,3 +190,4 @@ export function likeIgnoreCase(source: string, searchString: string): boolean {
     }
     return source.toLowerCase().indexOf(searchString.toLowerCase()) !== -1;
 }
+

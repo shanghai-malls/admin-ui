@@ -1,5 +1,5 @@
-import {ArrayTypeDeclaration, ObjectTypeDeclaration, TypeDeclaration} from './raml';
-import {format} from 'date-fns'
+import {ArrayTypeDeclaration, ObjectTypeDeclaration} from './raml';
+import {format} from 'date-fns';
 
 export namespace TypeFactory{
     export class DateTime extends Date {

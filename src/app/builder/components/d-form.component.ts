@@ -62,7 +62,8 @@ export class DFormComponent implements OnInit {
         for (let cell of this.form.children) {
             let formItem = cell.content as FormItem;
             if (formItem.type === 'date' || formItem.type === 'date-range'
-                || formItem.type === 'rich-text' || formItem.type === 'textarea') {
+                || formItem.type === 'rich-text' || formItem.type === 'textarea'
+                || formItem.type === 'cascader' || formItem.type === 'checkbox' ) {
                 cell.content = UIComponent.create(formItem)
             }
 

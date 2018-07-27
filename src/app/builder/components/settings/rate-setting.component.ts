@@ -1,5 +1,5 @@
 import {Component, Input} from '@angular/core';
-import {Rate, Text} from '../../../model/ui';
+import {Rate} from '../../../model/ui';
 
 @Component({
     template: `

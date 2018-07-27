@@ -1,5 +1,5 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {Component as UIComponent, DetailPanel, Form, TabSet} from '../../model/ui';
+import {DetailPanel, Form, TabSet} from '../../model/ui';
 import {ViewService} from '../../model/view.service';
 import {removeElement} from '../../model/function';
 

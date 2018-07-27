@@ -2,7 +2,6 @@ import {Component, Input, OnInit, QueryList, ViewChildren} from '@angular/core';
 import {Button, Column, Table} from '../../model/ui';
 import {Header} from '../../model/header';
 import {removeElement} from '../../model/function';
-import {DFormItemComponent} from './d-form-item.component';
 import {DHeaderComponent} from './d-header.component';
 
 

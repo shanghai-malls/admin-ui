@@ -7,7 +7,8 @@ import {
     PageType,
     Raml,
     Resource,
-    Response, RevisionType,
+    Response,
+    RevisionType,
     SimpleTypeDeclaration,
     TypeDeclaration
 } from './raml';
@@ -18,12 +19,13 @@ import {View, ViewService} from './view.service';
 import {
     ArrayField,
     Button,
-    Card,
     Cell,
     Column,
     Component,
     DatePicker,
-    DateRangePicker, DetailPanel, DisplayText,
+    DateRangePicker,
+    DetailPanel,
+    DisplayText,
     FieldSet,
     Form,
     FormItem,
@@ -31,8 +33,10 @@ import {
     MapField,
     Row,
     Select,
-    Switch, Tab,
-    Table, TabSet,
+    Switch,
+    Tab,
+    Table,
+    TabSet,
     Text,
     TextArea,
     UploadPicker

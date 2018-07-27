@@ -1,5 +1,5 @@
 import {NavigationEnd, Router} from '@angular/router';
-import {View, ViewService} from '../../model/view.service';
+import {ViewService} from '../../model/view.service';
 import {Component, OnDestroy} from '@angular/core';
 import {RouterEvent} from '@angular/router/src/events';
 import {Subscription} from 'rxjs';

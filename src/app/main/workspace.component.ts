@@ -1,9 +1,8 @@
-import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
+import {Component} from '@angular/core';
 import {NavigationEnd, Router} from '@angular/router';
 import {I18nService} from '../model/i18n.service';
 import {Menu, MenuService} from '../model/menu.service';
 import {Setting, SettingService} from '../model/setting.service';
-import {TranslateService} from '../model/translate.service';
 import {RouterEvent} from '@angular/router/src/events';
 import {NzAutocompleteOptionComponent} from 'ng-zorro-antd';
 import {Subject} from 'rxjs';

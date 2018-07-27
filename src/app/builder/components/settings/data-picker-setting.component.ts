@@ -1,5 +1,5 @@
 import {Component, Input, Type} from '@angular/core';
-import {DataPicker, Text} from '../../../model/ui';
+import {DataPicker} from '../../../model/ui';
 import {ViewManagementComponent} from '../../../main/management/view/view-management.component';
 
 @Component({

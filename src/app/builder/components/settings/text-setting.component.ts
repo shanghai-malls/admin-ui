@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input} from '@angular/core';
 import {Text} from '../../../model/ui';
 
 @Component({
@@ -27,7 +27,7 @@ import {Text} from '../../../model/ui';
                     <nz-form-item>
                         <nz-form-label nzSpan="8">是否必填</nz-form-label>
                         <nz-form-control nzSpan="16">
-                            <nz-switch  [(ngModel)]="value.required"></nz-switch>
+                            <nz-switch [(ngModel)]="value.required"></nz-switch>
                         </nz-form-control>
                     </nz-form-item>
                 </div>
@@ -53,11 +53,8 @@ import {Text} from '../../../model/ui';
     styles: [`
     `]
 })
-export class TextSettingComponent implements OnInit {
+export class TextSettingComponent {
     @Input()
     value: Text;
-
-    ngOnInit(): void {
-    }
 
 }

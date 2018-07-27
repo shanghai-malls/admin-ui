@@ -1,21 +1,23 @@
 @import "../../main/runner/components/v-form.component.less";
 :host {
-    display: block;
     position: relative;
 }
 
 .plate{
     box-shadow: @box-shadow-base;
     cursor: move;
-    min-height: 64px;
+    min-height: 63px;
     width: 100%;
+    background: @background-color-base;
     ::ng-deep .ant-form-item{
         margin-bottom: 0 !important;
     }
 }
+
 .visible {
     opacity: 1;
 }
+
 .body:hover {
     .wrapper {
         .plate

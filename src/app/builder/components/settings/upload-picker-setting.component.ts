@@ -1,5 +1,5 @@
 import {Component, Input} from '@angular/core';
-import {Text, UploadPicker} from '../../../model/ui';
+import {UploadPicker} from '../../../model/ui';
 
 @Component({
     template: `

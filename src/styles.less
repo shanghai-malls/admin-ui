@@ -1,5 +1,6 @@
 /* You can add global styles to this file, and also import other style files */
-@import "theme";
+@import "../node_modules/ng-zorro-antd/src/ng-zorro-antd.less";
+@import "theme.less";
 
 .disabled {
     cursor: not-allowed !important;
@@ -9,6 +10,8 @@
 .hide {
     display: none !important;
 }
+
+
 
 .@{input-number-prefix-cls} {
     width: 100%;
@@ -116,17 +119,21 @@ nz-dropdown-button {
     height: 100%;
 }
 .fixed-sider {
-    position: fixed;
     height:100%;
-    border-right: @border-width-base @border-style-base @border-color-split;
-    z-index: 0;
     width:200px;
+    top: 0;
+    left: 0;
+    position: fixed;
+    border-right: @border-width-base @border-style-base @border-color-split;
+    z-index: -1;
     background:  @body-background
 }
 .fixed-background {
-    position: fixed;
     width: 100%;
     height: 100%;
+    top: 0;
+    left: 0;
+    position: fixed;
     background: @background-color-base;
-    z-index: -1;
+    z-index: -2;
 }

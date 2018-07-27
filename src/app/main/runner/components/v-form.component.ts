@@ -1,5 +1,5 @@
 import {Component, EventEmitter, HostBinding, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
-import {ArrayField, Cell, DatePicker, Form, FormItem, MapField, TextArea} from '../../../model/ui';
+import {Component as UIComponent, Form, FormItem} from '../../../model/ui';
 import {FormArray, FormControl, FormGroup, ValidationErrors, Validators} from '@angular/forms';
 import {HttpOptions, HttpService} from '../../../model/http.service';
 import {extractUriParameters, formatPath} from '../../../model/function';
@@ -45,8 +45,8 @@ export class VFormComponent implements OnInit, OnChanges {
 
     ngOnInit(): void {
         this.uriParameters = extractUriParameters(this.path, this.route);
-        this.formGroup = this.initFormGroup();
         this.processForm();
+        this.formGroup = this.initFormGroup();
         this.onActions.emit({eventType: 'init'});
     }
 
@@ -72,12 +72,10 @@ export class VFormComponent implements OnInit, OnChanges {
         for (let cell of this.form.children) {
             let formItem = cell.content as FormItem;
 
-            if (formItem.type === 'date' || formItem.type === 'date-range') {
-                Object.setPrototypeOf(formItem, DatePicker.prototype);
-            }
-
-            if (formItem.type === 'rich-text' || formItem.type === 'textarea') {
-                Object.setPrototypeOf(formItem, TextArea.prototype);
+            if (formItem.type === 'date' || formItem.type === 'date-range'
+                || formItem.type === 'rich-text' || formItem.type === 'textarea'
+                || formItem.type === 'cascader' || formItem.type === 'checkbox' ) {
+                cell.content = UIComponent.create(formItem)
             }
 
 
@@ -128,8 +126,6 @@ export class VFormComponent implements OnInit, OnChanges {
         if (this.value) {
             formGroup.patchValue(this.value);
         } else if(this.form.autoLoadUrl) {
-            console.log(this.uriParameters);
-            console.log(formatPath(this.form.autoLoadUrl, this.uriParameters));
             this.http
                 .request('get', formatPath(this.form.autoLoadUrl, this.uriParameters), {convertResult: true})
                 .then(value=>this.formGroup.patchValue(value));

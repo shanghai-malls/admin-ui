@@ -1,7 +1,7 @@
 import {Component, TemplateRef, ViewChild} from '@angular/core';
 import {DesignService} from '../model/design.service';
 import {Component as UIComponent} from '../model/ui';
-import {View, ViewService} from '../model/view.service';
+import {ViewService} from '../model/view.service';
 import {VPartComponent} from '../main/runner/components/v-part.component';
 import {ModalService} from '../model/modal.service';
 import {DMainComponent} from './d-main.component';
@@ -13,7 +13,7 @@ import {Setting, SettingService} from '../model/setting.service';
 })
 export class DWorkspaceComponent {
 
-    view: View;
+    routerChild: DMainComponent;
 
     @ViewChild('modalHeader')
     modalHeader: TemplateRef<any>;
@@ -153,6 +153,10 @@ export class DWorkspaceComponent {
     }
 
     activate(event: DMainComponent) {
-        this.view = event.view;
+        this.routerChild = event;
+    }
+
+    get view(){
+        return this.routerChild.view;
     }
 }

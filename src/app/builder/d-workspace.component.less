@@ -3,37 +3,36 @@
 
 .footer {
     text-align: right;
-    position: fixed;
     left:0;
     bottom: 0;
     width: 100%;
-    z-index: 2;
     border-top: @border-width-base @border-style-base @border-color-split;
 }
 
 .workplace {
-    .add-component-panel  {
-        padding: 24px;
-        height: 100%;
-        border-right: @border-width-base @border-style-base @border-color-split;
-        .add-component-group {
-            line-height: 2.0;
-            margin-top:10px;
-            &:first-child {
-                margin-top: 7px;
-            }
-            .group-title {
-                border-bottom: @border-style-base @border-width-base @border-color-base;
-            }
-            .group-body {
-                padding-left: 8px;
-                a.add-component-link {
-                    color: @text-color;
-                    &:hover {
-                        color: @primary-color !important;
-                    }
-                }
-            }
-        }
+    overflow-y: auto;
+}
+.add-component-panel  {
+    padding: 24px;
+    height: 100%;
+    border-right: @border-width-base @border-style-base @border-color-split;
+}
+.add-component-group {
+    line-height: 2.0;
+    margin-top:10px;
+    &:first-child {
+        margin-top: 7px;
+    }
+}
+.group-title {
+    border-bottom: @border-style-base @border-width-base @border-color-base;
+}
+.group-body {
+    padding-left: 8px;
+}
+.add-component-link {
+    color: @text-color;
+    &:hover {
+        color: @primary-color;
     }
 }

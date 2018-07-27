@@ -48,7 +48,7 @@
                 <td *ngIf="!column.hide"></td>
             </ng-container>
             <td nzRight="0px">
-                <div style="text-align: left" class="d-buttons">
+                <div class="d-buttons">
                     <ng-container *ngFor="let button of table.operationColumnButtons">
                         <d-button [button]="button" [removeable]="true" (onDelete)="deleteOperationColumnButton($event)"></d-button>
                     </ng-container>

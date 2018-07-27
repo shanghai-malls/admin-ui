@@ -1,5 +1,5 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {Choice, Option, Text} from '../../../model/ui';
+import {Choice, Option} from '../../../model/ui';
 
 @Component({
     template: `
@@ -24,68 +24,60 @@ import {Choice, Option, Text} from '../../../model/ui';
                 </div>
 
                 <div nz-col nzSpan="24">
-                    <fieldset>
-                        <legend>设置选项</legend>
-                        <button nz-button [nzType]="'primary'" (click)="value.options.push({label:'文本', value: '值'})">添加选项</button>
-                        <nz-table [nzData]="value.options" [nzBordered]="false" [nzShowPagination]="false">
-                            <thead>
-                                <tr>
-                                    <th nzShowExpand></th>
-                                    <th style="text-align: left">选项文本</th>
-                                    <th style="text-align: left">选项值</th>
-                                    <th style="text-align: left; max-width: 150px">操作</th>
+                    <button nz-button [nzType]="'primary'" (click)="value.options.push({label:'文本', value: '值'})">添加选项</button>
+                    <nz-table [nzData]="value.options" [nzBordered]="false" [nzShowPagination]="false">
+                        <thead>
+                        <tr class="text-align-left">
+                            <th nzShowExpand></th>
+                            <th >选项文本</th>
+                            <th >选项值</th>
+                            <th style="max-width: 150px">操作</th>
+                        </tr>
+                        </thead>
+                        <tbody >
+                        <ng-template #optionTpl let-options="options" let-level="level">
+                            <ng-container *ngFor="let option of options; let i = index">
+                                <tr class="text-align-left">
+                                    <td [nzShowExpand]="option.children" [(nzExpand)]="option.expand"></td>
+                                    <td [nzIndentSize]="level*30" >
+                                        <input nz-input [(ngModel)]="option.label" style="width: 60%"/>
+                                    </td>
+                                    <td>
+                                        <input nz-input [(ngModel)]="option.value" style="width: 60%"/>
+                                    </td>
+                                    <td>
+                                        <a (click)="addSubOption(option)" *ngIf="value.type === 'cascader' ">添加子选项</a>
+                                        &nbsp;&nbsp;&nbsp;
+                                        <a (click)="options.splice(i, 1)"> 删除</a>
+                                    </td>
                                 </tr>
-                            </thead>
-                            <tbody>
-                                <ng-template #optionTpl let-options="options" let-level="level">
-                                    <ng-container *ngFor="let option of options; let i = index">
-                                        <tr>
-                                            <td [nzShowExpand]="option.children" [(nzExpand)]="option.expand"></td>
-                                            <td [nzIndentSize]="level*30" >
-                                                <input nz-input [(ngModel)]="option.label" style="width: 60%"/>
-                                            </td>
-                                            <td>
-                                                <input nz-input [(ngModel)]="option.value" style="width: 60%"/>
-                                            </td>
-                                            <td>
-                                                <a (click)="addSubOption(option)" *ngIf="value.type === 'cascader' ">添加子选项</a>
-                                                &nbsp;&nbsp;&nbsp;
-                                                <a (click)="options.splice(i, 1)"> 删除</a>
-                                            </td>
-                                        </tr>
-                                        <ng-container *ngIf="option.expand">
-                                            <ng-container *ngTemplateOutlet="optionTpl;context:{options: option.children, level: level + 1 }"></ng-container>
-                                        </ng-container>
-                                    </ng-container>
-                                </ng-template>
-                                <ng-container *ngTemplateOutlet="optionTpl;context:{options: value.options, level: 0 }"></ng-container>
-                            </tbody>
-                        </nz-table>
-                    </fieldset>
+                                <ng-container *ngIf="option.expand">
+                                    <ng-container *ngTemplateOutlet="optionTpl;context:{options: option.children, level: level + 1 }"></ng-container>
+                                </ng-container>
+                            </ng-container>
+                        </ng-template>
+                        <ng-container *ngTemplateOutlet="optionTpl;context:{options: value.options, level: 0 }"></ng-container>
+                        </tbody>
+                    </nz-table>
                 </div>
             </div>
         </div>
     `,
-    styleUrls: ['settings.less']
+    styles: [`
+        .text-align-left > td,
+        .text-align-left > th {
+            word-break: break-word;
+            text-align: left;
+        }
+    `]
 })
 export class ChoiceSettingComponent implements OnInit{
     @Input()
     value: Choice;
 
     ngOnInit(): void {
-        let options = this.value.options;
-        if(this.value.type === 'cascader') {
-            this.updateOptionsLeaf(options);
-        }
-    }
-
-    updateOptionsLeaf(options: Option[]){
-        for (let option of options) {
-            if(!option.children) {
-                option.isLeaf = true;
-            } else {
-                this.updateOptionsLeaf(option.children);
-            }
+        if(!this.value.options) {
+            this.value.options = [...Choice.DEFAULT_OPTIONS];
         }
     }
 

@@ -3,9 +3,8 @@ import {HttpHeaders} from '@angular/common/http/src/headers';
 import {HttpParams} from '@angular/common/http/src/params';
 import {HttpClient, HttpErrorResponse, HttpResponse} from '@angular/common/http';
 import {NzMessageService} from 'ng-zorro-antd';
-import {ArrayTypeDeclaration, Method, ObjectTypeDeclaration, Raml, Resource, SimpleTypeDeclaration, TypeDeclaration} from './raml';
+import {ArrayTypeDeclaration, Method, ObjectTypeDeclaration, Resource, SimpleTypeDeclaration, TypeDeclaration} from './raml';
 import {RamlService} from './raml.service';
-import {Observable, from, concat} from 'rxjs';
 import {TypeFactory} from './type-factory';
 import {isCompatible} from './function';
 

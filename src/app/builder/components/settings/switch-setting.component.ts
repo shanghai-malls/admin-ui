@@ -1,5 +1,5 @@
 import {Component, Input} from '@angular/core';
-import {Switch, Text} from '../../../model/ui';
+import {Switch} from '../../../model/ui';
 
 @Component({
     template: `

@@ -1,5 +1,5 @@
 import {EventEmitter, Injectable, TemplateRef, Type} from '@angular/core';
-import {NzModalService, ConfirmType, ModalOptionsForService, OnClickCallback, NzModalRef} from 'ng-zorro-antd';
+import {ConfirmType, ModalOptionsForService, NzModalRef, NzModalService, OnClickCallback} from 'ng-zorro-antd';
 import {modalZIndex} from './function';
 
 

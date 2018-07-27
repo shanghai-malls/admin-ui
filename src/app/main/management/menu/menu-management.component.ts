@@ -1,6 +1,5 @@
 import {Component, OnInit} from '@angular/core';
 import {IconManagementComponent} from '../icon/icon-management.component';
-import {Subject} from 'rxjs';
 import {ViewManagementComponent} from '../view/view-management.component';
 import {MenuService} from '../../../model/menu.service';
 import {I18nService} from '../../../model/i18n.service';

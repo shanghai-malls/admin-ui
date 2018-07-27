@@ -425,10 +425,24 @@ export class Cascader extends Choice {
         {label: '选项3', value: 3, isLeaf: true},
     ];
     options= Cascader.DEFAULT_OPTIONS;
+
+
     constructor(definition: any) {
         super();
         copy(this, definition);
+        Cascader.updateOptionsLeaf(this.options);
     }
+
+    static updateOptionsLeaf(options: Option[]){
+        for (let option of options) {
+            if(!option.children) {
+                option.isLeaf = true;
+            } else {
+                this.updateOptionsLeaf(option.children);
+            }
+        }
+    }
+
 }
 
 export class Select extends Choice {
@@ -441,6 +455,25 @@ export class Radio extends Choice {
 
 export class Checkbox extends Choice {
     type = 'checkbox';
+
+
+    constructor(definition: any) {
+        super();
+        copy(this, definition);
+        Checkbox.updateOptionsChecked(this.options, this.value);
+    }
+
+    static updateOptionsChecked(options: Option[], array: any[]){
+        if(array) {
+            for (let value of array) {
+                for (let option of options) {
+                    if(option.value == value) {
+                        option.checked = true;
+                    }
+                }
+            }
+        }
+    }
 }
 
 export class Switch extends FormItem {
@@ -595,7 +628,7 @@ export class MapFieldSet extends FieldSet {
 
 function copy(target: any, definition?: any) {
     if (definition) {
-        Object.assign<any, any>(target, definition);
+        Object.assign(target, definition);
         if (definition.children) {
             target.children = definition.children.map(e=>Component.create(e));
         }

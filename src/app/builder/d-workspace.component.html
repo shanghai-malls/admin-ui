@@ -8,41 +8,39 @@
             </div>
         </div>
     </nz-header>
-    <nz-layout>
-        <nz-layout class="workplace">
-            <nz-sider>
-                <div class="add-component-panel">
-                    <div *ngFor="let group of groups" class="add-component-group">
-                        <h4 class="group-title"><i class="anticon anticon-{{group.icon}}"></i> {{group.name}}</h4>
-                        <div class="group-body">
-                            <div nz-row [nzGutter]="12">
-                                <div *ngFor="let component of group.components" nz-col [nzSpan]="12">
-                                    <a class="add-component-link" (click)="addComponent(component.type)">{{component.name}}</a>
-                                </div>
+    <nz-layout class="workplace">
+        <nz-sider>
+            <div class="add-component-panel">
+                <div *ngFor="let group of groups" class="add-component-group">
+                    <h4 class="group-title"><i class="anticon anticon-{{group.icon}}"></i> {{group.name}}</h4>
+                    <div class="group-body">
+                        <div nz-row [nzGutter]="12">
+                            <div *ngFor="let component of group.components" nz-col [nzSpan]="12">
+                                <a class="add-component-link" (click)="addComponent(component.type)">{{component.name}}</a>
                             </div>
                         </div>
                     </div>
                 </div>
-            </nz-sider>
-            <nz-content>
-                <div class="content-title-well">
-                    <nz-breadcrumb style="margin:16px 0;">
-                        <nz-breadcrumb-item>
-                            视图设计工作台
-                        </nz-breadcrumb-item>
-                    </nz-breadcrumb>
-                </div>
-                <div class="content-body">
-                    <router-outlet (activate)="activate($event)" ></router-outlet>
-                </div>
-            </nz-content>
-        </nz-layout>
-        <nz-footer class="footer">
-            <button nz-button (click)="preview()"><i class="anticon anticon-eye" ></i>预览</button>
-            <button nz-button [nzType]="'primary'" (click)="saveView()"><i class="anticon anticon-save"></i>保存</button>
-            <button nz-button [nzType]="'danger'" (click)="deleteView()"><i class="anticon anticon-delete"></i>删除</button>
-        </nz-footer>
+            </div>
+        </nz-sider>
+        <nz-content>
+            <div class="content-title-well">
+                <nz-breadcrumb>
+                    <nz-breadcrumb-item>
+                        视图设计工作台
+                    </nz-breadcrumb-item>
+                </nz-breadcrumb>
+            </div>
+            <div class="content-body">
+                <router-outlet (activate)="activate($event)" ></router-outlet>
+            </div>
+        </nz-content>
     </nz-layout>
+    <nz-footer class="footer">
+        <button nz-button (click)="preview()"><i class="anticon anticon-eye" ></i>预览</button>
+        <button nz-button [nzType]="'primary'" (click)="saveView()"><i class="anticon anticon-save"></i>保存</button>
+        <button nz-button [nzType]="'danger'" (click)="deleteView()"><i class="anticon anticon-delete"></i>删除</button>
+    </nz-footer>
 </nz-layout>
 
 <ng-template #modalHeader>{{view.name}}</ng-template>

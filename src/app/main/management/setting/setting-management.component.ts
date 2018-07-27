@@ -24,7 +24,6 @@ export class SettingManagementComponent implements OnInit {
                 private ramlService: RamlService,
                 private viewService: ViewService,
                 private menuService: MenuService) {
-
     }
 
     ngOnInit(): void {
@@ -69,6 +68,7 @@ export class SettingManagementComponent implements OnInit {
             });
         });
     }
+
 
     createFormArray(array: string[]){
         return new FormArray(array.map(e => new FormControl(e, [Validators.required, Validators.maxLength(50)])));
