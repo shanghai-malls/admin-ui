@@ -18,6 +18,7 @@ import {SwitchSettingComponent} from './settings/switch-setting.component';
 import {TimePickerSettingComponent} from './settings/time-picker-setting.component';
 import {ChoiceSettingComponent} from './settings/choice-setting.component';
 import {DesignService} from '../../model/design.service';
+import {HideFormItemsSettingComponent} from './settings/hide-form-items-setting.component';
 
 @Component({
     selector: 'd-form',
@@ -204,9 +205,11 @@ export class DFormComponent implements OnInit {
         this.modalService.openDesignSetting(title, FormSettingComponent, params);
     }
 
-    addCell(){
-        this.form.children.push(new Cell());
-        this.markCollapseIndex = this.form.children.length;
+    showHideFormItems(){
+        let items = this.form.children.filter(cell=>cell.width === 0);
+        let title = "恢复被隐藏的表单字段";
+
+        this.modalService.openDesignSetting(title, HideFormItemsSettingComponent, {items});
     }
 
 

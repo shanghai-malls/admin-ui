@@ -123,7 +123,7 @@
                                     <div [class.hide]="!inEditing">
                                         <div *ngFor="let item of formGroup.get('invisibleQueryParameters').controls; let i = index;" >
                                             <input nz-input [formControlName]="i"/>
-                                            <i class="anticon anticon-minus-circle-o dynamic-delete-button" (click)="formGroup.get('invisibleQueryParameters').removeAt(i)"></i>
+                                            <i class="anticon anticon-minus-circle-o large-icon" (click)="formGroup.get('invisibleQueryParameters').removeAt(i)"></i>
                                         </div>
                                         <div>
                                             <button nz-button nzType="dashed" (click)="addControl(formGroup.get('invisibleQueryParameters'))">添加字段</button>
@@ -140,7 +140,7 @@
                                     <div [class.hide]="!inEditing">
                                         <div *ngFor="let item of formGroup.get('invisibleFormProperties').controls; let i = index;" >
                                             <input nz-input [formControlName]="i"/>
-                                            <i class="anticon anticon-minus-circle-o dynamic-delete-button" (click)="formGroup.get('invisibleFormProperties').removeAt(i)"></i>
+                                            <i class="anticon anticon-minus-circle-o large-icon" (click)="formGroup.get('invisibleFormProperties').removeAt(i)"></i>
                                         </div>
                                         <div>
                                             <button nz-button nzType="dashed" (click)="addControl(formGroup.get('invisibleFormProperties'))">添加字段</button>
@@ -159,7 +159,7 @@
                                     <div [class.hide]="!inEditing">
                                         <div *ngFor="let item of formGroup.get('invisibleColumns').controls; let i = index;">
                                             <input nz-input [class.hide]="!inEditing" [formControlName]="i" />
-                                            <i class="anticon anticon-minus-circle-o dynamic-delete-button" (click)="formGroup.get('invisibleColumns').removeAt(i)"></i>
+                                            <i class="anticon anticon-minus-circle-o large-icon" (click)="formGroup.get('invisibleColumns').removeAt(i)"></i>
                                         </div>
                                         <div>
                                             <button nz-button nzType="dashed" (click)="addControl(formGroup.get('invisibleColumns'))">添加字段</button>
@@ -176,7 +176,7 @@
                                     <div [class.hide]="!inEditing">
                                         <div *ngFor="let item of formGroup.get('invisibleDetailPageProperties').controls; let i = index;">
                                             <input nz-input [class.hide]="!inEditing" [formControlName]="i" />
-                                            <i class="anticon anticon-minus-circle-o dynamic-delete-button" (click)="formGroup.get('invisibleDetailPageProperties').removeAt(i)"></i>
+                                            <i class="anticon anticon-minus-circle-o large-icon" (click)="formGroup.get('invisibleDetailPageProperties').removeAt(i)"></i>
                                         </div>
                                         <div>
                                             <button nz-button nzType="dashed" (click)="addControl(formGroup.get('invisibleDetailPageProperties'))">添加字段</button>

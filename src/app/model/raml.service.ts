@@ -4,7 +4,7 @@ import {
     DocumentationItem,
     Method,
     ObjectTypeDeclaration,
-    PageType,
+    PageType, PagingParameters,
     Raml,
     Resource,
     Response,
@@ -431,7 +431,7 @@ export class RamlService {
         for (let property of properties) {
             this.flatTypeDeclarationAndConvertToFormItem(mode, items, property);
         }
-        this.processI18NInvisible(mode, items);
+        this.processInvisibleItems(mode, items);
 
         let cells = [];
         for (let item of items) {
@@ -591,9 +591,15 @@ export class RamlService {
         return columns;
     }
 
-    private processI18NInvisible(mode: string, items: FormItem[]){
+    private processInvisibleItems(mode: string, items: FormItem[]){
         let hideProperties;
         if (mode === 'q') {
+            for (let i = items.length - 1; i >= 0; i--) {
+                let item = items[i];
+                if(PagingParameters.indexOf(item.field) !== -1) {
+                    items.splice(i, 1);
+                }
+            }
             hideProperties = this.settings.invisibleQueryParameters;
         } else if (mode === 'd') {
             hideProperties = this.settings.invisibleDetailPageProperties;
@@ -831,7 +837,7 @@ export class RamlService {
         for (let queryParameter of queryParameters) {
             this.flatTypeDeclarationAndConvertToFormItem('q', children, queryParameter)
         }
-        this.processI18NInvisible('q', children);
+        this.processInvisibleItems('q', children);
         return null;
     }
 

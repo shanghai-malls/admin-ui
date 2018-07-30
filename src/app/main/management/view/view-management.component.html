@@ -27,7 +27,7 @@
 
     <ng-template #title>
         <ul class="d-buttons" style="justify-content: flex-end">
-            <li><a nz-button routerLink="/designs" nzType="primary">新建视图</a></li>
+            <li><a nz-button routerLink="/d" nzType="primary">新建视图</a></li>
         </ul>
     </ng-template>
 
@@ -48,7 +48,7 @@
             <td>
                 <button nz-button (click)="emit(view)" *ngIf="mode === 'select'">选择</button>
                 <ng-container *ngIf="mode === 'view'">
-                    <a nz-button [routerLink]="'/designs'+view.path" nzType="primary">编辑</a>
+                    <a nz-button [routerLink]="'/d'+view.path" nzType="primary">编辑</a>
                     <button nz-button (click)="delete(view.path)" nzType="danger">删除</button>
                 </ng-container>
             </td>

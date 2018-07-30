@@ -2,7 +2,7 @@ import {BrowserModule} from '@angular/platform-browser';
 import {NgModule} from '@angular/core';
 
 
-import {AppComponent} from './app.component';
+import {AdminComponent} from './admin.component';
 import {NgZorroAntdModule} from 'ng-zorro-antd';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {HttpClientModule} from '@angular/common/http';
@@ -60,6 +60,7 @@ import {TimePickerSettingComponent} from './builder/components/settings/time-pic
 import {UploadPickerSettingComponent} from './builder/components/settings/upload-picker-setting.component';
 import {MESSAGE_SOURCE_INJECTION_TOKEN, zh_CN} from './model/message-source';
 import {DMainComponent} from './builder/d-main.component';
+import {HideFormItemsSettingComponent} from './builder/components/settings/hide-form-items-setting.component';
 
 registerLocaleData(zh);
 
@@ -94,7 +95,7 @@ const routes: Route[] = [
 
 @NgModule({
     declarations: [
-        AppComponent,
+        AdminComponent,
         WorkspaceComponent,
         VMainComponent,
         MenuManagementComponent,
@@ -142,6 +143,7 @@ const routes: Route[] = [
         TextSettingComponent,
         TimePickerSettingComponent,
         UploadPickerSettingComponent,
+        HideFormItemsSettingComponent,
 
         //------------pipe---------------//
         TranslatePipe
@@ -183,8 +185,9 @@ const routes: Route[] = [
         TextSettingComponent,
         TimePickerSettingComponent,
         UploadPickerSettingComponent,
+        HideFormItemsSettingComponent,
     ],
-    bootstrap: [AppComponent]
+    bootstrap: [AdminComponent]
 })
-export class AppModule {
+export class AdminModule {
 }
