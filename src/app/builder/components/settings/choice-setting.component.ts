@@ -27,7 +27,7 @@ import {Choice, Option} from '../../../model/ui';
                     <button nz-button [nzType]="'primary'" (click)="value.options.push({label:'文本', value: '值'})">添加选项</button>
                     <nz-table [nzData]="value.options" [nzBordered]="false" [nzShowPagination]="false">
                         <thead>
-                        <tr class="text-align-left">
+                        <tr>
                             <th nzShowExpand></th>
                             <th >选项文本</th>
                             <th >选项值</th>
@@ -37,7 +37,7 @@ import {Choice, Option} from '../../../model/ui';
                         <tbody >
                         <ng-template #optionTpl let-options="options" let-level="level">
                             <ng-container *ngFor="let option of options; let i = index">
-                                <tr class="text-align-left">
+                                <tr>
                                     <td [nzShowExpand]="option.children" [(nzExpand)]="option.expand"></td>
                                     <td [nzIndentSize]="level*30" >
                                         <input nz-input [(ngModel)]="option.label" style="width: 60%"/>
@@ -62,14 +62,7 @@ import {Choice, Option} from '../../../model/ui';
                 </div>
             </div>
         </div>
-    `,
-    styles: [`
-        .text-align-left > td,
-        .text-align-left > th {
-            word-break: break-word;
-            text-align: left;
-        }
-    `]
+    `
 })
 export class ChoiceSettingComponent implements OnInit{
     @Input()

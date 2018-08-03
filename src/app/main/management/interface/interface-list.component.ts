@@ -6,7 +6,7 @@ import {Selectable} from '../../../model/Selectable';
 
 @Component({
     templateUrl: 'interface-list.component.html',
-    styleUrls: ['interface-list.component.less']
+    styleUrls: ['../../../base.less']
 })
 export class InterfaceListComponent implements OnInit, Selectable {
     raml = new Raml();

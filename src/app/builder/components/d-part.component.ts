@@ -8,8 +8,30 @@ import {RowSettingComponent} from './settings/row-setting.component';
 
 @Component({
     selector: 'd-part',
-    templateUrl: 'd-part.component.html',
-    styleUrls: ['d-part.component.less']
+    template: `
+        <ng-container *ngIf="type === 'row'">
+            
+        </ng-container>
+
+        <ng-container *ngIf="type === 'form'">
+            <d-form [form]="view"></d-form>
+        </ng-container>
+        <ng-container *ngIf="type === 'table'">
+            <d-table [table]="view"></d-table>
+        </ng-container>
+        <ng-container *ngIf="type === 'detail-panel'">
+            <d-detail [detailPanel]="view"></d-detail>
+        </ng-container>
+
+        <ng-container *ngIf="type === 'tab'">
+            <nz-tab></nz-tab>
+        </ng-container>
+        <ng-container *ngIf="type === 'card'">
+            <nz-card >
+            </nz-card>
+        </ng-container>
+    `,
+    styleUrls:['../../base.less']
 })
 export class DPartComponent implements OnInit{
     @Input() view: UIComponent;

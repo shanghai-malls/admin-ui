@@ -8,7 +8,7 @@ import {removeElement} from '../../../model/function';
             <div nz-row nzGutter="12" nzType="flex" nzJustify="start" nzAlign="top">
                 <div nz-col [nzSpan]="12" *ngFor="let item of items">
                     <nz-form-item>
-                        <nz-form-label [nzSpan]="8" [nzOffset]="2">{{item.content.label}}</nz-form-label>
+                        <nz-form-label [nzSpan]="8" [nzOffset]="2">{{item.content['label']}}</nz-form-label>
                         <nz-form-control [nzSpan]="4">
                             <i class="anticon anticon-minus-circle-o large-icon" (click)="doRemove(item)"></i>
                         </nz-form-control>
@@ -16,7 +16,7 @@ import {removeElement} from '../../../model/function';
                 </div>
             </div>
         </div>
-    `,
+    `
 })
 export class HideFormItemsSettingComponent {
     @Input()

@@ -10,7 +10,7 @@ import {MenuService} from '../../../model/menu.service';
 @Component({
     selector: 'r-setting',
     templateUrl: 'setting-management.component.html',
-    styleUrls: ['setting-management.component.less']
+    styleUrls: ['../../../base.less']
 })
 export class SettingManagementComponent implements OnInit {
 

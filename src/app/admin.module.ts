@@ -34,7 +34,7 @@ import {SettingService} from './model/setting.service';
 import {HttpService} from './model/http.service';
 import {MenuService} from './model/menu.service';
 import {RowSettingComponent} from './builder/components/settings/row-setting.component';
-import {DataPickerComponent} from './main/runner/components/data-picker.component';
+import {DataPickerComponent} from './datapicker/data-picker.component';
 import {ModalService} from './model/modal.service';
 
 import {registerLocaleData} from '@angular/common';
@@ -44,7 +44,7 @@ import {DFormComponent} from './builder/components/d-form.component';
 import {DDetailComponent} from './builder/components/d-detail.component';
 import {ButtonSettingComponent} from './builder/components/settings/button-setting.component';
 import {DHeaderComponent} from './builder/components/d-header.component';
-import {ResizeDirective} from './builder/components/resize.directive';
+import {ResizeDirective} from './resize/resize.directive';
 import {TextSettingComponent} from './builder/components/settings/text-setting.component';
 import {SwitchSettingComponent} from './builder/components/settings/switch-setting.component';
 import {ChoiceSettingComponent} from './builder/components/settings/choice-setting.component';

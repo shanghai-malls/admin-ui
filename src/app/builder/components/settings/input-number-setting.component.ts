@@ -49,9 +49,7 @@ import {InputNumber} from '../../../model/ui';
                 </div>
             </div>
         </div>
-    `,
-    styles: [`
-    `]
+    `
 })
 export class InputNumberSettingComponent  {
     @Input()

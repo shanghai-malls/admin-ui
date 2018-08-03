@@ -1,11 +1,11 @@
-<div>
-    <form nz-form class="gb-form">
+<div class="box-group">
+    <div nz-form class="card-body">
         <div nz-row>
             <div nz-col nzSpan="9" >
                 <nz-form-item nzFlex [nzGutter]="12">
                     <nz-form-label [nzSpan]="4">名字</nz-form-label>
                     <nz-form-control [nzSpan]="16">
-                        <input nz-input [(ngModel)]="filter.name" [ngModelOptions]="{standalone: true}"/>
+                        <input nz-input [(ngModel)]="filter.name" />
                     </nz-form-control>
                 </nz-form-item>
             </div>
@@ -13,7 +13,7 @@
                 <nz-form-item nzFlex [nzGutter]="12">
                     <nz-form-label [nzSpan]="4">路径</nz-form-label>
                     <nz-form-control [nzSpan]="16">
-                        <input nz-input [(ngModel)]="filter.path" [ngModelOptions]="{standalone: true}"/>
+                        <input nz-input [(ngModel)]="filter.path"/>
                     </nz-form-control>
                 </nz-form-item>
             </div>
@@ -23,15 +23,13 @@
                 <button nz-button nzType="default" (click)="reset()">重置</button>
             </div>
         </div>
-    </form>
+    </div>
 
-    <ng-template #title>
-        <ul class="d-buttons" style="justify-content: flex-end">
-            <li><a nz-button routerLink="/d" nzType="primary">新建视图</a></li>
-        </ul>
-    </ng-template>
-
-    <nz-table class="text-align-left" [nzFrontPagination]="false" [nzShowPagination]="false" [nzScroll]="{x: '100%'}" [nzData]="displayViews" [nzTitle]="title" >
+    <ul class="d-buttons" style="justify-content: flex-end">
+        <li><a nz-button routerLink="/d" nzType="primary">新建视图</a></li>
+    </ul>
+    <nz-table *ngIf="displayViews" [nzData]="displayViews" [nzFrontPagination]="false"
+              [(nzPageSize)]="size" [(nzPageIndex)]="page" [nzTotal]="views.length" (nzPageIndexChange)="search()" [nzScroll]="{x: '100%'}">
         <thead>
         <tr>
             <th style="min-width:100px">语言</th>
@@ -43,8 +41,8 @@
         <tbody>
         <tr *ngFor="let view of displayViews">
             <td>{{languages[view.language]}}</td>
-            <td>{{view.name}}</td>
-            <td>{{view.path}}</td>
+            <td style="word-break: keep-all;">{{view.name}}</td>
+            <td style="word-break: keep-all;">{{view.path}}</td>
             <td>
                 <button nz-button (click)="emit(view)" *ngIf="mode === 'select'">选择</button>
                 <ng-container *ngIf="mode === 'view'">

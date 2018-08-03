@@ -1,6 +1,6 @@
 import {Component, HostBinding, Input, OnInit, QueryList, ViewChildren} from '@angular/core';
 import {Cell, Component as UIComponent, Form, FormItem} from '../../model/ui';
-import {ResizeEvent} from './resize.directive';
+import {ResizeEvent} from '../../resize/resize.directive';
 import {extractUriVariables} from '../../model/function';
 import {DFormItemComponent} from './d-form-item.component';
 import {NzMessageService} from 'ng-zorro-antd';
@@ -18,12 +18,161 @@ import {SwitchSettingComponent} from './settings/switch-setting.component';
 import {TimePickerSettingComponent} from './settings/time-picker-setting.component';
 import {ChoiceSettingComponent} from './settings/choice-setting.component';
 import {DesignService} from '../../model/design.service';
-import {HideFormItemsSettingComponent} from './settings/hide-form-items-setting.component';
 
 @Component({
     selector: 'd-form',
-    templateUrl: 'd-form.component.html',
-    styleUrls: ['d-form.component.less'],
+    template: `
+        <form nz-form [class.hide]="form.children.length === 0">
+            <div class="v-header" *ngIf="form.header || focused">
+                <div class="title" (click)="focus(title)">
+                    <span [class.hide]="focused" >{{form.header}}</span>
+                    <input #title [class.hide]="!focused" nz-input [(ngModel)]="form.header" [ngModelOptions]="{standalone: true}" placeholder="请输入label" (blur)="blur(title)"/>
+                </div>
+            </div>
+            <div class="v-body d-body">
+                <ul class="d-actions" style="top:0;">
+                    <li><i class="anticon anticon-setting" (click)="showFormSetting()"></i></li>
+                    <li>
+                        <i class="anticon anticon-bars" nz-popover  nzTrigger="click" nzTitle="恢复隐藏的字段" [nzContent]="list">
+                            <ng-template #list>
+                                <ul style="list-style: none; padding: 0">
+                                    <ng-container *ngFor="let cell of form.children; ">
+                                        <ng-container *ngIf="cell.width === 0">
+                                            <li>
+                                                <div style="width: 150px;margin-right: 4px; display: inline-block">{{cell.content.label}}</div>
+                                                <i class="anticon anticon-minus-circle-o large-icon" (click)="recover(cell)"></i>
+                                            </li>
+                                        </ng-container>
+                                    </ng-container>
+                                </ul>
+                            </ng-template>
+                        </i>
+                    </li>
+                </ul>
+                <div nz-row [nzGutter]="form.horizontal * 2" nzType="flex" nzJustify="start" nzAlign="top" >
+                    <ng-container *ngFor="let cell of form.children; let i = index">
+                        <div nz-col *ngIf="cell.width > 0" [nzSpan]="cell.width" [style.marginTop.px]="form.vertical" [style.marginBottom.px]="form.vertical" [class.hide]="i > markCollapseIndex"
+                             draggable="true" (dragstart)="dragstart(i, $event)" (dragover)="dragover($event)" (drop)="drop(i, $event)" (click)="select(i)">
+                            <div class="wrapper" [class.plate]="inDesigning" resize (onResize)="doResize($event, cell)" (onStopResize)="stopResize(cell)">
+                                <d-form-item *ngIf="cell.content" [item]="cell.content"  (onEnter)="focusChild($event)">
+                                    <ng-container *ngIf="cell.content.type === 'display-text'">
+                                        {{cell.content.value}}
+                                    </ng-container>
+                                    <ng-container *ngIf="cell.content.type === 'date'">
+                                        <nz-date-picker [(ngModel)]="cell.content.value" [ngModelOptions]="{standalone: true}" [nzShowTime]="cell.content.showTime" [nzFormat]="cell.content.format" [nzDisabledDate]="cell.content.disabledDate" [nzDisabled]="cell.content.readonly"></nz-date-picker>
+                                    </ng-container>
+                                    <ng-container *ngIf="cell.content.type === 'date-range'">
+                                        <nz-range-picker [(ngModel)]="cell.content.value" [ngModelOptions]="{standalone: true}" [nzShowTime]="cell.content.showTime" [nzFormat]="cell.content.format" [nzDisabledDate]="cell.content.disabledDate" [nzDisabled]="cell.content.readonly"></nz-range-picker>
+                                    </ng-container>
+                                    <ng-container *ngIf="cell.content.type === 'time'">
+                                        <nz-time-picker [(ngModel)]="cell.content.value" [ngModelOptions]="{standalone: true}" [nzFormat]="cell.content.format" [nzDisabled]="cell.content.readonly"></nz-time-picker>
+                                    </ng-container>
+                                    <ng-container *ngIf="cell.content.type === 'textarea'">
+                                        <textarea nz-input [(ngModel)]="cell.content.value" [ngModelOptions]="{standalone: true}" [placeholder]="cell.content.description || cell.content.label" [nzAutosize]="cell.content.auto || cell.content.size" [readonly]="cell.content.readonly"></textarea>
+                                    </ng-container>
+                                    <ng-container *ngIf="cell.content.type === 'rich-text'">
+                                        <textarea nz-input [(ngModel)]="cell.content.value" [ngModelOptions]="{standalone: true}" [placeholder]="cell.content.description || cell.content.label" [nzAutosize]="cell.content.auto || cell.content.size" [readonly]="cell.content.readonly"></textarea>
+                                    </ng-container>
+                                    <ng-container *ngIf="cell.content.type === 'text'">
+                                        <input nz-input [(ngModel)]="cell.content.value" [ngModelOptions]="{standalone: true}" [readonly]="cell.content.readonly"/>
+                                    </ng-container>
+                                    <ng-container *ngIf="cell.content.type === 'number'">
+                                        <nz-input-number [(ngModel)]="cell.content.value" [ngModelOptions]="{standalone: true}" [nzStep]="cell.content.stride" [nzMax]="cell.content.max" [nzMin]="cell.content.min" [nzDisabled]="cell.content.readonly"></nz-input-number>
+                                    </ng-container>
+                                    <ng-container *ngIf="cell.content.type === 'slider'">
+                                        <nz-slider [(ngModel)]="cell.content.value" [ngModelOptions]="{standalone: true}" [nzStep]="cell.content.stride" [nzMax]="cell.content.max" [nzMin]="cell.content.min" [nzDisabled]="cell.content.readonly"></nz-slider>
+                                    </ng-container>
+                                    <ng-container *ngIf="cell.content.type === 'rate'">
+                                        <nz-rate [(ngModel)]="cell.content.value" [ngModelOptions]="{standalone: true}" [nzAllowHalf]="cell.content.half" [nzCount]="cell.content.count" [nzDisabled]="cell.content.readonly"></nz-rate>
+                                    </ng-container>
+                                    <ng-container *ngIf="cell.content.type === 'select'">
+                                        <nz-select [(ngModel)]="cell.content.value" [ngModelOptions]="{standalone: true}" [nzPlaceHolder]="cell.content.description" [nzDisabled]="cell.content.readonly">
+                                            <nz-option *ngFor="let option of cell.content.options" [nzValue]="option.value" [nzLabel]="option.label"></nz-option>
+                                        </nz-select>
+                                    </ng-container>
+                                    <ng-container *ngIf="cell.content.type === 'cascader'">
+                                        <nz-cascader [(ngModel)]="cell.content.value" [ngModelOptions]="{standalone: true}" [nzOptions]="cell.content.options" [nzDisabled]="cell.content.readonly"></nz-cascader>
+                                    </ng-container>
+                                    <ng-container *ngIf="cell.content.type === 'radio'">
+                                        <nz-radio-group [(ngModel)]="cell.content.value" [ngModelOptions]="{standalone: true}" [nzDisabled]="cell.content.readonly">
+                                            <label *ngFor="let option of cell.content.options" nz-radio [nzValue]="option.value">{{option.label}}</label>
+                                        </nz-radio-group>
+                                    </ng-container>
+                                    <ng-container *ngIf="cell.content.type === 'checkbox'">
+                                        <nz-checkbox-group [(ngModel)]="cell.content.options" [ngModelOptions]="{standalone: true}" ></nz-checkbox-group>
+                                    </ng-container>
+                                    <ng-container *ngIf="cell.content.type === 'switch'">
+                                        <ng-container *ngIf="cell.content.mode == 'switch'">
+                                            <nz-switch [(ngModel)]="cell.content.value" [ngModelOptions]="{standalone: true}" [nzDisabled]="cell.content.readonly"></nz-switch>
+                                        </ng-container>
+                                        <ng-container *ngIf="cell.content.mode == 'checkbox'">
+                                            <label nz-checkbox [(ngModel)]="cell.content.value" [ngModelOptions]="{standalone: true}" [nzDisabled]="cell.content.readonly"></label>
+                                        </ng-container>
+                                    </ng-container>
+                                    <ng-container *ngIf="cell.content.type === 'data-picker'">
+                                        <data-picker [(ngModel)]="cell.content.value" [ngModelOptions]="{standalone: true}"
+                                                     [view]="cell.content.view" [referenceExp]="cell.content.ref"></data-picker>
+                                    </ng-container>
+                                    <ng-container *ngIf="cell.content.type === 'upload'">
+                                        <nz-upload nzAction="/api/settings/aliyun-oss" [nzListType]="cell.content.listType" [nzShowButton]="cell.content.multiple">
+                                            <i class="anticon anticon-plus"></i>
+                                            <div class="ant-upload-text">Upload</div>
+                                        </nz-upload>
+                                    </ng-container>
+                                </d-form-item>
+                                <ul class="d-actions" [class.visible]="currentSelected === cell">
+                                    <li><i class="anticon anticon-setting" [class.disabled]="cell.content == null" (click)="showFormItemSetting(cell.content)"></i></li>
+                                    <li><i class="anticon anticon-delete" (click)="deleteFormItem(cell.content, cell)"></i></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </ng-container>
+
+                    <ng-container *ngIf="form.buttonsPlacement ==='line-end'">
+                        <div nz-col
+                             [nzSpan]="buttonGroupWidth"
+                             [style.marginTop.px]="form.vertical"
+                             [style.marginBottom.px]="form.vertical"
+                             style="text-align: right">
+                            <div >
+                                <a class="motion-collapse" (click)="toggleCollapse()" *ngIf="form.collapsible">
+                                    <i class="anticon" [class.anticon-down]="markCollapseIndex !== form.children.length" [class.anticon-up]="markCollapseIndex === form.children.length"></i>
+                                </a>
+
+                                <d-button [button]="form.submitButton"></d-button>
+                                <d-button [button]="form.clearButton"></d-button>
+                            </div>
+                        </div>
+                    </ng-container>
+
+                </div>
+                <ul class="d-actions">
+                    <li><i class="anticon anticon-setting" (click)="showFormSetting()"></i></li>
+                    <li>
+                        <i class="anticon anticon-bars" nz-popover  nzTrigger="click" nzTitle="恢复隐藏的字段" [nzContent]="list">
+                            <ng-template #list>
+                                <ul style="list-style: none; padding: 0">
+                                    <ng-container *ngFor="let cell of form.children; ">
+                                        <ng-container *ngIf="cell.width === 0">
+                                            <li>
+                                                <div style="width: 150px;margin-right: 4px; display: inline-block">{{cell.content.label}}</div>
+                                                <i class="anticon anticon-minus-circle-o large-icon" (click)="recover(cell)"></i>
+                                            </li>
+                                        </ng-container>
+                                    </ng-container>
+                                </ul>
+                            </ng-template>
+                        </i>
+                    </li>
+                </ul>
+            </div>
+            <div class="v-footer" *ngIf="form.buttonsPlacement ==='footer'">
+                <d-button [button]="form.submitButton"></d-button>
+                <d-button [button]="form.clearButton"></d-button>
+            </div>
+        </form>
+    `,
+    styleUrls:['../../base.less']
 })
 export class DFormComponent implements OnInit {
     @Input()
@@ -205,12 +354,16 @@ export class DFormComponent implements OnInit {
         this.modalService.openDesignSetting(title, FormSettingComponent, params);
     }
 
-    showHideFormItems(){
-        let items = this.form.children.filter(cell=>cell.width === 0);
-        let title = "恢复被隐藏的表单字段";
-
-        this.modalService.openDesignSetting(title, HideFormItemsSettingComponent, {items});
+    recover(item: Cell){
+        item.width = 8;
+        (<FormItem>item.content).hide = false;
     }
+
+    deleteFormItem(formItem: FormItem, cell: any) {
+        formItem.hide = true;
+        (cell as Cell).width = 0;
+    }
+
 
 
     settings = {
@@ -240,10 +393,5 @@ export class DFormComponent implements OnInit {
 
             this.modalService.openDesignSetting(title, componentType, params);
         }
-    }
-
-    deleteFormItem(formItem: FormItem, cell: any) {
-        formItem.hide = true;
-        (cell as Cell).width = 0;
     }
 }

@@ -1,6 +1,6 @@
 import {Component, ElementRef, EventEmitter, Input, Output, ViewChild} from '@angular/core';
 import {FormItem} from '../../model/ui';
-import {ResizeEvent} from './resize.directive';
+import {ResizeEvent} from '../../resize/resize.directive';
 
 @Component({
     selector: 'd-form-item',
@@ -19,7 +19,7 @@ import {ResizeEvent} from './resize.directive';
             </nz-form-control>
         </nz-form-item>
     `,
-    styleUrls:['d-form-item.component.less']
+    styleUrls:['../../base.less']
 })
 export class DFormItemComponent {
     private readonly el: HTMLElement;

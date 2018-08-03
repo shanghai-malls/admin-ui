@@ -58,9 +58,7 @@ import {DatePicker} from '../../../model/ui';
                 </div>
             </div>
         </div>
-    `,
-    styles: [`
-    `]
+    `
 })
 export class DatePickerSettingComponent  {
     @Input()

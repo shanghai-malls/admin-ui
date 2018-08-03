@@ -1,16 +1,11 @@
 <div class="box-group">
-    <ng-template #title>
-        <ul class="d-buttons" style="justify-content: flex-end">
-            <button nz-button [nzType]="'primary'" (click)="addMenu()">添加菜单组</button>
-        </ul>
-    </ng-template>
+    <ul class="d-buttons" style="justify-content: flex-end">
+        <button nz-button [nzType]="'primary'" (click)="addMenu()">添加菜单组</button>
+    </ul>
 
-    <nz-table [nzData]="menus"
-              [nzBordered]="false"
-              [nzShowPagination]="false"
-              [nzScroll]="{x: '100%'}" [nzTitle]="title">
+    <nz-table [nzData]="menus" [nzBordered]="false" [nzShowPagination]="false" [nzScroll]="{x: '100%'}" class="v-table">
         <thead>
-        <tr>
+        <tr >
             <th nzShowExpand></th>
             <th>图标</th>
             <th>名字</th>

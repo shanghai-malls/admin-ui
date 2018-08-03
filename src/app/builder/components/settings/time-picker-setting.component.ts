@@ -33,9 +33,7 @@ import {TimePicker} from '../../../model/ui';
                 </div>
             </div>
         </div>
-    `,
-    styles: [`
-    `]
+    `
 })
 export class TimePickerSettingComponent  {
     @Input()

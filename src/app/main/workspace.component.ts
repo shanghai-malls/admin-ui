@@ -12,7 +12,7 @@ import {likeIgnoreCase} from '../model/function';
 @Component({
     selector: 'workspace',
     templateUrl: 'workspace.component.html',
-    styleUrls: ['workspace.component.less']
+    styleUrls: ['../base.less']
 })
 export class WorkspaceComponent{
 

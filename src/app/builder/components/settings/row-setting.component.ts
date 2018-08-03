@@ -24,9 +24,7 @@ import {Row} from '../../../model/ui';
                 </div>
             </div>
         </fieldset>
-    `,
-    styles:[`
-    `]
+    `
 })
 export class RowSettingComponent implements OnInit{
     @Input()

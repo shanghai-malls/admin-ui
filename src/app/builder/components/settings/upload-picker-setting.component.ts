@@ -49,9 +49,7 @@ import {UploadPicker} from '../../../model/ui';
                 </div>
             </div>
         </div>
-    `,
-    styles: [`
-    `]
+    `
 })
 export class UploadPickerSettingComponent  {
     @Input()

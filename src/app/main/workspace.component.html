@@ -1,7 +1,7 @@
 <nz-layout>
     <nz-header>
-        <div class="header-panel">
-            <div class="logo">
+        <div class="layout-header">
+            <div class="layout-header-logo">
                 <a [routerLink]="['/']">
                     <img alt="logo" [src]=" setting?.logo || './assets/logo-full.svg'">
                 </a>
@@ -10,7 +10,7 @@
                 <ul class="top-nav">
                     <li>
                         <div class="item">
-                            <i class="anticon trigger" [class.anticon-menu-fold]="!isCollapsed" [class.anticon-menu-unfold]="isCollapsed" (click)="isCollapsed=!isCollapsed"></i>
+                            <i class="anticon nav-icon" [class.anticon-menu-fold]="!isCollapsed" [class.anticon-menu-unfold]="isCollapsed" (click)="isCollapsed=!isCollapsed"></i>
                         </div>
                     </li>
 
@@ -21,8 +21,7 @@
                                 [class.input-group-blur]="!focusSearch">
                     <input nz-input [(ngModel)]="searchText" [nzAutocomplete]="auto" [placeholder]="'header.search-placeholder' | translate"
                            (focus)="focusSearch = true" (blur)="focusSearch = false"
-                           (ngModelChange)="searchMenus($event)"
-                    />
+                           (ngModelChange)="searchMenus($event)"/>
                 </nz-input-group>
 
                 <nz-autocomplete #auto [nzBackfill]="true" (selectionChange)="selectionChange($event)" >
@@ -64,7 +63,7 @@
                     </li>
                 </ul>
 
-                <nz-select style="width: 88px;margin-left: 1px" [(ngModel)]="language" (ngModelChange)="switchLanguage($event)">
+                <nz-select class="language-switcher" [(ngModel)]="language" (ngModelChange)="switchLanguage($event)">
                     <nz-option nzValue="zh" nzLabel="中文"></nz-option>
                     <nz-option nzValue="en" nzLabel="English"></nz-option>
                 </nz-select>
@@ -98,7 +97,7 @@
         </nz-sider>
 
         <nz-content>
-            <div class="content-title-well">
+            <div class="content-title">
                 <nz-breadcrumb>
                     <nz-breadcrumb-item>
                         <a routerLink="">Home</a>

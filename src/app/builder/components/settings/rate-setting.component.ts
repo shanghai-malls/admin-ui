@@ -40,9 +40,7 @@ import {Rate} from '../../../model/ui';
                 </div>
             </div>
         </div>
-    `,
-    styles: [`
-    `]
+    `
 })
 export class RateSettingComponent  {
     @Input()

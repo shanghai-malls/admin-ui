@@ -49,9 +49,7 @@ import {Text} from '../../../model/ui';
                 </div>
             </div>
         </div>
-    `,
-    styles: [`
-    `]
+    `
 })
 export class TextSettingComponent {
     @Input()

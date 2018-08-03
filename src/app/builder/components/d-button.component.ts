@@ -5,7 +5,20 @@ import {ButtonSettingComponent} from './settings/button-setting.component';
 
 @Component({
     selector: 'd-button',
-    templateUrl: 'd-button.component.html',
+    template: `
+        <ng-template #InputPrefix>
+            <i class="anticon anticon-setting" style="cursor: pointer" (click)="doSetting()"></i>
+        </ng-template>
+        <ng-template #InputSuffix>
+            <i *ngIf="removeable" class="anticon anticon-delete" style="cursor: pointer" (click)="doDelete()" ></i>
+        </ng-template>
+
+        <nz-input-group [nzPrefix]="InputPrefix" [nzSuffix]="InputSuffix" [class.hide]="!focused">
+            <input nz-input [(ngModel)]="button.text"  (blur)="blur(input)" #input />
+        </nz-input-group>
+
+        <button nz-button (click)="focus(input)" [class.hide]="focused" [nzType]="button.classType">{{button.text}}</button>
+    `,
     styles: [`
         :host {
             display: inline-block;

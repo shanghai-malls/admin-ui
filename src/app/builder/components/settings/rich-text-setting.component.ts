@@ -75,8 +75,7 @@ import {RichText} from '../../../model/ui';
                 </div>
             </div>
         </div>
-    `,
-    styles: [``]
+    `
 })
 export class RichTextSettingComponent  {
     @Input()

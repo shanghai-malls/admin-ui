@@ -13,8 +13,61 @@ import {VFormComponent} from './v-form.component';
 
 @Component({
     selector: 'v-table',
-    templateUrl: 'v-table.component.html',
-    styleUrls: ['v-table.component.less']
+    template: `
+        <div class="box-group">
+            <v-form [route]="route" [path]="path" [form]="table.queryForm" (onActions)="receive($event)" #queryForm></v-form>
+
+            <ul class="d-buttons" style="justify-content: flex-end">
+                <li>
+                    <ng-container *ngFor="let button of table.buttons">
+                        <button nz-button [nzType]="button.classType" (click)="triggerButton(button)" [title]="button.description" >{{button.text}}</button>
+                    </ng-container>
+                </li>
+            </ul>
+
+            <nz-table [nzData]="page.content"
+                      [nzFrontPagination]="false"
+                      [nzShowPagination]="table.showPagination"
+                      [nzTotal]="page.totalElements"
+                      [nzShowSizeChanger]="true"
+                      [nzBordered]="table.bordered"
+                      [(nzPageIndex)]="page.number"
+                      [(nzPageSize)]="page.size"
+                      (nzPageIndexChange)="query()"
+                      (nzPageSizeChange)="query()"
+                      [nzScroll]="{x: '100%'}"
+                      class="v-table"
+            >
+                <thead>
+                <tr *ngFor="let row of headers;let first = first">
+                    <ng-container *ngFor="let header of row; ">
+                        <th *ngIf="header.show" [attr.rowspan]="header.rowspan" [attr.colspan]="header.colspan">
+                            {{header.title}}
+                        </th>
+                    </ng-container>
+                    <th *ngIf="first && table.buttons?.length > 0" colspan="1" nzRight="0px" [attr.rowspan]="headers.length" style="min-width: 180px;" >
+                        {{'operation' | translate}}
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let data of page.content">
+                    <ng-container *ngFor="let column of dataColumns" >
+                        <td *ngIf="!column.hide">{{column.formatText(data)}}</td>
+                    </ng-container>
+                    <td nzRight="0px" style="text-align: left">
+                        <ng-container *ngFor="let button of table.operationColumnButtons">
+                            <button nz-button [nzType]="button.classType" (click)="triggerButton(button, data)">{{button.text}}</button>
+                        </ng-container>
+                    </td>
+                </tr>
+                </tbody>
+            </nz-table>
+
+        </div>
+
+    `,
+    styleUrls: ['../../../base.less'],
 })
 export class VTableComponent implements OnInit , OnChanges {
     @Input()

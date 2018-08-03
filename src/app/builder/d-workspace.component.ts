@@ -9,7 +9,7 @@ import {Setting, SettingService} from '../model/setting.service';
 
 @Component({
     templateUrl: 'd-workspace.component.html',
-    styleUrls: ['d-workspace.component.less']
+    styleUrls:['../base.less']
 })
 export class DWorkspaceComponent {
 

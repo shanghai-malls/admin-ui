@@ -71,9 +71,11 @@ export class FormSettingComponent  {
 
 
     selectSubmit(event:any){
-        let {method, path, contentType} = event;
-        this.value.method = method;
-        this.value.path = path;
-        this.value.contentType = contentType;
+        if(event) {
+            let {method, path, contentType} = event;
+            this.value.method = method;
+            this.value.path = path;
+            this.value.contentType = contentType;
+        }
     }
 }

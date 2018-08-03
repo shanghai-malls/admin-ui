@@ -75,9 +75,7 @@ import {TextArea} from '../../../model/ui';
                 </div>
             </div>
         </div>
-    `,
-    styles: [`
-    `]
+    `
 })
 export class TextAreaSettingComponent  {
     @Input()

@@ -6,6 +6,8 @@ import {Type} from '@angular/core';
 export class Component {
     type: string;
 
+    [x:string]: any;
+
     constructor(definition?: any) {
         if (definition) {
             Object.assign<Component, any>(this, definition);

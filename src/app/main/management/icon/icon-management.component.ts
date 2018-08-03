@@ -3,7 +3,7 @@ import {Selectable} from '../../../model/Selectable';
 
 @Component({
     templateUrl: 'icon-management.component.html',
-    styleUrls: ['icon-management.component.less']
+    styleUrls: ['../../../base.less']
 })
 export class IconManagementComponent implements OnInit,Selectable {
     iconResource: any;

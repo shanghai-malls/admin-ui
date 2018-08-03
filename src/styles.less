@@ -1,72 +1,79 @@
 /* You can add global styles to this file, and also import other style files */
 @import "../node_modules/ng-zorro-antd/src/ng-zorro-antd.less";
-@import "theme.less";
+
+@primary-color              :   @red-5;
+@layout-sider-background    :   @component-background;
+@layout-footer-background   :   @component-background;
+@layout-header-background   :   @primary-color;
+@layout-body-background     :   @background-color-base;
+@card-padding-base          :   @padding-lg;
+
 
 .disabled {
     cursor: not-allowed !important;
     opacity: 0.7;
 }
-
+.movable {
+    cursor: move;
+    min-width: 80px;
+}
 .hide {
     display: none !important;
 }
-
-
-
-.@{input-number-prefix-cls} {
-    width: 100%;
+.visible {
+    opacity: 1;
 }
 
-
-.@{table-prefix-cls} {
-    &-thead > tr > th,
-    &-tbody > tr > td
-    {
-        word-break: keep-all;
-        text-align: center;
-        font-size: 14px;
-    }
+.bg-fff {
+    background-color:  @body-background;;
+}
+.height-100 {
+    height: 100%;
+}
+.small-icon {
+    font-size: 12px
 }
 
-.@{form-prefix-cls}-item-label {
-    text-overflow: ellipsis;
-}
-
-[nz-button],nz-dropdown-button {
-    margin: 2px 4px;
-}
-nz-dropdown-button {
-    [nz-button] {
-        margin-left: 0;
-        margin-right: 0;
-    }
-}
-
-.box-group {
-    > *:not(:last-child) {
-        margin-bottom: @card-padding-base;
-    }
-}
-
-.gb-table-button-group {
+.large-icon {
+    cursor: pointer;
     position: relative;
-    text-align: right;
-    padding-right: @card-padding-base;
+    top: 4px;
+    font-size: 24px;
+    color: #999;
+    transition: all .3s;
 }
 
+.lighter-icon {
+    color: rgba(99,99,99,0.3);
+    cursor: pointer;
+}
 
-
-.gb-form {
+.card-body {
     padding: @card-padding-base;
     background: @body-background;
 }
-.@{dialog-prefix-cls}-body {
-    .gb-form {
-        background: #f9f9f9;
-        border-radius: @border-radius-base;
-        border: @border-width-base @border-style-base #f6f6f6
-    }
+
+
+.fixed-sider {
+    height:100%;
+    width:200px;
+    top: 0;
+    left: 0;
+    position: fixed;
+    border-right: @border-width-base @border-style-base @border-color-split;
+    z-index: -1;
+    background:  @body-background
 }
+.fixed-background {
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    position: fixed;
+    background: @background-color-base;
+    z-index: -2;
+}
+
 
 .d-actions {
     position: absolute;
@@ -114,36 +121,362 @@ nz-dropdown-button {
 }
 
 
-
-.height-100 {
-    height: 100%;
-}
-.fixed-sider {
-    height:100%;
-    width:200px;
-    top: 0;
-    left: 0;
-    position: fixed;
-    border-right: @border-width-base @border-style-base @border-color-split;
-    z-index: -1;
-    background:  @body-background
-}
-.fixed-background {
+//override antd
+.@{input-number-prefix-cls} {
     width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    position: fixed;
-    background: @background-color-base;
-    z-index: -2;
+}
+.@{form-prefix-cls}-item-label {
+    text-overflow: ellipsis;
+}
+
+[nz-button],nz-dropdown-button {
+    margin: 2px 4px;
+}
+nz-dropdown-button {
+    [nz-button] {
+        margin-left: 0;
+        margin-right: 0;
+    }
+}
+
+.v-table {
+    thead > tr > th,
+    tbody > tr > td {
+        text-align: center;
+        word-break: keep-all;
+        font-size: 14px;
+    }
+}
+.no-break {
+
+}
+
+.box-group {
+    > *:not(:last-child) {
+        margin-bottom: @card-padding-base;
+    }
 }
 
 
-.large-icon {
-    cursor: pointer;
+
+/**
+    setting-management
+ */
+
+.setting-logo {
+    max-height: 128px;
+    max-width: 256px;
+    border: @border-color-base @border-width-base dashed;
+    background: @background-color-light;
+    border-radius: @border-radius-base;
+}
+
+.logo-uploader > .ant-upload {
+    width: 128px;
+    height: 128px;
+    .setting-logo {
+        border: none;
+    }
+}
+
+
+.setting-array-fieldset {
+    input,button {
+        width: 70%;
+        margin-right: 8px;
+    }
+    code {
+        word-break: keep-all;
+        word-wrap: break-word;
+    }
+}
+
+
+/**
+    icon-management
+ */
+.icons {
+    margin: 40px 0;
+    list-style: none;
+    overflow: hidden;
+    padding:0;
+    li {
+        float: left;
+        width: 16.66%;
+        height: 100px;
+        text-align: center;
+        color: @text-color;
+        background-color: inherit;
+        cursor: pointer;
+        border-radius: @border-radius-base;
+        margin: 3px 0;
+        padding: 10px 0 0;
+        position: relative;
+        overflow: hidden;
+        &:hover {
+            background-color: @primary-5;
+            color: #fff;
+        }
+        .@{iconfont-css-prefix}-class {
+            display: block;
+            text-align: center;
+            transform: scale(.83);
+            white-space: nowrap;
+        }
+        .@{iconfont-css-prefix} {
+            font-size: 24px;
+            margin: 12px 0 16px;
+            transition: all .5s;
+        }
+    }
+}
+
+
+
+/**
+    v-detail, d-detail
+ */
+.detail-tab-title {
+    .btn-icon {
+        margin-left: 4px;
+        opacity: 0;
+    }
+    &:hover {
+        .btn-icon {
+            opacity: 1;
+        }
+    }
+}
+
+
+
+/**
+    v-form, d-form
+ */
+.v-header {
+    padding: 16px 24px;
+    border-radius: 4px 4px 0 0;
+    background: @body-background;
+    color: @text-color;
+    border-bottom:  @border-width-base @border-style-base @border-color-split;
+    .title {
+        margin: 0;
+        font-size: @font-size-lg;
+        line-height: @line-height-base;
+        font-weight: 500;
+        color: @heading-color
+    }
+}
+
+.v-body {
     position: relative;
-    top: 4px;
-    font-size: 24px;
-    color: #999;
-    transition: all .3s;
+    .card-body
+}
+
+.v-footer{
+    padding: 10px 16px !important;
+    text-align: right;
+    border-top: @border-width-base @border-style-base @border-color-split;
+    border-radius: 0 0 @border-radius-base @border-radius-base;
+    background: @body-background;
+    button + button {
+        margin-left: 8px;
+        margin-bottom: 0;
+    }
+    > a {
+        display: none;
+    }
+}
+
+.motion-collapse {
+    margin-left: 12px;
+    margin-right: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: @text-color;
+    :hover {
+        color: @primary-color;
+    }
+}
+
+/**
+    d-form
+ */
+.plate{
+    box-shadow: @box-shadow-base;
+    cursor: move;
+    min-height: 63px;
+    width: 100%;
+    //background: @background-color-base;
+    .ant-form-item{
+        margin-bottom: 0 !important;
+    }
+}
+
+.d-body:hover {
+    .wrapper {
+        .plate
+    }
+}
+
+
+/**
+    workspace, d-workspace
+ */
+.layout-header {
+    background: inherit;
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    box-shadow: 0 1px 10px rgba(0, 0, 0, 0.2);
+    z-index: @zindex-affix;
+
+}
+.layout-header-logo {
+    width: 200px;
+    transition: width .2s cubic-bezier(.25, 0, .15, 1);
+    a {
+        display: block;
+        text-align: center;
+    }
+    img {
+        max-height:40px;
+        max-width: 100%;
+        vertical-align: middle;
+        animation: fadeIn 1s;
+        &.collapsed {
+            display: none;
+        }
+        &.expanded {
+            display: inline;
+        }
+    }
+}
+.top-nav-wrap {
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+}
+.top-nav {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    > li {
+        display: inline-block;
+        vertical-align: middle;
+    }
+    .item {
+        display: block;
+        border-radius: @border-radius-sm;
+        text-align: center;
+        line-height: 100%;
+        padding: 8px 2px;
+        min-width: 50px;
+        transition: background-color 300ms;
+        cursor: pointer;
+        outline: none;
+        &:hover {
+            background-color: rgba(255, 255, 255, 0.2) !important;
+        }
+        .nav-icon {
+            font-size: 18px;
+            line-height: 100%;
+        }
+    }
+    .item, nz-badge {
+        color: #fff !important;
+    }
+}
+
+.input-group-blur{
+    .ant-input ,
+    .ant-input-group-addon {
+        background-color: rgba(255,255,255,.2);
+        color: #fff;
+        border: none;
+    }
+    .ant-input::placeholder {
+        color: @text-color-dark
+    }
+}
+.input-group-focus{
+    .ant-input ,
+    .ant-input-group-addon {
+        background: @body-background;
+        color: @text-color;
+        border: none;
+    }
+    .ant-input:focus {
+        box-shadow: none;
+        &::placeholder {
+            color: @text-color-secondary
+        }
+    }
+}
+.language-switcher {
+    .ant-select-selection {
+        background-color: rgba(255, 255, 255, .2);
+        color: #fff;
+        border: none;
+        &:focus {
+            background: @body-background;
+            color: @text-color;
+            border: none;
+        }
+    }
+}
+
+.content-title {
+    padding: 16px @card-padding-base;
+    background: @component-background;
+    border-bottom: @border-width-base @border-style-base @border-color-base;
+}
+.content-body {
+    .card-body;
+    background-color: inherit;
+    min-height: 360px;
+    overflow: auto;
+}
+
+
+/**
+    d-workspace
+ */
+.layout-footer {
+    text-align: right;
+    left:0;
+    bottom: 0;
+    width: 100%;
+    border-top: @border-width-base @border-style-base @border-color-split;
+}
+.layout-content {
+    overflow-y: auto;
+}
+.component-groups  {
+    padding: 24px;
+    height: 100%;
+    border-right: @border-width-base @border-style-base @border-color-split;
+}
+.component-group {
+    line-height: 2.0;
+    margin-top:10px;
+    &:first-child {
+        margin-top: 7px;
+    }
+}
+.component-group-title {
+    border-bottom: @border-style-base @border-width-base @border-color-base;
+}
+.components {
+    padding-left: 8px;
+}
+.component-link {
+    color: @text-color;
+    &:hover {
+        color: @primary-color;
+    }
 }

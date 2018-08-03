@@ -1,15 +1,22 @@
 import {Component, forwardRef, Input, OnChanges, OnInit, SimpleChanges, Type} from '@angular/core';
 import {ControlValueAccessor, NG_VALUE_ACCESSOR} from '@angular/forms';
-import {ModalService} from '../../../model/modal.service';
-import {ViewService} from '../../../model/view.service';
-import {Table} from '../../../model/ui';
+import {ModalService} from '../model/modal.service';
+import {ViewService} from '../model/view.service';
+import {Table} from '../model/ui';
 import {NzMessageService} from 'ng-zorro-antd';
-import {VTableComponent} from './v-table.component';
+import {VTableComponent} from '../main/runner/components/v-table.component';
 
 @Component({
     selector: 'data-picker',
-    templateUrl: 'data-picker.component.html',
-    styleUrls: ['data-picker.component.less'],
+    template: `
+        <nz-input-group [nzSuffix]="inputSuffix">
+            <input nz-input [placeholder]="placeholder" (blur)="doTouched()" [(ngModel)]="value"/>
+        </nz-input-group>
+        <ng-template #inputSuffix>
+            <i class="anticon lighter-icon anticon-filter" (click)="showReferenceDialog()"></i>
+        </ng-template>
+    `,
+    styleUrls: ['../base.less'],
     providers: [{
         provide: NG_VALUE_ACCESSOR,
         useExisting: forwardRef(() => DataPickerComponent),
@@ -101,6 +108,9 @@ export class DataPickerComponent implements OnInit, OnChanges, ControlValueAcces
                     this.onChange(value);
                     agent.destroy();
                 }
+            },
+            nzBodyStyle: {
+                'background': '#f5f5f5'
             },
             nzFooter: null,
         });

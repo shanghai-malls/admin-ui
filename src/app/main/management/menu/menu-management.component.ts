@@ -7,7 +7,7 @@ import {ModalService} from '../../../model/modal.service';
 
 @Component({
     templateUrl: 'menu-management.component.html',
-    styleUrls: ['menu-management.component.less'],
+    styleUrls: ['../../../base.less'],
 })
 export class MenuManagementComponent implements OnInit{
     menus: any[] = [];

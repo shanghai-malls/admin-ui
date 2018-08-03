@@ -1,22 +1,22 @@
 <nz-layout>
     <nz-header>
-        <div class="header-panel">
-            <div class="logo">
+        <div class="layout-header">
+            <div class="layout-header-logo">
                 <a [routerLink]="['/']">
                     <img alt="logo" [src]=" setting?.logo || './assets/logo-full.svg'">
                 </a>
             </div>
         </div>
     </nz-header>
-    <nz-layout class="workplace">
+    <nz-layout class="layout-content">
         <nz-sider>
-            <div class="add-component-panel">
-                <div *ngFor="let group of groups" class="add-component-group">
-                    <h4 class="group-title"><i class="anticon anticon-{{group.icon}}"></i> {{group.name}}</h4>
-                    <div class="group-body">
+            <div class="component-groups">
+                <div *ngFor="let group of groups" class="component-group">
+                    <h4 class="component-group-title"><i class="anticon anticon-{{group.icon}}"></i> {{group.name}}</h4>
+                    <div class="components">
                         <div nz-row [nzGutter]="12">
                             <div *ngFor="let component of group.components" nz-col [nzSpan]="12">
-                                <a class="add-component-link" (click)="addComponent(component.type)">{{component.name}}</a>
+                                <a class="component-link" (click)="addComponent(component.type)">{{component.name}}</a>
                             </div>
                         </div>
                     </div>
@@ -24,7 +24,7 @@
             </div>
         </nz-sider>
         <nz-content>
-            <div class="content-title-well">
+            <div class="content-title">
                 <nz-breadcrumb>
                     <nz-breadcrumb-item>
                         视图设计工作台
@@ -36,7 +36,7 @@
             </div>
         </nz-content>
     </nz-layout>
-    <nz-footer class="footer">
+    <nz-footer class="layout-footer">
         <button nz-button (click)="preview()"><i class="anticon anticon-eye" ></i>预览</button>
         <button nz-button [nzType]="'primary'" (click)="saveView()"><i class="anticon anticon-save"></i>保存</button>
         <button nz-button [nzType]="'danger'" (click)="deleteView()"><i class="anticon anticon-delete"></i>删除</button>

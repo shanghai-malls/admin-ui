@@ -41,9 +41,7 @@ import {ViewManagementComponent} from '../../../main/management/view/view-manage
                 </div>
             </div>
         </div>
-    `,
-    styles: [`
-    `]
+    `
 })
 export class DataPickerSettingComponent {
     @Input()
