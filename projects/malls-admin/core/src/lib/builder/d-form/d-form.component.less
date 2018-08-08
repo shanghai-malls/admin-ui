@@ -1,0 +1,54 @@
+@import "../../base.less";
+
+
+.hide-field-label {
+    width: 150px;
+    margin-right: 4px;
+    display: inline-block
+}
+
+.plate{
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .15);
+    cursor: move;
+    min-height: 63px;
+    width: 100%;
+    .ant-form-item{
+        margin-bottom: 0 !important;
+    }
+}
+
+.d-body {
+    position: relative;
+}
+
+.d-body:hover {
+    .wrapper {
+        .plate
+    }
+}
+
+.d-actions {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height:22px;
+    width: 100%;
+    background-color: rgba(99, 99, 99, .3);
+    zoom: 1;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    opacity: 0;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    &:hover {
+        opacity: 1;
+    }
+    & > li {
+        > i {
+            cursor: pointer;
+            color: #fff;
+        }
+    }
+}

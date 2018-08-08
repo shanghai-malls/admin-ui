@@ -1,6 +1,8 @@
 /* You can add global styles to this file, and also import other style files */
 @import "../node_modules/ng-zorro-antd/src/ng-zorro-antd.less";
 
+
+
 @primary-color              :   @red-5;
 @layout-sider-background    :   @component-background;
 @layout-footer-background   :   @component-background;
@@ -23,15 +25,11 @@
 .visible {
     opacity: 1;
 }
-
-.bg-fff {
-    background-color:  @body-background;;
+.body-bg {
+    background-color:  @body-background;
 }
 .height-100 {
     height: 100%;
-}
-.small-icon {
-    font-size: 12px
 }
 
 .large-icon {
@@ -48,11 +46,10 @@
     cursor: pointer;
 }
 
-.card-body {
-    padding: @card-padding-base;
-    background: @body-background;
+.v-list {
+    list-style: none;
+    padding: 0;
 }
-
 
 .fixed-sider {
     height:100%;
@@ -75,34 +72,7 @@
 }
 
 
-.d-actions {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    height:22px;
-    width: 100%;
-    background-color: rgba(99, 99, 99, .3);
-    zoom: 1;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    opacity: 0;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-around;
-    &:hover {
-        opacity: 1;
-    }
-    & > li {
-        > i {
-            cursor: pointer;
-            color: #fff;
-        }
-    }
-}
-
-
-.d-buttons {
+.table-buttons {
     list-style: none;
     margin: 0;
     padding: 0;
@@ -147,146 +117,13 @@ nz-dropdown-button {
         font-size: 14px;
     }
 }
-.no-break {
-
-}
 
 .box-group {
     > *:not(:last-child) {
-        margin-bottom: @card-padding-base;
+        margin-bottom: 24px;
     }
 }
 
-
-
-/**
-    setting-management
- */
-
-.setting-logo {
-    max-height: 128px;
-    max-width: 256px;
-    border: @border-color-base @border-width-base dashed;
-    background: @background-color-light;
-    border-radius: @border-radius-base;
-}
-
-.logo-uploader > .ant-upload {
-    width: 128px;
-    height: 128px;
-    .setting-logo {
-        border: none;
-    }
-}
-
-
-.setting-array-fieldset {
-    input,button {
-        width: 70%;
-        margin-right: 8px;
-    }
-    code {
-        word-break: keep-all;
-        word-wrap: break-word;
-    }
-}
-
-
-/**
-    icon-management
- */
-.icons {
-    margin: 40px 0;
-    list-style: none;
-    overflow: hidden;
-    padding:0;
-    li {
-        float: left;
-        width: 16.66%;
-        height: 100px;
-        text-align: center;
-        color: @text-color;
-        background-color: inherit;
-        cursor: pointer;
-        border-radius: @border-radius-base;
-        margin: 3px 0;
-        padding: 10px 0 0;
-        position: relative;
-        overflow: hidden;
-        &:hover {
-            background-color: @primary-5;
-            color: #fff;
-        }
-        .@{iconfont-css-prefix}-class {
-            display: block;
-            text-align: center;
-            transform: scale(.83);
-            white-space: nowrap;
-        }
-        .@{iconfont-css-prefix} {
-            font-size: 24px;
-            margin: 12px 0 16px;
-            transition: all .5s;
-        }
-    }
-}
-
-
-
-/**
-    v-detail, d-detail
- */
-.detail-tab-title {
-    .btn-icon {
-        margin-left: 4px;
-        opacity: 0;
-    }
-    &:hover {
-        .btn-icon {
-            opacity: 1;
-        }
-    }
-}
-
-
-
-/**
-    v-form, d-form
- */
-.v-header {
-    padding: 16px 24px;
-    border-radius: 4px 4px 0 0;
-    background: @body-background;
-    color: @text-color;
-    border-bottom:  @border-width-base @border-style-base @border-color-split;
-    .title {
-        margin: 0;
-        font-size: @font-size-lg;
-        line-height: @line-height-base;
-        font-weight: 500;
-        color: @heading-color
-    }
-}
-
-.v-body {
-    position: relative;
-    .card-body
-}
-
-.v-footer{
-    padding: 10px 16px !important;
-    text-align: right;
-    border-top: @border-width-base @border-style-base @border-color-split;
-    border-radius: 0 0 @border-radius-base @border-radius-base;
-    background: @body-background;
-    button + button {
-        margin-left: 8px;
-        margin-bottom: 0;
-    }
-    > a {
-        display: none;
-    }
-}
 
 .motion-collapse {
     margin-left: 12px;
@@ -299,99 +136,10 @@ nz-dropdown-button {
     }
 }
 
-/**
-    d-form
- */
-.plate{
-    box-shadow: @box-shadow-base;
-    cursor: move;
-    min-height: 63px;
-    width: 100%;
-    //background: @background-color-base;
-    .ant-form-item{
-        margin-bottom: 0 !important;
-    }
-}
-
-.d-body:hover {
-    .wrapper {
-        .plate
-    }
-}
-
 
 /**
-    workspace, d-workspace
+    workspace
  */
-.layout-header {
-    background: inherit;
-    position: fixed;
-    top: 0;
-    left: 0;
-    display: flex;
-    align-items: center;
-    width: 100%;
-    box-shadow: 0 1px 10px rgba(0, 0, 0, 0.2);
-    z-index: @zindex-affix;
-
-}
-.layout-header-logo {
-    width: 200px;
-    transition: width .2s cubic-bezier(.25, 0, .15, 1);
-    a {
-        display: block;
-        text-align: center;
-    }
-    img {
-        max-height:40px;
-        max-width: 100%;
-        vertical-align: middle;
-        animation: fadeIn 1s;
-        &.collapsed {
-            display: none;
-        }
-        &.expanded {
-            display: inline;
-        }
-    }
-}
-.top-nav-wrap {
-    flex: 1;
-    display: flex;
-    justify-content: space-between;
-}
-.top-nav {
-    margin: 0;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-    > li {
-        display: inline-block;
-        vertical-align: middle;
-    }
-    .item {
-        display: block;
-        border-radius: @border-radius-sm;
-        text-align: center;
-        line-height: 100%;
-        padding: 8px 2px;
-        min-width: 50px;
-        transition: background-color 300ms;
-        cursor: pointer;
-        outline: none;
-        &:hover {
-            background-color: rgba(255, 255, 255, 0.2) !important;
-        }
-        .nav-icon {
-            font-size: 18px;
-            line-height: 100%;
-        }
-    }
-    .item, nz-badge {
-        color: #fff !important;
-    }
-}
-
 .input-group-blur{
     .ant-input ,
     .ant-input-group-addon {
@@ -431,12 +179,12 @@ nz-dropdown-button {
 }
 
 .content-title {
-    padding: 16px @card-padding-base;
-    background: @component-background;
+    padding: 16px 24px;
+    background: #fff;
     border-bottom: @border-width-base @border-style-base @border-color-base;
 }
 .content-body {
-    .card-body;
+    padding: 24px;
     background-color: inherit;
     min-height: 360px;
     overflow: auto;

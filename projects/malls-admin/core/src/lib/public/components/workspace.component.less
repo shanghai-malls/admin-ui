@@ -1,0 +1,78 @@
+@import "../../base.less";
+
+
+/**
+    workspace, d-workspace
+ */
+.wrapper {
+    background: inherit;
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    box-shadow: 0 1px 10px rgba(0, 0, 0, 0.2);
+    z-index: 10;
+
+}
+.logo-wrapper {
+    width: 200px;
+    transition: width .2s cubic-bezier(.25, 0, .15, 1);
+}
+
+.logo-link{
+    display: block;
+    text-align: center;
+}
+
+.logo-img {
+    max-height:40px;
+    max-width: 100%;
+    vertical-align: middle;
+    animation: fadeIn 1s;
+    &.collapsed {
+        display: none;
+    }
+    &.expanded {
+        display: inline;
+    }
+}
+
+.top-nav-wrap {
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+}
+.top-nav {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    > li {
+        display: inline-block;
+        vertical-align: middle;
+    }
+    .item {
+        display: block;
+        border-radius: 2px;
+        text-align: center;
+        line-height: 100%;
+        padding: 8px 2px;
+        min-width: 50px;
+        transition: background-color 300ms;
+        cursor: pointer;
+        outline: none;
+        &:hover {
+            background-color: rgba(255, 255, 255, 0.2) !important;
+        }
+        .nav-icon {
+            font-size: 18px;
+            line-height: 100%;
+        }
+    }
+    .item, nz-badge {
+        color: #fff !important;
+    }
+}
+

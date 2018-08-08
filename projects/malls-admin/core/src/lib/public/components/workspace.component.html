@@ -1,0 +1,114 @@
+<nz-layout>
+    <nz-header>
+        <div class="wrapper">
+            <div class="logo-wrapper">
+                <a [routerLink]="['/']" class="logo-link">
+                    <img alt="logo" class="logo-img" [src]=" setting?.logo || './assets/logo-full.svg'">
+                </a>
+            </div>
+            <div class="top-nav-wrap">
+                <ul class="top-nav">
+                    <li>
+                        <div class="item">
+                            <i class="anticon nav-icon" [class.anticon-menu-fold]="!isCollapsed" [class.anticon-menu-unfold]="isCollapsed" (click)="isCollapsed=!isCollapsed"></i>
+                        </div>
+                    </li>
+
+                </ul>
+
+                <nz-input-group nzAddOnBeforeIcon="anticon anticon-search"
+                                [class.input-group-focus]="focusSearch"
+                                [class.input-group-blur]="!focusSearch">
+                    <input nz-input [(ngModel)]="searchText" [nzAutocomplete]="auto" [placeholder]="'header.search-placeholder' | translate"
+                           (focus)="focusSearch = true" (blur)="focusSearch = false"
+                           (ngModelChange)="searchMenus($event)"/>
+                </nz-input-group>
+
+                <nz-autocomplete #auto [nzBackfill]="true" (selectionChange)="selectionChange($event)" >
+                    <ng-container *ngIf="menus != null">
+                        <nz-auto-optgroup *ngFor="let menu of menusForSearch" [nzLabel]="menu.displayName" >
+                            <nz-auto-option *ngFor="let submenu of menu.children" [nzLabel]="submenu.displayName" [nzValue]="submenu.path" >
+                                <div style="margin-left: 16px">{{submenu.displayName}}</div>
+                            </nz-auto-option>
+                        </nz-auto-optgroup>
+                    </ng-container>
+                </nz-autocomplete>
+
+                <ul class="top-nav">
+                    <li class="hide">
+                        <div class="item">
+                            <nz-badge [nzCount]="5">
+                                <i class="anticon anticon-notification"></i>
+                            </nz-badge>
+                        </div>
+                    </li>
+                    <li class="hide">
+                        <div class="item">
+                            <nz-dropdown nzPlacement="bottomRight" nzTrigger="click">
+                                <div nz-dropdown><i class="anticon anticon-setting"></i></div>
+                                <ul nz-menu>
+                                    <li nz-menu-item>
+                                        <a><i class="anticon anticon-user"></i> &nbsp;&nbsp;个人中心</a>
+                                    </li>
+                                    <li nz-menu-divider></li>
+                                    <li nz-menu-item><i class="anticon anticon-logout"></i> &nbsp;&nbsp;退出登录</li>
+                                </ul>
+                            </nz-dropdown>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="item">
+                            <a href="/docs/index.html" style="color: #fff"><i class="anticon anticon-api"></i></a>
+                        </div>
+                    </li>
+                </ul>
+
+                <nz-select class="language-switcher" [(ngModel)]="language" (ngModelChange)="switchLanguage($event)">
+                    <nz-option nzValue="zh" nzLabel="中文"></nz-option>
+                    <nz-option nzValue="en" nzLabel="English"></nz-option>
+                </nz-select>
+            </div>
+        </div>
+    </nz-header>
+    <nz-layout>
+        <nz-sider [(nzCollapsed)]="isCollapsed" >
+            <ul nz-menu [nzMode]="'inline'" [nzInlineCollapsed]="isCollapsed" *ngIf="menus !== null" class="height-100">
+                <li nz-submenu *ngFor="let menu of menus" [nzOpen]="isOpen(menu)">
+                    <span title><i [class]="menu.icon"></i><span class="nav-text">{{menu.displayName}}</span></span>
+                    <ul>
+                        <li nz-menu-item  *ngFor="let submenu of menu.children" [nzSelected]="submenu.path === currentRoute">
+                            <a [routerLink]="submenu.path" title="{{submenu.displayName}}">
+                                <i [class]="submenu.icon"></i><span class="nav-text" >{{submenu.displayName}}</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li nz-submenu>
+                    <span title><i class="anticon anticon-usb"></i><span class="nav-text">定制管理</span></span>
+                    <ul>
+                        <li nz-menu-item><a routerLink="/management/setting"       routerLinkActive="active" title="主题定制"><i class="anticon anticon-skin"></i>主题定制</a></li>
+                        <li nz-menu-item><a routerLink="/management/icons"         routerLinkActive="active" title="图标定制"><i class="anticon anticon-picture"></i>图标定制</a></li>
+                        <li nz-menu-item><a routerLink="/management/menus"         routerLinkActive="active" title="菜单定制"><i class="anticon anticon-menu-unfold"></i>菜单定制</a></li>
+                        <li nz-menu-item><a routerLink="/management/views"         routerLinkActive="active" title="视图定制"><i class="anticon anticon-file"></i>视图定制</a></li>
+                        <li nz-menu-item><a routerLink="/management/interfaces"    routerLinkActive="active" title="完整接口列表"><i class="anticon anticon-api"></i>完整接口列表</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </nz-sider>
+        <nz-content>
+            <div class="content-title">
+                <nz-breadcrumb>
+                    <nz-breadcrumb-item>
+                        <a routerLink="">Home</a>
+                    </nz-breadcrumb-item>
+                    <nz-breadcrumb-item *ngFor="let segment of links">
+                        <a routerLink="{{segment.path}}">{{segment.text}}</a>
+                    </nz-breadcrumb-item>
+                </nz-breadcrumb>
+            </div>
+            <div class="content-body">
+                <router-outlet ></router-outlet>
+            </div>
+        </nz-content>
+    </nz-layout>
+</nz-layout>

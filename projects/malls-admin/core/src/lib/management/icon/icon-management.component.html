@@ -1,0 +1,20 @@
+<nz-card>
+    <div>
+        <h2>
+            图标列表
+            <nz-popover [nzTitle]="null" [nzPlacement]="'right'" [nzTrigger]="'click'">
+                <i class="anticon anticon-filter" nz-popover  style="cursor: pointer"></i>
+                <ng-template #nzTemplate>
+                    <div><input nz-input placeholder="搜索图标" (keyup)="filterIcon()" [(ngModel)]="searchText"></div>
+                </ng-template>
+            </nz-popover>
+        </h2>
+
+        <ul class="icons">
+            <li *ngFor="let icon of icons" (click)="doSelect(icon)" >
+                <i class="{{prefix}}{{icon}} icon-item"></i>
+                <span class="icon-text">{{icon}}</span>
+            </li>
+        </ul>
+    </div>
+</nz-card>

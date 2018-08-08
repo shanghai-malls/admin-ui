@@ -1,0 +1,30 @@
+@import "../../base.less";
+
+.setting-logo {
+    max-height: 128px;
+    max-width: 256px;
+    border: hsv(0, 0, 85%) 1px dashed;
+    background: #fafafa;
+    border-radius: 4px;
+}
+
+.logo-uploader > .ant-upload {
+    width: 128px;
+    height: 128px;
+    .setting-logo {
+        border: none;
+    }
+}
+
+
+.setting-array-fieldset {
+    input,button {
+        width: 70%;
+        margin-right: 8px;
+    }
+    code {
+        word-break: keep-all;
+        word-wrap: break-word;
+    }
+}
+
