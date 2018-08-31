@@ -1,5 +1,5 @@
 import {Component, Input, Type} from '@angular/core';
-import {DataPicker} from '../../public';
+import {DataPicker} from '../../public/model';
 import {ViewManagementComponent} from '../../management/view/view-management.component';
 
 @Component({
@@ -23,11 +23,12 @@ import {ViewManagementComponent} from '../../management/view/view-management.com
                         </nz-form-control>
                     </nz-form-item>
                 </div>
+
                 <div nz-col nzSpan="12">
                     <nz-form-item>
                         <nz-form-label nzSpan="8">引用表达式</nz-form-label>
                         <nz-form-control nzSpan="16">
-                            <nz-input-number [(ngModel)]="value.ref"></nz-input-number>
+                            <input nz-input [(ngModel)]="value.objectPath"/>
                         </nz-form-control>
                     </nz-form-item>
                 </div>
@@ -35,7 +36,7 @@ import {ViewManagementComponent} from '../../management/view/view-management.com
                     <nz-form-item>
                         <nz-form-label nzSpan="8">选择数据列表</nz-form-label>
                         <nz-form-control nzSpan="16">
-                            <data-picker [view]="viewType" placeholder="请选择一个视图" referenceExp="path" [(ngModel)]="value.view"></data-picker>
+                            <data-picker viewPath="/management/views" objectPath="path" placeholder="请选择一个视图" [(ngModel)]="value.viewPath"></data-picker>
                         </nz-form-control>
                     </nz-form-item>
                 </div>
@@ -46,5 +47,4 @@ import {ViewManagementComponent} from '../../management/view/view-management.com
 export class DataPickerSettingComponent {
     @Input()
     value: DataPicker;
-    viewType: Type<any> = ViewManagementComponent;
 }

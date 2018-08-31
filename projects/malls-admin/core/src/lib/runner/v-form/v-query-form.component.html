@@ -1,0 +1,45 @@
+<form nz-form>
+    <div class="ant-modal-body body-bg" style="padding-bottom: 0">
+
+
+
+
+        <ng-container *ngIf="form.headers">
+            <v-row [row]="form.headers" [renderItem]="tpl2" >
+                <ng-template #tpl2 let-cell>
+                    <nz-form-item nzFlex>
+                        <nz-form-label [nzSpan]="24 - cell.content.width" [nzRequired]="cell.content.required">{{cell.content.label}}</nz-form-label>
+                        <nz-form-control [nzSpan]="cell.content.width">
+                            <v-form-control [item]="cell.content" [formGroup]="formGroups.headers"></v-form-control>
+                        </nz-form-control>
+                    </nz-form-item>
+                </ng-template>
+            </v-row>
+        </ng-container>
+
+
+        <ng-container *ngIf="form.queryParameters">
+            <div nz-row [nzGutter]="form.horizontal * 2" nzType="flex" nzJustify="start" nzAlign="top" >
+                <ng-container *ngFor="let cell of form.queryParameters.children;  let i = index">
+                    <div nz-col [nzSpan]="cell.width" [class.hide]="i > markCollapseIndex"
+                         [style.marginTop.px]="form.vertical" [style.marginBottom.px]="form.vertical">
+                        <nz-form-item nzFlex>
+                            <nz-form-label [nzSpan]="24 - cell.content.width" [nzRequired]="cell.content.required">{{cell.content.label}}</nz-form-label>
+                            <nz-form-control [nzSpan]="cell.content.width">
+                                <v-form-control [item]="cell.content" [formGroup]="formGroups.queryParameters"></v-form-control>
+                            </nz-form-control>
+                        </nz-form-item>
+                    </div>
+                </ng-container>
+                <div nz-col [nzSpan]="buttonGroupWidth" [style.marginTop.px]="form.vertical" [style.marginBottom.px]="form.vertical" style="text-align: right" class="mini-spacing">
+                    <a class="motion-collapse" (click)="toggleCollapse()" *ngIf="this.form.collapsible">
+                        <i class="anticon" [class.anticon-down]="markCollapseIndex !== form.queryParameters.children.length" [class.anticon-up]="markCollapseIndex === form.queryParameters.children.length"></i>
+                    </a>
+                    <button nz-button [nzType]="form.submitButton.classType"    (click)="query()">{{form.submitButton.text}}</button>
+                    <button nz-button [nzType]="form.clearButton.classType"     (click)="clear()">{{form.clearButton.text}}</button>
+                </div>
+            </div>
+        </ng-container>
+
+    </div>
+</form>

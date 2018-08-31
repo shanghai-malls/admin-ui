@@ -1,18 +1,21 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {AfterViewInit} from '@angular/core/src/metadata/lifecycle_hooks';
-import {I18nService, LANG, ModalService, Selectable, View, ViewService} from '../../public';
+import {Component, OnInit, Optional} from '@angular/core';
+import {ViewService} from '../../public/service/view.service';
+import {View} from '../../public/model';
+import {I18nService} from '../../public/service/i18n.service';
+import {ModalService} from '../../public/service/modal.service';
+import {NzModalRef} from 'ng-zorro-antd';
+import {LANG} from '../../translate/message-source';
+import {RouterService} from '../../public/service/router.service';
+import {Route} from '@angular/router';
+import {MacComponent} from '../../mac.component';
+
 
 @Component({
     templateUrl: 'view-management.component.html',
     styleUrls: ['../../base.less']
 })
-export class ViewManagementComponent implements OnInit, AfterViewInit, Selectable {
+export class ViewManagementComponent implements OnInit {
 
-    @Output()
-    onSelect: EventEmitter<any> = new EventEmitter();
-
-    @Input()
-    mode: 'select' | 'view' = 'view';
 
     page = 1;
     size = 50;
@@ -22,62 +25,66 @@ export class ViewManagementComponent implements OnInit, AfterViewInit, Selectabl
     displayViews: View[];
     languages = LANG;
 
-    filter: { path?: string; name?: string; } = {};
+    params: { path?: string; name?: string; } = {};
 
+    tabIndex: number = 0;
 
-    constructor(private viewService: ViewService, private i18n: I18nService, private modalService: ModalService) {
+    staticViews: Route[];
 
+    constructor(private viewService: ViewService, private i18n: I18nService, router: RouterService, private modalService: ModalService, @Optional() public modalRef: NzModalRef) {
+        this.i18n.subscribe(this.queryView);
+        this.staticViews = router.deepestRoutes.filter(i=>i.path && i.path.indexOf("*") === -1);
     }
 
     ngOnInit(): void {
-        // console.time('timing')
-        this.viewService.getViews().then(views => {
+        this.queryView();
+    }
+
+    queryView = (language?: string) => {
+        this.viewService.getViews(language).then(views => {
             this.views = views;
-            let {start, end} = this.getStartEnd();
-            this.displayViews = this.views.slice(start, end);
+            this.filter();
         });
-        this.i18n.subscribe(language => {
-            this.viewService.getViews(language).then(views => {
-                this.views = views;
-                let {start, end} = this.getStartEnd();
-                this.displayViews = this.views.slice(start, end);
-            });
-        });
-    }
+    };
 
-    ngAfterViewInit(): void {
-        console.timeEnd('timing')
+
+    isAccessible(viewPath: string) {
+        return viewPath.indexOf('{') === -1;
     }
 
 
-
-    getStartEnd(){
+    getStartEnd() {
         let start = this.page * this.size - this.size;
         let end = start + this.size;
         return {start, end};
     }
 
-    search() {
-        let {start, end} = this.getStartEnd();
-        this.displayViews = this.views.filter((v, i) => {
+    filter() {
+        let filtered = this.views.filter((v, i) => {
             let filtered = true;
-            if (this.filter.name) {
-                filtered = v.name.indexOf(this.filter.name) != -1;
+            if (this.params.name) {
+                filtered = v.name.indexOf(this.params.name) != -1;
             }
-            if (this.filter.path) {
-                filtered = filtered && v.path.indexOf(this.filter.path) != -1;
+            if (this.params.path) {
+                filtered = filtered && v.path.indexOf(this.params.path) != -1;
             }
             return filtered;
-        }).slice(start,end)
+        });
+        this.total = filtered.length;
+
+        let {start, end} = this.getStartEnd();
+        this.displayViews = filtered.slice(start, end);
     }
 
     reset() {
-        this.filter = {};
+        this.params = {};
         this.displayViews = [...this.views];
     }
 
-    emit(view: any) {
-        this.onSelect.next(view);
+    emit(view: View | Route) {
+        if (this.modalRef) {
+            this.modalRef.destroy(view);
+        }
     }
 
     delete(path: string) {

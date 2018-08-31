@@ -1,47 +1,53 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {Method, Raml, RamlService, Resource, Selectable} from '../../public';
+import {Component, OnInit, Optional} from '@angular/core';
+import {Method, Raml, Resource} from '../../public/model';
 import {Router} from '@angular/router';
+import {RamlService} from '../../public/service/raml.service';
+import {NzModalRef} from 'ng-zorro-antd';
+import {RouterService} from '../../public/service/router.service';
 
 @Component({
     templateUrl: 'interface-list.component.html',
     styleUrls: ['../../base.less']
 })
-export class InterfaceListComponent implements OnInit, Selectable {
+export class InterfaceListComponent implements OnInit {
     raml = new Raml();
 
-    @Output()
-    onSelect: EventEmitter<any> = new EventEmitter();
-
-    @Input()
-    mode: 'select' | 'view' = 'view';
-
-    constructor(private ramlService: RamlService, private router: Router) {
+    constructor(private ramlService: RamlService, private routerService: RouterService, @Optional() public modalRef: NzModalRef) {
     }
 
     ngOnInit(): void {
         this.ramlService.getRaml().then(raml => this.raml = raml);
     }
 
-    emit(resource: Resource, method: Method) {
+    emit(resource: Resource, action: Method) {
         let contentType;
-        if (method.body && method.body.length > 0) {
-            contentType =method.body[0].name;
+        if (action.body && action.body.length > 0) {
+            contentType =action.body[0].name;
         }
+        let accept;
+        if (action.responses && action.responses.length > 0) {
+            let responseBody =action.responses[0].body;
+            if(responseBody && responseBody.length > 0) {
+                accept = responseBody[0].name;
+            }
+        }
+        let method = action.method;
 
         let path = resource.qualifiedPath;
 
         if(this.raml.baseUri.endsWith('/')) {
             path = this.raml.baseUri.substring(0, this.raml.baseUri.length - 1) + path;
         }
-
-        this.onSelect.next({method: method.method, path, contentType});
+        if(this.modalRef) {
+            this.modalRef.destroy({method, path, contentType, accept})
+        }
     }
 
     navigate(resource: Resource, method: Method) {
-        let url = '/d' + resource.qualifiedPath;
+        let path = '/d' + resource.qualifiedPath;
         if (method.method !== 'get') {
-            url += '.' + method.method;
+            path += '.' + method.method;
         }
-        this.router.navigate([url]);
+        this.routerService.navigate(path);
     }
 }

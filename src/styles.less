@@ -23,10 +23,17 @@
     display: none !important;
 }
 .visible {
-    opacity: 1;
+    opacity: 1 !important;
 }
 .body-bg {
     background-color:  @body-background;
+}
+.layout-body-bg {
+    background-color:  @layout-body-background
+}
+.card-body {
+    background-color:  @body-background;
+    padding: 24px;
 }
 .height-100 {
     height: 100%;
@@ -72,7 +79,7 @@
 }
 
 
-.table-buttons {
+.flex-row-buttons {
     list-style: none;
     margin: 0;
     padding: 0;
@@ -87,7 +94,12 @@
     .hover-show {
         display: none;
     }
+}
 
+.mini-spacing {
+    > * {
+        margin: 2px
+    }
 }
 
 
@@ -99,22 +111,24 @@
     text-overflow: ellipsis;
 }
 
-[nz-button],nz-dropdown-button {
-    margin: 2px 4px;
+.wrap-label {
+    display: inline-block;
+    width: 100%;
+    word-break: break-word;
+    white-space: normal;
 }
-nz-dropdown-button {
-    [nz-button] {
-        margin-left: 0;
-        margin-right: 0;
-    }
+
+
+.keep-word {
+    text-align: center;
+    word-break: keep-all;
+    font-size: 14px;
 }
 
 .v-table {
     thead > tr > th,
     tbody > tr > td {
-        text-align: center;
-        word-break: keep-all;
-        font-size: 14px;
+        .keep-word
     }
 }
 
@@ -226,5 +240,35 @@ nz-dropdown-button {
     color: @text-color;
     &:hover {
         color: @primary-color;
+    }
+}
+
+/**
+    op下拉列表的样式
+ */
+.op-dropdown {
+    .@{select-prefix-cls}-dropdown {
+        &-menu {
+            max-height: 300px;
+        }
+    }
+}
+
+.op-select {
+    top:4px;
+    right: 0;
+    position: absolute;
+    max-width:80px;
+    opacity: 0;
+    &:hover {
+        opacity: 1;
+    }
+}
+
+.data-picker-modal {
+    .@{dialog-prefix-cls} {
+        &-content {
+            background-color: @layout-body-background;
+        }
     }
 }

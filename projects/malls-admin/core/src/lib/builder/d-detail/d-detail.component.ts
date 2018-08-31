@@ -1,50 +1,51 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {DetailPanel, Form, removeElement, Tab, TabSet, ViewService} from '../../public';
+import {AbstractDesignerComponent, DetailPanel} from '../../public/model';
+import {DesignService} from '../../public/service/design.service';
+import {RowSettingComponent} from '../settings/row-setting.component';
+import {ModalService} from '../../public/service/modal.service';
 
 
 @Component({
     selector: 'd-detail',
     templateUrl: 'd-detail.component.html',
-    styleUrls:['d-detail.component.less']
+    styleUrls: ['d-detail.component.less']
 })
-export class DDetailComponent implements OnInit {
+export class DDetailComponent implements OnInit, AbstractDesignerComponent<DetailPanel> {
+
     @Input()
     detailPanel: DetailPanel;
 
-    resultForm: Form;
 
-    tabset: TabSet;
-    tabIndex: number = 0;
+    constructor(private modalService: ModalService, public ds: DesignService) {
 
-    constructor(private viewService: ViewService) {
     }
 
     ngOnInit(): void {
-        this.resultForm = this.detailPanel.resultForm;
-        this.tabset = this.detailPanel.tabset;
-        if(this.tabset) {
-            for (let tab of this.tabset.children) {
-                let {content,path} = tab;
-                if(!content) {
-                    this.viewService.getCompatibleView(path).then(v => tab.content = v.data);
-                }
-            }
-        }
+
+    }
+
+    initComponent(component: DetailPanel) {
+        this.detailPanel = component;
     }
 
 
-    focus(input: HTMLInputElement, tab: Tab) {
-        tab.focused = true;
-        setTimeout(() => input.focus(), 50);
+    focused: boolean;
+
+    focus(title: HTMLInputElement) {
+        this.focused = true;
+        setTimeout(() => title.focus(), 50);
     }
 
-    blur(title: HTMLInputElement, tab: Tab) {
-        tab.focused = false;
+    blur(title: HTMLInputElement) {
+        this.focused = false;
         title.blur();
     }
 
-    doDelete(tab: any){
-        removeElement(this.tabset.children, tab);
-    }
 
+    showRowSetting() {
+        let title = '设置字段间隔';
+        let params = {value: this.detailPanel.queryResult};
+
+        this.modalService.openDesignSetting(title, RowSettingComponent, params);
+    }
 }

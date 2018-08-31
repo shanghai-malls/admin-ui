@@ -1,1 +1,8 @@
-@import "../../builder/d-detail/d-detail.component.less";
+@import "../../base.less";
+
+.body-group {
+    background-color: #fff;
+    > *:not(:last-child) {
+        border-bottom: 1px dashed hsv(0, 0, 85%)
+    }
+}

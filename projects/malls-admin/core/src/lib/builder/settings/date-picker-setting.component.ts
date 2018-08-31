@@ -1,5 +1,5 @@
 import {Component, Input} from '@angular/core';
-import {DatePicker} from '../../public';
+import {DatePicker} from '../../public/model';
 
 @Component({
     template: `
@@ -22,7 +22,6 @@ import {DatePicker} from '../../public';
                         </nz-form-control>
                     </nz-form-item>
                 </div>
-
                 <div nz-col nzSpan="8">
                     <nz-form-item>
                         <nz-form-label nzSpan="8">是否必填</nz-form-label>

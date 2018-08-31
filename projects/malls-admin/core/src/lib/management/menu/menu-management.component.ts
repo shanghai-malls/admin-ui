@@ -1,15 +1,20 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, EventEmitter, OnInit} from '@angular/core';
 import {IconManagementComponent} from '../icon/icon-management.component';
 import {ViewManagementComponent} from '../view/view-management.component';
-import {I18nService, MenuService, ModalService} from '../../public';
+import {ModalService} from '../../public/service/modal.service';
+import {I18nService} from '../../public/service/i18n.service';
+import {MenuService} from '../../public/service/menu.service';
+import {EditableMenu, Menu} from '../../public/model';
+
+
 
 @Component({
     templateUrl: 'menu-management.component.html',
     styleUrls: ['../../base.less'],
 })
 export class MenuManagementComponent implements OnInit {
-    menus: any[] = [];
-    copyMenu: any;
+    menus: EditableMenu[] = [];
+    copyMenu: EditableMenu;
 
     mmc = ViewManagementComponent;
 
@@ -22,72 +27,75 @@ export class MenuManagementComponent implements OnInit {
         this.i18n.subscribe(language => this.menuService.getMenus(language, false).then(menus => this.menus = menus));
     }
 
-    addMenu(menu?: any) {
-        if (menu) {
-            if (!menu.children) {
-                menu.children = [];
+    addMenu(parent?: EditableMenu) {
+        if (parent) {
+            if (!parent.children) {
+                parent.children = [];
             }
-            menu.expand = true;
-            menu.children.push({
-                parent: menu.path,
+            parent.expand = true;
+
+            let child: EditableMenu = {
                 language: this.i18n.getLocale(),
-                index: menu.children.length,
+                path: '#',
+                index: parent.children.length,
                 displayName: '菜单名字',
                 description: '菜单描述',
+                parent: parent.path,
                 edit: true,
-                path: '#'
-            });
+            };
+
+            parent.children.push(child);
         } else {
             this.menus.push({
                 language: this.i18n.getLocale(),
+                path: '#',
                 index: this.menus.length,
                 icon: 'anticon anticon-appstore-o',
                 displayName: '菜单组名字',
                 description: '菜单组描述',
-                edit: true
+                edit: true,
             });
         }
 
     }
 
-    startEdit(menus: any[], i: number) {
+    startEdit(menus: EditableMenu[], i: number) {
         this.copyMenu = {...menus[i]};
         menus[i].focused = true;
     }
 
-    doDelete(menus: any[], i: number) {
+    doDelete(menus: EditableMenu[], i: number) {
         this.menuService.deleteMenu(menus[i].path).then(() => {
             menus.splice(i, 1);
         });
     }
 
-    saveEdit(menus: any[], i: number) {
+    saveEdit(menus: EditableMenu[], i: number) {
         menus[i].focused = false;
         this.menuService.saveMenu(menus[i]).then(menu => {
             Object.assign(menus[i], menu);
         });
     }
 
-    cancelEdit(menus: any[], i: number) {
+    cancelEdit(menus: Menu[], i: number) {
         menus.splice(i, 1, this.copyMenu);
     }
 
-    selectIcon(menus: any[], i: number) {
-        let agent = this.modalService.create({
+    showIconModal(menu: EditableMenu) {
+        let onClose = new EventEmitter<any>();
+        this.modalService.create({
             nzTitle: '请选择图标',
             nzContent: IconManagementComponent,
-            channels: {
-                onSelect: (result) => {
-                    menus[i].icon = result;
-                    agent.destroy();
-                }
-            },
+            nzAfterClose: onClose,
             nzFooter: null
+        });
+        onClose.subscribe(icon => {
+            menu.icon = icon
         });
     }
 
 
-    up(menus: any[], i: number) {
+    up(menus: Menu[], i: number) {
         let current = menus[i];
         if (i > 0) {
             let prev = menus[i - 1];
@@ -98,7 +106,7 @@ export class MenuManagementComponent implements OnInit {
         }
     }
 
-    down(menus: any[], i: number) {
+    down(menus: Menu[], i: number) {
         let current = menus[i];
         if (i < menus.length - 1) {
             let next = menus[i + 1];

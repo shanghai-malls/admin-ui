@@ -1,17 +1,21 @@
-import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild} from '@angular/core';
+import {Component, Input, OnChanges, OnInit, Optional, SimpleChanges, ViewChild} from '@angular/core';
 import {Router} from '@angular/router';
-import {VFormComponent} from '../v-form/v-form.component';
 import {VPartComponent} from '../v-part/v-part.component';
+import {VQueryFormComponent} from '../v-form/v-query-form.component';
 
-import {Button, DataColumn, extractUriParameters, formatPath, Header, HttpService, ModalService, Page, Table, ViewService} from '../../public';
-
+import {AbstractComponent, Button, DataColumn, extractUriParameters, formatPath, Header, Page, Table,} from '../../public/model';
+import {ModalService} from '../../public/service/modal.service';
+import {ViewService} from '../../public/service/view.service';
+import {NzModalRef} from 'ng-zorro-antd';
+import {MacComponent} from '../../mac.component';
+import {RouterService} from '../../public/service/router.service';
 
 @Component({
     selector: 'v-table',
     templateUrl: './v-table.component.html',
     styleUrls: ['./v-table.component.less'],
 })
-export class VTableComponent implements OnInit, OnChanges {
+export class VTableComponent implements OnInit, OnChanges, AbstractComponent<Table> {
     @Input()
     table: Table;
 
@@ -24,28 +28,20 @@ export class VTableComponent implements OnInit, OnChanges {
 
     uriParameters: { [p: string]: string };
 
-    @Input()
-    @Output()
-    onActions?: EventEmitter<any> = new EventEmitter();
-
-    @Output()
-    onSelect: EventEmitter<any> = new EventEmitter();
-
-
     page: Page;
     headers: Header[][];
     dataColumns: DataColumn[];
 
-    operationText: string;
 
 
     @ViewChild('queryForm')
-    queryForm: VFormComponent;
+    queryForm: VQueryFormComponent;
 
-    constructor(private http: HttpService, private viewService: ViewService, private modalService: ModalService, private router: Router) {
-        this.router.routeReuseStrategy.shouldReuseRoute = function () {
-            return false;
-        };
+    constructor(
+        private viewService: ViewService,
+        private modalService: ModalService,
+        private routerService: RouterService,
+        @Optional() public modalRef: NzModalRef) {
     }
 
     ngOnInit(): void {
@@ -60,6 +56,11 @@ export class VTableComponent implements OnInit, OnChanges {
         }
     }
 
+    initComponent(component: Table, path: string, route: string) {
+        this.table = component;
+        this.path = path;
+        this.route = route;
+    }
 
     processHeaders() {
         let headers: Header[][] = [];
@@ -117,19 +118,20 @@ export class VTableComponent implements OnInit, OnChanges {
     }
 
     query() {
-        //提交查询表单
-        this.queryForm.submit({size: this.page.size, page: this.page.number});
+        let pageRequest = {size: this.page.size, page: this.page.number - 1};
+        this.queryForm.query(pageRequest);
     }
 
-    receive = (action) => {
-        if (action.eventType == 'submitted') {
-            if (action.data instanceof Array) {
-                this.page = new Page(action.data);
-            } else {
-                this.page = action.data;
-            }
-        } else if (action.eventType === 'canceled' || action.eventType === 'init') {
+    receive = (data) => {
+        if (data === 'cleared') {
             this.query();
+        } else {
+            if(data instanceof Array) {
+                this.page = new Page(data);
+            } else {
+                this.page = data;
+                this.page.number += 1;
+            }
         }
     };
 
@@ -141,40 +143,28 @@ export class VTableComponent implements OnInit, OnChanges {
                     path = formatPath(path, this.uriParameters);
                 }
                 let route = v.path;
-                let agent = this.modalService.create({
+                this.modalService.create({
                     nzTitle: null,
                     nzContent: VPartComponent,
                     nzFooter: null,
-                    nzComponentParams: {path, route, data: v.data, initValue: data},
-                    nzBodyStyle: {
-                        padding: 0
-                    },
-                    channels: {
-                        onActions: () => {
-                            agent.destroy();
-                            this.query();
-                        }
-                    },
+                    nzComponentParams: {path, route, component: v.data},
+                    nzOnOk: () => this.query(),
                 });
             });
         }
-        else if (button.triggerType === 'confirm') {
-            let modalAgent = this.modalService.confirm({
-                nzTitle: button.description,
-                nzOnOk: () => {
-                    this.http.request(button.method, formatPath(button.path, data)).then(() => {
-                        modalAgent.destroy();
-                        this.query();
-                    });
-                }
-            });
-        }
+
         else if (button.triggerType === 'link') {
             let path = formatPath(button.path, data);
             if (this.uriParameters) {
                 path = formatPath(path, this.uriParameters);
             }
-            this.router.navigateByUrl(path);
+            this.routerService.navigate(path);
+        }
+    }
+
+    emit(data: any) {
+        if(this.modalRef) {
+            this.modalRef.destroy(data);
         }
     }
 

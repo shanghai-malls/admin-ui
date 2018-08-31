@@ -1,0 +1,14 @@
+<nz-form-item nzFlex>
+    <div nz-col [nzSpan]="24 - item.width" resize (onResize)="doResize($event)">
+        <nz-form-label [nzRequired]="item.required" [class.hide]="focused" style="width: 100%">
+            <span (click)="focus()">{{item.label || item.field || 'label'}}</span>
+        </nz-form-label>
+        <nz-form-control [class.hide]="!focused">
+            <input #labelText nz-input [(ngModel)]="item.label" (blur)="blur()" placeholder="请输入label" (keydown.enter)="enter($event)"  />
+        </nz-form-control>
+    </div>
+    <nz-form-control [nzSpan]="item.width">
+        <ng-container #control></ng-container>
+    </nz-form-control>
+    <ng-content></ng-content>
+</nz-form-item>

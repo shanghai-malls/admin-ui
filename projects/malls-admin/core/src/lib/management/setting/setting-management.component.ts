@@ -1,6 +1,12 @@
 import {Component, OnInit} from '@angular/core';
 import {AbstractControl, FormArray, FormControl, FormGroup, Validators} from '@angular/forms';
-import {I18nService, Invisible, MenuService, RamlService, SettingService, ViewService} from '../../public';
+import {ViewGenerator} from '../../public/service/view-generator';
+import {SettingService} from '../../public/service/setting.service';
+import {I18nService} from '../../public/service/i18n.service';
+import {HttpService} from '../../public/service/http.service';
+import {ViewService} from '../../public/service/view.service';
+import {MenuService} from '../../public/service/menu.service';
+import {Invisible} from '../../public/model';
 
 @Component({
     selector: 'r-setting',
@@ -16,13 +22,14 @@ export class SettingManagementComponent implements OnInit {
 
     constructor(private settingsService: SettingService,
                 private i18n: I18nService,
-                private ramlService: RamlService,
+                private http: HttpService,
+                private viewGenerator: ViewGenerator,
                 private viewService: ViewService,
                 private menuService: MenuService) {
     }
 
     ngOnInit(): void {
-        this.settingsService.getSettings().then(settings => {
+        this.settingsService.getSetting().then(settings => {
             settings = settings || {
                 logo: 'https://cipchk.github.io/ng-alain/assets/logo-full.svg',
                 appName: '通用管理系统',
@@ -95,7 +102,7 @@ export class SettingManagementComponent implements OnInit {
 
     submitOrEdit() {
         if (this.inEditing) {
-            this.settingsService.setSettings(this.formGroup.value).then(theme => {
+            this.settingsService.setSetting(this.formGroup.value).then(theme => {
                 this.formGroup.patchValue(theme);
                 this.inEditing = false;
                 this.ngOnInit();
@@ -108,9 +115,25 @@ export class SettingManagementComponent implements OnInit {
 
     buildViewsFromRaml() {
         this.inBuilding = 'view';
-        this.ramlService.getViews()
+        this.viewGenerator.getViews()
             .then(this.viewService.batchSave) //save views
-            .then(()=>this.inBuilding = null);
+            .then(()=>this.inBuilding = null)
+            .catch(error=>{
+                this.inBuilding = null;
+                console.error(error);
+            });
+
+        // this.http.get("/api/menus/get",
+        //     {hello: 'world'},
+        //     {'Content-Type': 'application/x-www-form-urlencoded'});
+        // this.http.get("/api/menus/get/query-string",
+        //     {hello: 'world'});
+        //
+        // this.http.post("/api/menus/post",
+        //     {hello: 'world'},
+        //     {'Content-Type': 'application/x-www-form-urlencoded'});
+        // this.http.post("/api/menus/post/query-string",
+        //     {hello: 'world'});
     }
 
     buildMenusFromModules() {

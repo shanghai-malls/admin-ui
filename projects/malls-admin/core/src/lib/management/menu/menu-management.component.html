@@ -1,5 +1,5 @@
 <div class="box-group">
-    <ul class="table-buttons" style="justify-content: flex-end">
+    <ul class="flex-row-buttons" style="justify-content: flex-end">
         <button nz-button [nzType]="'primary'" (click)="addMenu()">添加菜单组</button>
     </ul>
 
@@ -24,7 +24,7 @@
                             <i class="{{item.icon  || 'anticon anticon-edit' }}"></i>
                         </ng-container>
                         <ng-container *ngIf="item.focused">
-                            <button nz-button (click)="selectIcon(items, i)"><i class="{{item.icon  || 'anticon anticon-edit' }}"></i></button>
+                            <button nz-button (click)="showIconModal(item)"><i class="{{item.icon  || 'anticon anticon-edit' }}"></i></button>
                         </ng-container>
                     </td>
                     <td>
@@ -45,13 +45,13 @@
                     </td>
                     <td>
                         <ng-container *ngIf="!item.focused">
-                            <a title="查看此视图" [routerLink]="['/d'+item.path]" >{{item.path}}</a>
+                            <a title="查看此视图" [routerLink]="'../../d/'+item.path" >{{item.path}}</a>
                         </ng-container>
                         <ng-container *ngIf="item.focused">
-                            <data-picker [view]="mmc" [(ngModel)]="item.path" referenceExp="path"></data-picker>
+                            <data-picker [(ngModel)]="item.path" viewPath="/management/views" objectPath="path"></data-picker>
                         </ng-container>
                     </td>
-                    <td>
+                    <td class="mini-spacing">
                         <ng-container *ngIf="item.focused">
                             <button nz-button [nzType]="'primary'" (click)="saveEdit(items, i)">保存</button>
                             <nz-popconfirm [nzTitle]="'确认取消保存?'" (nzOnConfirm)="cancelEdit(items, i)">
@@ -60,10 +60,7 @@
                         </ng-container>
                         <ng-container *ngIf="!item.focused">
                             <nz-dropdown-button [nzPlacement]="'bottomCenter'" (click)="startEdit(items, i)">
-                                修改
-                                <ul nz-menu>
-                                    <li nz-menu-item (click)="addMenu(item)">添加子菜单</li>
-                                </ul>
+                                修改<ul nz-menu><li nz-menu-item (click)="addMenu(item)">添加子菜单</li></ul>
                             </nz-dropdown-button>
                             <nz-popconfirm [nzTitle]="'确认删除菜单组?'" (nzOnConfirm)="doDelete(items, i)">
                                 <button nz-button [nzType]="'danger'" nz-popconfirm>删除</button>

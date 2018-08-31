@@ -1,7 +1,5 @@
 import {Component, Input} from '@angular/core';
-import {Button} from '../../public';
-import {InterfaceListComponent} from '../../management/interface/interface-list.component';
-import {ViewManagementComponent} from '../../management/view/view-management.component';
+import {Button} from '../../public/model';
 
 @Component({
     template: `
@@ -46,19 +44,15 @@ import {ViewManagementComponent} from '../../management/view/view-management.com
                                 <label nz-radio nzValue="none">内建实现</label>
                                 <label nz-radio nzValue="link">跳&nbsp;&nbsp;&nbsp;&nbsp;转</label>
                                 <label nz-radio nzValue="modal">模态框</label>
-                                <label nz-radio nzValue="confirm">确认框</label>
                             </nz-radio-group>
                         </nz-form-control>
                     </nz-form-item>
                 </div>
-                <div nz-col nzSpan="16" [class.hide]="value.triggerType === 'none' ">
+                <div nz-col nzSpan="16" *ngIf="value.triggerType === 'link' || value.triggerType === 'modal'">
                     <nz-form-item>
                         <nz-form-label nzSpan="4">接口/视图</nz-form-label>
                         <nz-form-control nzSpan="20">
-                            <data-picker [view]="interfaceList" [(ngModel)]="value.path" [class.hide]="value.triggerType !== 'confirm'"
-                                         placeholder="请选择接口" (ngModelChange)="selectInterface($event)"></data-picker>
-                            <data-picker [view]="viewList" [(ngModel)]="value.path" [class.hide]="value.triggerType === 'confirm'"
-                                         placeholder="请选择视图" referenceExp="path"></data-picker>
+                            <data-picker viewPath="/management/views" objectPath="path" placeholder="请选择视图" [(ngModel)]="value.path"></data-picker>
                         </nz-form-control>
                     </nz-form-item>
                 </div>
@@ -66,17 +60,7 @@ import {ViewManagementComponent} from '../../management/view/view-management.com
         </div>
     `
 })
-export class ButtonSettingComponent {
+export class ButtonSettingComponent{
     @Input()
     value: Button;
-
-    interfaceList = InterfaceListComponent;
-    viewList = ViewManagementComponent;
-
-
-    selectInterface(value) {
-        let {path, method} = value;
-        this.value.path = path;
-        this.value.method = method;
-    }
 }

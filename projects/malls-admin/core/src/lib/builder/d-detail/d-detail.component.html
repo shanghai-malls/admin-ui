@@ -1,26 +1,15 @@
 <div class="box-group">
-    <d-form [form]="resultForm"></d-form>
-    <nz-card *ngIf="tabset" [nzBordered]="false" >
-        <nz-card-tab>
-            <ng-template #addTabTpl>
-                <div style="margin-top:8px"><a><i class="anticon anticon-plus" style="font-size: 16px;"></i></a></div>
-            </ng-template>
-            <nz-tabset nzSize="large" [(nzSelectedIndex)]="tabIndex" [nzTabBarExtraContent]="addTabTpl">
-                <nz-tab *ngFor="let tab of tabset.children;" [nzTitle]="title">
-                    <ng-template #title>
-                        <div class="tab-title" (click)="focus(input, tab)">
-                            <span [class.hide]="tab.focused">
-                                <span>{{tab.title}}</span>
-                                <i class="anticon anticon-close btn-icon" (click)="doDelete(tab)"></i>
-                            </span>
-                            <input #input [class.hide]="!tab.focused" nz-input [(ngModel)]="tab.title" (blur)="blur(input, tab)"/>
-                        </div>
-                    </ng-template>
-                </nz-tab>
-            </nz-tabset>
-        </nz-card-tab>
-        <div *ngFor="let tab of tabset.children; let i = index;" [class.hide]="tabIndex !== i">
-            <d-part *ngIf="tab.content" [view]="tab.content"></d-part>
+    <div>
+        <div class="ant-modal-header" *ngIf="detailPanel.title || focused" >
+            <div class="ant-modal-title" (click)="focus(title)">
+                <span [class.hide]="focused" >{{detailPanel.title}}</span>
+                <input #title [class.hide]="!focused" nz-input [(ngModel)]="detailPanel.title" placeholder="请输入标题" (blur)="blur(title)"/>
+            </div>
         </div>
-    </nz-card>
+        <div class="body-group">
+            <d-query-form [form]="detailPanel.queryForm"></d-query-form>
+            <d-form-body [bodies]="[detailPanel.queryResult]" [spacing]="detailPanel.queryResult" (onSetting)="showRowSetting()"></d-form-body>
+        </div>
+    </div>
+    <d-tabset [tabset]="detailPanel.tabset"></d-tabset>
 </div>

@@ -1,3 +1,17 @@
-<p>
-  v-tabset works!
-</p>
+<nz-card *ngIf="tabs" [nzBordered]="false">
+    <nz-card-tab>
+        <nz-tabset nzSize="large" [(nzSelectedIndex)]="tabIndex">
+            <nz-tab *ngFor="let tab of tabs;" [nzTitle]="title">
+                <ng-template #title>
+                    <div class="tab-title">
+                        <span>{{tab.title}}</span>
+                        <a (tab.path)="navigate(tab.path)"><i class="anticon anticon-eye-o btn-icon"></i></a>
+                    </div>
+                </ng-template>
+            </nz-tab>
+        </nz-tabset>
+    </nz-card-tab>
+    <div *ngFor="let tab of tabs; let i = index;" [class.hide]="tabIndex !== i">
+        <v-part *ngIf="tab.content" [path]="tab.path" [route]="tab.route" [component]="tab.content"></v-part>
+    </div>
+</nz-card>

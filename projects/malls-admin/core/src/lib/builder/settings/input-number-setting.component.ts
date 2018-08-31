@@ -1,5 +1,5 @@
 import {Component, Input} from '@angular/core';
-import {InputNumber} from '../../public';
+import {InputNumber} from '../../public/model';
 
 @Component({
     template: `
@@ -14,7 +14,7 @@ import {InputNumber} from '../../public';
                     </nz-form-item>
                 </div>
 
-                <div nz-col nzSpan="8">
+                <div nz-col nzSpan="8" >
                     <nz-form-item>
                         <nz-form-label nzSpan="8">是否必填</nz-form-label>
                         <nz-form-control nzSpan="16">
@@ -22,6 +22,7 @@ import {InputNumber} from '../../public';
                         </nz-form-control>
                     </nz-form-item>
                 </div>
+
                 
                 <div nz-col nzSpan="8">
                     <nz-form-item>

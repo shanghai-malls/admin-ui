@@ -1,4 +1,3 @@
-
 export function formatPath(path: string, data?: any): string {
     if (data) {
         const parameters = getUriParametersFromObject(path, data);
@@ -47,16 +46,13 @@ function findValueWithoutDepth(key: string, data: any) {
 }
 
 export function isPureObject(value?: any) {
-    if (!value) {
+    if(typeof value !== 'object' || value === null) {
         return false;
     }
-    if (typeof value === 'number') {
-        return false;
-    }
-    return value.__proto__.constructor === Object;
+    return !(value instanceof Array);
 }
 
-export function extractUriVariables( route: string){
+export function extractUriVariables(route: string){
     const variables = [];
     if(route) {
         let routeParts = route.split('/');
@@ -111,7 +107,12 @@ export function extractUriParameters(path: string, route: string){
     return parameters;
 }
 
-export function isCompatible(route: string, inputPath: string): boolean {
+export function isCompatible(route: string, inputPath: string, inputSuffix?: string): boolean {
+    if (inputSuffix) {
+        if (!route.endsWith(inputSuffix)) {
+            return;
+        }
+    }
     let pathParts = inputPath.substring(1).split('/');
     let routeParts = route.substring(1).split('/');
     if (routeParts.length == pathParts.length) {
@@ -139,7 +140,7 @@ export function isCompatible(route: string, inputPath: string): boolean {
                     return false;
                 }
             }
-            if(end !== routePart.length - 1) {
+            if(end < routePart.length - 1) {
                 let suffix = routePart.substring(end + 1);
                 if (!pathPart.endsWith(suffix)) {
                     return false;
@@ -170,7 +171,6 @@ export function capitalize(text: string){
     return text[0].toUpperCase() + text.slice(1);
 }
 
-
 export function removeElement<T = any>(array:T[], element: T){
     let ii = array.findIndex(e=>element === e);
     array.splice(ii, 1);
@@ -186,3 +186,19 @@ export function likeIgnoreCase(source: string, searchString: string): boolean {
     return source.toLowerCase().indexOf(searchString.toLowerCase()) !== -1;
 }
 
+export function deepClone(input: any) {
+    if(typeof input !== 'object' || input === null) {
+        return input;
+    }
+
+    if (input instanceof Array) {
+        return input.map(item => deepClone(item));
+    }
+
+    let output = {};
+    for (let key of Object.keys(input)) {
+        output[key] = deepClone(input);
+    }
+    Object.setPrototypeOf(output, Object.getPrototypeOf(input));
+    return output;
+}

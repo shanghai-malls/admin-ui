@@ -1,20 +1,25 @@
 <div class="box-group">
-    <v-form [form]="resultForm" [value]="result" [route]="route" [path]="path"></v-form>
-    <nz-card *ngIf="tabs" [nzBordered]="false">
-        <nz-card-tab>
-            <nz-tabset nzSize="large" [(nzSelectedIndex)]="tabIndex">
-                <nz-tab *ngFor="let tab of tabs;" [nzTitle]="title">
-                    <ng-template #title>
-                        <div class="tab-title">
-                            <span>{{tab.title}}</span>
-                            <i class="anticon anticon-eye-o btn-icon" (click)="navigate(tab.path)"></i>
-                        </div>
-                    </ng-template>
-                </nz-tab>
-            </nz-tabset>
-        </nz-card-tab>
-        <div *ngFor="let tab of tabs; let i = index;" [class.hide]="tabIndex !== i">
-            <v-part *ngIf="tab.content" [path]="tab.path" [route]="tab.route" [data]="tab.content"></v-part>
+    <div>
+        <div class="ant-modal-header" *ngIf="component.title">
+            <div class="ant-modal-title">{{component.title}}</div>
         </div>
-    </nz-card>
+        <div class="body-group">
+            <v-query-form [form]="component.queryForm" [route]="route" [path]="path" (onActions)="receive($event)" #queryForm></v-query-form>
+            <div class="ant-modal-body body-bg">
+                <v-row *ngIf="component.queryResult" [row]="component.queryResult" [renderItem]="itemTpl" >
+                    <ng-template #itemTpl let-item>
+                        <nz-form-item>
+                            <nz-form-label      [nzSpan]="24 - item.content.width" [nzRequired]="item.content.required">{{item.content.label}}</nz-form-label>
+                            <nz-form-control    [nzSpan]="item.content.width">{{result[item.content.field] || '无'}}</nz-form-control>
+                        </nz-form-item>
+                    </ng-template>
+                </v-row>
+                <ng-container *ngIf="!component.queryResult">
+                    <pre style="font-size: 20px">查询结果： {{result | json}}</pre>
+                </ng-container>
+            </div>
+        </div>
+    </div>
+
+    <v-tabset [tabset]="component.tabset" [route]="route" [path]="path"></v-tabset>
 </div>

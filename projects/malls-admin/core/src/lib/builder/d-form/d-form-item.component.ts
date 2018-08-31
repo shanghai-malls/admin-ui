@@ -1,31 +1,29 @@
-import {Component, ElementRef, EventEmitter, Input, Output, ViewChild} from '@angular/core';
-import {FormItem, ResizeEvent} from '../../public';
+import {
+    Component,
+    ComponentFactoryResolver,
+    ElementRef,
+    EventEmitter,
+    Input, OnChanges,
+    OnInit,
+    Output, SimpleChanges,
+    ViewChild,
+    ViewContainerRef
+} from '@angular/core';
+import {NzMessageService} from 'ng-zorro-antd';
+import {AbstractDesignerComponent, AbstractDesignerFormControlComponent, FormItem} from '../../public/model';
+import {ResizeEvent} from '../../resize/resize.directive';
+import {ComponentManager} from '../../registry/component-manager';
 
 @Component({
     selector: 'd-form-item',
-    template: `
-        <nz-form-item nzFlex>
-            <div nz-col [nzSpan]="24 - item.width" resize (onResize)="doResize($event)">
-                <nz-form-label [nzRequired]="item.required" [class.hide]="focused" style="width: 100%">
-                    <span (click)="focus()">{{item.label || item.field || 'label'}}</span>
-                </nz-form-label>
-                <nz-form-control [class.hide]="!focused">
-                    <input #labelText nz-input [(ngModel)]="item.label" placeholder="请输入label" (blur)="blur()" (keydown)="keydown($event)"  />
-                </nz-form-control>
-            </div>
-            <nz-form-control [nzSpan]="item.width">
-                <ng-content></ng-content>
-            </nz-form-control>
-        </nz-form-item>
-    `,
-    styleUrls:['../../base.less']
+    templateUrl: './d-form-item.component.html',
+    styleUrls: ['./d-form-item.component.less']
 })
-export class DFormItemComponent {
+export class DFormItemComponent implements OnInit, OnChanges, AbstractDesignerComponent<FormItem> {
     private readonly el: HTMLElement;
 
     @Input()
     item: FormItem;
-
 
     @Output()
     onEnter: EventEmitter<DFormItemComponent> = new EventEmitter<DFormItemComponent>();
@@ -34,26 +32,57 @@ export class DFormItemComponent {
 
     startWidth: number;
 
-    @ViewChild("labelText")
+    @ViewChild('labelText')
     labelText: ElementRef;
 
+    @ViewChild('control', {read: ViewContainerRef})
+    container: ViewContainerRef;
 
-    constructor(private elementRef: ElementRef){
+    innerComponent: AbstractDesignerFormControlComponent;
+
+
+    constructor(private elementRef: ElementRef, private resolver: ComponentFactoryResolver, private messageService: NzMessageService, private componentManager: ComponentManager) {
         this.el = elementRef.nativeElement;
     }
 
+    ngOnInit(): void {
+        let component = this.componentManager.getDesignerFormControlComponent(this.item.type);
+        if (component) {
+            const factory = this.resolver.resolveComponentFactory(component);
+            const componentRef = this.container.createComponent(factory);
+            componentRef.instance.initComponent(this.item);
+            this.innerComponent = componentRef.instance;
+        } else {
+            this.messageService.error(`不支持的表单=>${this.item.field} : ${this.item.type}`);
+        }
+    }
+
+    ngOnChanges(changes: SimpleChanges): void {
+        if (this.innerComponent) {
+            this.container.clear();
+            this.ngOnInit();
+        }
+    }
+
+
+    initComponent(component: FormItem) {
+        this.item = component;
+    }
+
+    doSetting(event: any) {
+        this.innerComponent.doSetting(event);
+
+    }
 
     focus() {
         this.focused = true;
         setTimeout(() => this.labelText.nativeElement.focus(), 50);
     }
 
-    keydown(event: KeyboardEvent){
+    enter(event: KeyboardEvent) {
         event.stopPropagation();
-        if(event.key === 'Enter') {
-            this.blur();
-            this.onEnter.next(this);
-        }
+        this.blur();
+        this.onEnter.next(this);
     }
 
     blur() {
@@ -62,20 +91,21 @@ export class DFormItemComponent {
     }
 
 
-    doResize({moveX}:ResizeEvent){
+    doResize({moveX}: ResizeEvent) {
 
         let unitWidth = this.el.clientWidth / 24;
-        let moveSpan = Math.round(moveX/unitWidth);
+        let moveSpan = Math.round(moveX / unitWidth);
 
-        if(!this.startWidth) {
+        if (!this.startWidth) {
             this.startWidth = this.item.width;
         }
 
         let newWidth = this.startWidth - moveSpan;
 
-        if(newWidth > 5 && newWidth < 24) {
+        if (newWidth > 5 && newWidth < 24) {
             this.item.width = newWidth;
         }
     }
 
 }
+

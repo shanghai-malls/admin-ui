@@ -1,15 +1,16 @@
 import {Component, Input, OnInit, QueryList, ViewChildren} from '@angular/core';
-import {Button, Column, Header, removeElement, Table} from '../../public';
+import {AbstractDesignerComponent, Button, Column, Header, removeElement, Table} from '../../public/model';
 import {DHeaderComponent} from './d-header.component';
 
 
 @Component({
     selector: 'd-table',
     templateUrl: './d-table.component.html',
-    styleUrls:['../../base.less']
+    styleUrls: ['./d-table.component.less']
 })
-export class DTableComponent implements OnInit {
-    @Input() table: Table;
+export class DTableComponent implements OnInit, AbstractDesignerComponent<Table> {
+    @Input()
+    table: Table;
     headers: Header[][];
     dataColumns: Column[];
     startDraggingElement: Element;
@@ -52,49 +53,53 @@ export class DTableComponent implements OnInit {
         this.dataColumns = dataColumns;
     }
 
+    initComponent(component: Table) {
+        this.table = component;
+    }
 
-    addTopButton(){
+
+    addTopButton() {
         this.table.buttons.push(new Button({
             text: '按钮'
         }));
     }
 
-    deleteTopButton(button:Button){
+    deleteTopButton(button: Button) {
         removeElement(this.table.buttons, button);
     }
 
-    addOperationColumnButton(){
+    addOperationColumnButton() {
         this.table.operationColumnButtons.push(new Button({
             text: '按钮'
         }));
     }
 
-    deleteOperationColumnButton(button:Button){
+    deleteOperationColumnButton(button: Button) {
         removeElement(this.table.operationColumnButtons, button);
     }
 
 
-    dragstart(i:number, event:DragEvent) {
+    dragstart(i: number, event: DragEvent) {
         this.startDraggingElement = event.srcElement;
-        event.dataTransfer.setData("index", i + "");
+        event.dataTransfer.setData('index', i + '');
         event.stopPropagation();
     }
 
-    dragover(event:DragEvent){
+    dragover(event: DragEvent) {
         event.preventDefault();
         event.stopPropagation();
     }
 
-    drop(x:number, header:Header, event:DragEvent){
+    drop(x: number, header: Header, event: DragEvent) {
         event.stopPropagation();
-        if(this.startDraggingElement === event.toElement) {
+        if (this.startDraggingElement === event.toElement) {
             return;
         }
-        let y = parseInt(event.dataTransfer.getData("index"));
-        if(y === x) {
+        let y = parseInt(event.dataTransfer.getData('index'));
+        if (y === x) {
             return;
         }
-        if(header.parent) {
+        if (header.parent) {
             let parent = header.parent;
             parent.column.columns[x] = parent.column.columns[y];
             parent.column.columns[y] = header.column;
@@ -108,9 +113,9 @@ export class DTableComponent implements OnInit {
     @ViewChildren(DHeaderComponent)
     viewChildren: QueryList<DHeaderComponent>;
 
-    focusChild(child: DHeaderComponent){
+    focusChild(child: DHeaderComponent) {
         let children = this.viewChildren.toArray();
-        let index = children.findIndex(item=>item===child);
+        let index = children.findIndex(item => item === child);
         if (index < children.length - 1) {
             children[index + 1].focus();
         }

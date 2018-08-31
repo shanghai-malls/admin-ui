@@ -13,7 +13,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "showCircularDependencies": false,
+            "showCircularDependencies": true,
             "outputPath": "dist/admin-ui",
             "index": "src/index.html",
             "main": "src/main.ts",

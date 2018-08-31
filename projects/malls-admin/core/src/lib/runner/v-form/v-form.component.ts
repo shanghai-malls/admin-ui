@@ -1,15 +1,23 @@
-import {Component, EventEmitter, HostBinding, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
-import {FormArray, FormControl, FormGroup, ValidationErrors, Validators} from '@angular/forms';
-import {NzMessageService} from 'ng-zorro-antd';
-import {Component as UIComponent, extractUriParameters, Form, formatPath, FormItem, HttpOptions, HttpService} from '../../public';
-import {TransformService} from '../../public/model/transform.service';
+import {Component, Input, OnChanges, OnInit, Optional, SimpleChanges} from '@angular/core';
+import {NzMessageService, NzModalRef} from 'ng-zorro-antd';
+import {AbstractComponent, extractUriParameters, Form, formatPath,} from '../../public/model';
+
+import {HttpOptions, HttpService} from '../../public/service/http.service';
+import {TransformService} from '../../public/service/transform.service';
+import {AbstractFormComponent, FormGroups} from './abstract-form.component';
+import {FormBodyProcessor} from '../../public/service/form-body-processor';
+import {FormViewProcessorDelegate} from '../../public/service/form-view-processor';
+
+/**
+ * form group wrapper
+ */
 
 @Component({
     selector: 'v-form',
     templateUrl: './v-form.component.html',
     styleUrls: ['./v-form.component.less']
 })
-export class VFormComponent implements OnInit, OnChanges {
+export class VFormComponent extends AbstractFormComponent implements OnInit, OnChanges, AbstractComponent<Form>  {
     @Input()
     form: Form;
 
@@ -19,235 +27,133 @@ export class VFormComponent implements OnInit, OnChanges {
     @Input()
     route: string;
 
-    @Input()
-    value?: any;
 
-    @Input()
-    @Output()
-    onActions?: EventEmitter<any> = new EventEmitter();
+    contentType: string;
 
+    formGroups: FormGroups;
 
-    @HostBinding('class.hide')
-    get hide() {
-        return this.form.children.length == 0;
+    confirm: boolean;
+
+    constructor(http: HttpService, transformer: TransformService, formBodyProcessor: FormBodyProcessor,
+                private delegate: FormViewProcessorDelegate,
+                private messageService: NzMessageService, @Optional() public modalRef: NzModalRef) {
+        super(http, transformer, formBodyProcessor);
     }
 
-    uriParameters: { [p: string]: string };
-    markCollapseIndex = 0;
-    buttonGroupWidth = 0;
-
-
-    formGroup: FormGroup;
-
-    constructor(private http: HttpService, private transformer: TransformService, private messageService: NzMessageService) {
-    }
 
     ngOnInit(): void {
-        this.uriParameters = extractUriParameters(this.path, this.route);
-        this.processForm();
-        this.formGroup = this.initFormGroup();
-        this.onActions.emit({eventType: 'init'});
+        this.form = this.processForm();
+        this.delegate.preLoad(this.form, this.route, this.path);
+        this.formGroups = this.createFormGroups(this.form);
+        if (this.form.body && this.form.body.length > 0) {
+            this.contentType = this.form.body[0].contentType;
+        }
     }
 
     ngOnChanges(changes: SimpleChanges): void {
-        if (this.formGroup) {
-            if (changes.hasOwnProperty('form')) {
-                this.ngOnInit();
-            }
+        if (this.formGroups) {
+            this.ngOnInit();
         }
     }
 
-    processForm() {
-        this.form.children = this.form.children.filter(cell => {
-            let formItem = cell.content as FormItem;
-            let type = formItem.type;
-            if (type === 'fieldset' || type === 'array' || type === 'map') {
-                console.warn(`不支持${formItem.type}类型的表单项`);
-                return false;
+    initComponent(component: Form, path: string, route: string) {
+        this.form = component;
+        this.path = path;
+        this.route = route;
+    }
+
+    processForm(): Form{
+        let form = super.processForm(this.form);
+        this.markForm();
+        return form;
+    }
+
+    get uriParameters(): { [p: string]: string } {
+        return extractUriParameters(this.path, this.route);
+    }
+
+
+
+    /**
+     * 标记该form对象是否为一个confirm form
+     */
+    markForm(){
+        let array = [this.form.headers, this.form.queryParameters];
+        if(this.form.body) {
+            for (let formBody of this.form.body) {
+                array.push(formBody);
             }
-            return true;
-        });
-        for (let cell of this.form.children) {
-            let formItem = cell.content as FormItem;
+        }
 
-            if (formItem.type === 'date' || formItem.type === 'date-range'
-                || formItem.type === 'rich-text' || formItem.type === 'textarea'
-                || formItem.type === 'cascader' || formItem.type === 'checkbox') {
-                cell.content = UIComponent.create(formItem);
-            }
-
-
-            if (this.uriParameters) {
-                let parts = formItem.field.split('.');
-                for (let part of parts) {
-                    if (this.uriParameters.hasOwnProperty(part)) {
-                        cell.width = 0;
+        this.processModalRef();
+        for (let row of array) {
+            if (row && row.children) {
+                for (let cell of row.children) {
+                    if(cell.width > 0) {
+                        this.confirm = false;
+                        return;
                     }
                 }
             }
         }
-        this.markCollapseIndex = this.form.children.length;
-        this.toggleCollapse();
+        this.confirm = true;
+
     }
 
-    toggleCollapse() {
-        let collapsible = this.form.collapsible;
-        let buttonsPlacement = this.form.buttonsPlacement;
-        if (collapsible && buttonsPlacement === 'line-end') {
-            let doCollapse = this.markCollapseIndex === this.form.children.length;
-            let sum = 0;
-            if (doCollapse) {
-                for (let i = 0; i < this.form.children.length; i++) {
-                    sum += this.form.children[i].width;
-                    if (sum >= 16) {
-                        this.markCollapseIndex = i;
-                        this.buttonGroupWidth = 24 - sum;
-                        break;
-                    }
-                }
+    processModalRef(){
+        if(this.modalRef) {
+            let modalComponent = this.modalRef.getInstance();
+            if(this.confirm) {
+                modalComponent.nzWidth = 416;
+                modalComponent.nzClosable = false;
+                modalComponent.nzClassName = "ant-confirm ant-confirm-confirm"
             } else {
-                this.markCollapseIndex = this.form.children.length;
-                for (let i = 0; i < this.form.children.length; i++) {
-                    let cell = this.form.children[i];
-                    sum += cell.width;
-                }
-                this.buttonGroupWidth = 24 - sum % 24;
+                modalComponent.nzBodyStyle = {padding: 0}
             }
-        } else if (buttonsPlacement === 'footer') {
-            this.buttonGroupWidth = 24;
         }
     }
 
-    initFormGroup() {
-        console.log(this.form);
-        let formGroup = new FormGroup({});
-        this.addToFormGroup(this.form, formGroup);
-        if (this.value) {
-            formGroup.patchValue(this.value);
-        } else if (this.form.autoLoadUrl) {
-            let method = 'get';
-            let url = formatPath(this.form.autoLoadUrl, this.uriParameters);
-
-            this.http
-                .request(method, url)
-                .then(result=> this.transformer.transform(result, url, method))
-                .then(value => this.formGroup.patchValue(value));
-        }
-        return formGroup;
+    preSubmit(formValue: any, form: Form, route: string, path: string) {
+        this.delegate.preSubmit(formValue, form, route, path);
     }
 
-    addToFormGroup(node: any, formGroup: FormGroup) {
-        if (node.field) {
-            formGroup.addControl(node.field, this.formItemToControl(node));
-            return;
+    submit() {
+        let options:HttpOptions = {};
+        options.showMessage = true;
+        options.params = {};
+
+        options.headers = {'Content-Type': this.contentType};
+        if (this.formGroups.headers) {
+            Object.assign(options.headers, this.formGroups.headers.value);
         }
 
-        if (node.children) {
-            for (let child of node.children) {
-                this.addToFormGroup(child, formGroup);
+
+        let formSubmit = this.contentType === 'application/x-www-form-urlencoded';
+        let formValue = this.getFormValue(formSubmit);
+        if (formValue) {
+            if (formSubmit) {
+                options.body = this.toURLSearchParams(formValue);
+            } else {
+                options.body = formValue;
             }
         }
 
-        if (node.content) {
-            this.addToFormGroup(node.content, formGroup);
-        }
-    }
+        this.preSubmit(options, this.form, this.route, this.path);
 
-    formItemToControl(node: any) {
-        let validators = [];
-        if (node.required) {
-            validators.push(Validators.required);
-        }
-
-        if (node.type === 'fieldset') {
-            let formGroup = new FormGroup({}, validators);
-            for (let child of node.children) {
-                this.addToFormGroup(child, formGroup);
-            }
-            return formGroup;
-        }
-
-        if (node.minLength) {
-            validators.push(Validators.minLength(node.minLength));
-        }
-        if (node.maxLength) {
-            validators.push(Validators.maxLength(node.maxLength));
-        }
-
-        if (node.type === 'array') {
-            return new FormArray([this.formItemToControl(node.items)], validators);
-        }
-
-        if (node.type === 'map') {
-            return new FormArray([
-                new FormGroup({
-                    key: this.formItemToControl(node.key),
-                    val: this.formItemToControl(node.val),
-                })
-            ], [...validators, this.uniqueKeyValidator]);
-        }
-
-        if (node.pattern) {
-            validators.push(Validators.pattern(node.pattern));
-        }
-        if (node.min) {
-            validators.push(Validators.min(node.min));
-        }
-        if (node.max) {
-            validators.push(Validators.max(node.max));
-        }
-
-        return new FormControl(node.value, validators);
-    }
-
-    uniqueKeyValidator(input: FormControl): ValidationErrors | null {
-        if (input.parent) {
-            let currentValue = input.value;
-            let formArray = input.parent.parent as FormArray;
-            for (let i = 0; i < formArray.length; i++) {
-                let control = (<FormGroup>formArray.at(i)).controls.key;
-                if (input === control) {
-                    continue;
-                }
-                if (currentValue === control.value) {
-                    return {uniqueKey: `key不能重复，当前值与第${i + 1}行的key重复了`};
-                }
-            }
-        }
-        return null;
-    }
-
-    submit(params?: any) {
-        let options: HttpOptions = {
-            headers: {
-                'Content-Type': this.form.contentType || 'application/x-www-form-urlencoded'
-            }
-        };
-        let value = {};
-        if (params) {
-            Object.assign(value, params);
-        }
-        Object.assign(value, this.getFormValue());
-
-
-        if (options.headers['Content-Type'] === 'application/x-www-form-urlencoded') {
-            options.params = value;
-        } else {
-            options.body = value;
+        if(this.formGroups.queryParameters) {
+            Object.assign(options.params, this.formGroups.queryParameters.value);
         }
 
         try {
             let method = this.form.method;
             let url = formatPath(this.form.path, this.uriParameters);
+
+
             this.http.request(method, url, options)
-                .then(data=>{
-                    if(method === 'get') {
-                        return this.transformer.transform(data, url, method);
-                    }
-                })
-                .then((data) => {
-                    if (this.onActions) {
-                        this.onActions.next({eventType: 'submitted', data});
+                .then(() => {
+                    if (this.modalRef) {
+                        this.modalRef.destroy();
+                        this.modalRef.triggerOk();
                     }
                 });
 
@@ -256,35 +162,62 @@ export class VFormComponent implements OnInit, OnChanges {
         }
     }
 
-    private getFormValue() {
-        let value = this.formGroup.value;
-        for (let key of Object.keys(value)) {
-            if (key.indexOf('.') !== -1) {
-                let propertyValue = value[key];
-                delete value[key];
+    private toURLSearchParams(formValue: any): URLSearchParams {
+        const searchParams = new URLSearchParams();
+        for (let key of Object.keys(formValue)) {
+            searchParams.set(key, formValue[key]);
+        }
+        return searchParams;
+    }
 
-                let parts = key.split('.');
-                let obj = value;
-                for (let i = 0; i < parts.length; i++) {
-                    let part = parts[i];
-                    if (i < parts.length - 1) {
-                        if (obj[part] == null) {
-                            obj[part] = {};
+    private getFormValue(flat?: boolean) {
+        if(this.form.body) {
+            let bodyIndex = this.form.body.findIndex(item => item.contentType === this.contentType);
+            let value = this.formGroups.body[bodyIndex].value;
+            if(flat) {
+                return value;
+            }
+
+            for (let key of Object.keys(value)) {
+                if (key.indexOf('.') !== -1) {
+                    let propertyValue = value[key];
+                    delete value[key];
+
+                    let parts = key.split('.');
+                    let obj = value;
+                    for (let i = 0; i < parts.length; i++) {
+                        let part = parts[i];
+                        if (i < parts.length - 1) {
+                            if (obj[part] == null) {
+                                obj[part] = {};
+                            }
+                            obj = obj[part];
+                        } else {
+                            obj[part] = propertyValue;
                         }
-                        obj = obj[part];
-                    } else {
-                        obj[part] = propertyValue;
                     }
                 }
             }
+            return value;
         }
-        return value;
     }
 
     cancel() {
-        this.formGroup.reset({});
-        if (this.onActions) {
-            this.onActions.next({eventType: 'canceled'});
+        if(this.form.body) {
+            let bodyIndex = this.form.body.findIndex(item => item.contentType === this.contentType);
+            this.formGroups.body[bodyIndex].reset({});
+        }
+
+        if(this.formGroups.headers) {
+            this.formGroups.headers.reset({});
+        }
+
+        if(this.formGroups.queryParameters) {
+            this.formGroups.queryParameters.reset({});
+        }
+
+        if (this.modalRef) {
+            this.modalRef.triggerCancel();
         }
     }
 

@@ -1,5 +1,5 @@
 import {Component, Input} from '@angular/core';
-import {Table} from '../../public';
+import {Table} from '../../public/model';
 
 @Component({
     template: `

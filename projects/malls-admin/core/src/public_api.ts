@@ -1,1 +1,1 @@
-export * from './lib/malls-admin.module'
+export * from './lib/public_api'

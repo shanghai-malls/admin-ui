@@ -1,5 +1,5 @@
 import {Component, Input} from '@angular/core';
-import {Text} from '../../public';
+import {Text} from '../../public/model';
 
 @Component({
     template: `

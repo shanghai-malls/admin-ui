@@ -1,5 +1,5 @@
 import {Component, Input} from '@angular/core';
-import {Rate} from '../../public';
+import {Rate} from '../../public/model';
 
 @Component({
     template: `
@@ -38,6 +38,7 @@ import {Rate} from '../../public';
                         </nz-form-control>
                     </nz-form-item>
                 </div>
+
             </div>
         </div>
     `

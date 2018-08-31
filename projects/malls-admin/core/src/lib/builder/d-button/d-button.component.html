@@ -6,7 +6,7 @@
 </ng-template>
 
 <nz-input-group [nzPrefix]="InputPrefix" [nzSuffix]="InputSuffix" [class.hide]="!focused">
-    <input nz-input [(ngModel)]="button.text"  (blur)="blur(input)" #input />
+    <input nz-input [(ngModel)]="button.text"  (blur)="blur(input)" style="min-width: 120px" #input />
 </nz-input-group>
 
 <button nz-button (click)="focus(input)" [class.hide]="focused" [nzType]="button.classType">{{button.text}}</button>

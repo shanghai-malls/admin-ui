@@ -1,3 +1,16 @@
-<p>
-  v-row works!
-</p>
+<div nz-row [nzGutter]="row.horizontal * 2" nzType="flex" nzJustify="start" nzAlign="top" >
+    <div nz-col *ngFor="let item of row.children; let i = index" [nzSpan]="item.width"
+         [style.marginTop.px]="row.vertical"
+         [style.marginBottom.px]="row.vertical">
+        <ng-container *ngIf="renderItem">
+            <ng-template [ngTemplateOutlet]="renderItem"
+                         [ngTemplateOutletContext]="{ $implicit: item, index: i, path: path, route: route }"></ng-template>
+        </ng-container>
+        <ng-container *ngIf="!renderItem">
+            <v-part [component]="item.content" [path]="path" [route]="route"></v-part>
+        </ng-container>
+    </div>
+    <ng-container *ngIf="endItem">
+        <ng-template [ngTemplateOutlet]="endItem"></ng-template>
+    </ng-container>
+</div>

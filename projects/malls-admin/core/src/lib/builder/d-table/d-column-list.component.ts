@@ -1,5 +1,5 @@
 import {Component, Input} from '@angular/core';
-import {Column} from '../../public';
+import {Column} from '../../public/model';
 
 @Component({
     selector: 'd-column-list',

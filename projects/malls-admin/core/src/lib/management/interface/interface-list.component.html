@@ -1,14 +1,15 @@
 <nz-table #contentTable
           [nzData]="raml.resources || []"
           [nzBordered]="false"
-          [nzShowPagination]="false" class="v-table">
+          [nzShowPagination]="false" class="v-table"
+          [nzScroll]="{x: '100%'}">
     <thead>
     <tr>
         <th nzShowExpand></th>
         <th>路径</th>
         <th>名字</th>
         <th>描述</th>
-        <th>操作</th>
+        <th nzRight="0px" >操作</th>
     </tr>
     </thead>
     <tbody>
@@ -18,8 +19,8 @@
             <td [nzIndentSize]="level*30" >{{resource.relativeUri}}</td>
             <td>{{resource.displayName}}</td>
             <td>{{resource.description}}</td>
-            <td>
-                <nz-dropdown-button *ngIf="mode === 'select'"  [nzPlacement]="'bottomCenter'">
+            <td nzRight="0px" >
+                <nz-dropdown-button *ngIf="modalRef"  [nzPlacement]="'bottomCenter'">
                     选择
                     <ul nz-menu>
                         <li nz-menu-item nzDisabled>方法列表</li>
@@ -31,7 +32,7 @@
                         </li>
                     </ul>
                 </nz-dropdown-button>
-                <nz-dropdown-button *ngIf="mode === 'view'" [nzPlacement]="'bottomCenter'">
+                <nz-dropdown-button *ngIf="!modalRef" [nzPlacement]="'bottomCenter'">
                     查看视图
                     <ul nz-menu>
                         <li nz-menu-item nzDisabled>方法列表</li>

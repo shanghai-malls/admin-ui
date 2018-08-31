@@ -1,6 +1,7 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
-import {Button, ModalService} from '../../public';
+import {Button} from '../../public/model';
 import {ButtonSettingComponent} from '../settings/button-setting.component';
+import {ModalService} from '../../public/service/modal.service';
 
 @Component({
     selector: 'd-button',

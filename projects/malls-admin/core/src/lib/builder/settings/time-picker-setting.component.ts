@@ -1,5 +1,5 @@
 import {Component, Input} from '@angular/core';
-import {TimePicker} from '../../public';
+import {TimePicker} from '../../public/model';
 
 @Component({
     template: `

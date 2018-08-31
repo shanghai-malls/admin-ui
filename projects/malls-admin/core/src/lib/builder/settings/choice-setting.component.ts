@@ -1,37 +1,38 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {Choice, Option} from '../../public';
+import {Choice, Option} from '../../public/model';
 
 @Component({
     template: `
         <div nz-form>
             <div nz-row nzGutter="12" nzType="flex" nzJustify="start" nzAlign="top">
-                <div nz-col nzSpan="16">
+                <div nz-col nzSpan="12">
                     <nz-form-item>
-                        <nz-form-label nzSpan="4">字段描述</nz-form-label>
-                        <nz-form-control nzSpan="20">
+                        <nz-form-label nzSpan="8">字段描述</nz-form-label>
+                        <nz-form-control nzSpan="16">
                             <input nz-input [(ngModel)]="value.description"/>
                         </nz-form-control>
                     </nz-form-item>
                 </div>
 
-                <div nz-col nzSpan="8">
+                <div nz-col nzSpan="12">
                     <nz-form-item>
-                        <nz-form-label nzSpan="8">是否必填</nz-form-label>
-                        <nz-form-control nzSpan="16">
+                        <nz-form-label nzSpan="12">是否必填</nz-form-label>
+                        <nz-form-control nzSpan="12">
                             <nz-switch  [(ngModel)]="value.required"></nz-switch>
                         </nz-form-control>
                     </nz-form-item>
                 </div>
-
+                
                 <div nz-col nzSpan="24">
-                    <button nz-button [nzType]="'primary'" (click)="value.options.push({label:'文本', value: '值'})">添加选项</button>
                     <nz-table [nzData]="value.options" [nzBordered]="false" [nzShowPagination]="false">
                         <thead>
                         <tr>
                             <th nzShowExpand></th>
                             <th >选项文本</th>
                             <th >选项值</th>
-                            <th style="max-width: 150px">操作</th>
+                            <th style="max-width: 150px;">
+                                {{'operation' | translate}}
+                            </th>
                         </tr>
                         </thead>
                         <tbody >
@@ -46,9 +47,12 @@ import {Choice, Option} from '../../public';
                                         <input nz-input [(ngModel)]="option.value" style="width: 60%"/>
                                     </td>
                                     <td>
-                                        <a (click)="addSubOption(option)" *ngIf="value.type === 'cascader' ">添加子选项</a>
-                                        &nbsp;&nbsp;&nbsp;
-                                        <a (click)="options.splice(i, 1)"> 删除</a>
+                                        <a (click)="addSubOption(option)" *ngIf="value.type === 'cascader'" style="margin-right: 44px;">
+                                            <i class="anticon anticon-plus"></i>
+                                        </a>
+                                        <a (click)="options.splice(i, 1)" >
+                                            <i class="anticon anticon-delete"></i>
+                                        </a>
                                     </td>
                                 </tr>
                                 <ng-container *ngIf="option.expand">
@@ -59,6 +63,8 @@ import {Choice, Option} from '../../public';
                         <ng-container *ngTemplateOutlet="optionTpl;context:{options: value.options, level: 0 }"></ng-container>
                         </tbody>
                     </nz-table>
+                    
+                    <button nz-button nzType="dashed" style="width: 100%; margin-top: 16px" (click)="value.options.push({label:'文本', value: '值'})"><i class="anticon anticon-plus"></i>新增选项</button>
                 </div>
             </div>
         </div>

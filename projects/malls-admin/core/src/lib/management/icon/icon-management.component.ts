@@ -1,18 +1,15 @@
-import {Component, EventEmitter, OnInit, Output} from '@angular/core';
-import {Selectable} from '../../public';
+import {Component, OnInit, Optional} from '@angular/core';
+import {NzModalRef} from 'ng-zorro-antd';
 
 @Component({
     templateUrl: 'icon-management.component.html',
     styleUrls: ['./icon-management.component.less']
 })
-export class IconManagementComponent implements OnInit,Selectable {
+export class IconManagementComponent implements OnInit {
     iconResource: any;
     prefix = "anticon anticon-";
     icons: string[];
     searchText: string;
-    mode: "select" | "view" = 'select';
-    @Output()
-    onSelect: EventEmitter<string> = new EventEmitter<string>();
 
 
     ngOnInit(): void {
@@ -727,7 +724,12 @@ export class IconManagementComponent implements OnInit,Selectable {
     filterIcon() {
         this.icons = this.iconResource.list.filter(item => item.k.indexOf(this.searchText) != -1).map(item => item.k);
     }
+
     doSelect(icon: string){
-        this.onSelect.next(this.prefix + icon);
+        if(this.modalRef) {
+            this.modalRef.destroy(this.prefix + icon);
+        }
     }
+
+    constructor(@Optional() public modalRef: NzModalRef) {}
 }

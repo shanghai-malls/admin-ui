@@ -1,0 +1,38 @@
+<ng-template #tpl2>
+    <ul class="v-list" >
+        <ng-container *ngFor="let row of bodies" >
+            <ng-container *ngFor="let cell of row.children">
+                <ng-container *ngIf="cell.width === 0">
+                    <li>
+                        <div class="hide-field-label">{{cell.content.label}}</div>
+                        <i class="anticon anticon-minus-circle-o large-icon" (click)="recover(cell)"></i>
+                    </li>
+                </ng-container>
+            </ng-container>
+        </ng-container>
+    </ul>
+</ng-template>
+
+<ng-template #tpl3 let-top="top">
+    <ul class="d-actions" [style.top.px]="top">
+        <li><i class="anticon anticon-setting" (click)="triggerSetting()"></i></li>
+        <li><i class="anticon anticon-bars" nz-popover  nzTrigger="click" nzTitle="恢复隐藏的字段" [nzContent]="tpl2"></i></li>
+    </ul>
+</ng-template>
+
+<ng-template #tpl4 let-cell>
+    <d-wrapper class="wrapper" [cell]="cell" [content]="content">
+        <d-form-item [item]="cell.content" (onEnter)="focusChild($event)" #content></d-form-item>
+    </d-wrapper>
+</ng-template>
+
+
+<div class="ant-modal-body d-form-body body-bg" [class.item-selected]="ds.getSelected() != null">
+    <ng-container [ngTemplateOutlet]="tpl3" [ngTemplateOutletContext]="{top:0}"></ng-container>
+
+    <ng-container *ngFor="let row of bodies" >
+        <d-row [row]="row" [renderItem]="tpl4"></d-row>
+    </ng-container>
+
+    <ng-container [ngTemplateOutlet]="tpl3" ></ng-container>
+</div>

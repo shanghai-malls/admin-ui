@@ -1,0 +1,44 @@
+<div class="box-group">
+    <v-query-form [route]="route" [path]="path" [form]="list.queryForm" (onActions)="receive($event)" #queryForm></v-query-form>
+
+    <ul class="flex-row-buttons" style="justify-content: flex-end">
+        <li>
+            <ng-container *ngFor="let button of list.buttons">
+                <button nz-button [nzType]="button.classType" (click)="triggerButton(button)" [title]="button.description" >{{button.text}}</button>
+            </ng-container>
+        </li>
+    </ul>
+
+    <div class="body-bg" *ngIf="page">
+        <nz-list *ngIf="page" [nzDataSource]="page.content"
+                 [nzHeader]="list.header"
+                 [nzBordered]="list.bordered" [nzSplit]="list.split" [nzRenderItem]="item" [nzPagination]="pagination">
+            <ng-template #item let-item>
+                <ng-container >
+                    <nz-list-item [nzContent]="content" [nzActions]="[actions]">
+                        <ng-template #content>
+                            <ng-container *ngIf="list.content != null">
+                                <v-part [component]="list.content" [path]="path" [route]="route"></v-part>
+                            </ng-container>
+
+                            <pre *ngIf="list.content == null">{{item | json}}</pre>
+                        </ng-template>
+                        <ng-template #actions>
+                            <ng-container *ngIf="list.itemButtons">
+                                <ng-container *ngFor="let button of list.itemButtons">
+                                    <button nz-button [nzType]="button.classType" (click)="triggerButton(button, item)">{{button.text}}</button>
+                                </ng-container>
+                            </ng-container>
+                        </ng-template>
+                    </nz-list-item>
+                </ng-container>
+            </ng-template>
+
+            <ng-template #pagination>
+                <ng-container *ngIf="list.showPagination">
+                    <nz-pagination [(nzPageIndex)]="page.number" [(nzPageSize)]="page.size" [nzTotal]="page.totalElements" [nzShowSizeChanger]="true" (nzPageSizeChange)="query()" (nzPageIndexChange)="query()"></nz-pagination>
+                </ng-container>
+            </ng-template>
+        </nz-list>
+    </div>
+</div>

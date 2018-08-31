@@ -1,7 +1,7 @@
 <div class="box-group">
-    <v-form [route]="route" [path]="path" [form]="table.queryForm" (onActions)="receive($event)" #queryForm></v-form>
+    <v-query-form [route]="route" [path]="path" [form]="table.queryForm" (onActions)="receive($event)" #queryForm></v-query-form>
 
-    <ul class="table-buttons" style="justify-content: flex-end">
+    <ul class="flex-row-buttons" style="justify-content: flex-end">
         <li>
             <ng-container *ngFor="let button of table.buttons">
                 <button nz-button [nzType]="button.classType" (click)="triggerButton(button)" [title]="button.description" >{{button.text}}</button>
@@ -10,18 +10,17 @@
     </ul>
 
     <nz-table [nzData]="page.content"
-              [nzFrontPagination]="false"
-              [nzShowPagination]="table.showPagination"
               [nzTotal]="page.totalElements"
-              [nzShowSizeChanger]="true"
-              [nzBordered]="table.bordered"
               [(nzPageIndex)]="page.number"
               [(nzPageSize)]="page.size"
+              [nzFrontPagination]="false"
+              [nzShowPagination]="table.showPagination"
+              [nzShowSizeChanger]="true"
+              [nzBordered]="table.bordered"
               (nzPageIndexChange)="query()"
               (nzPageSizeChange)="query()"
               [nzScroll]="{x: '100%'}"
-              class="v-table"
-    >
+              class="v-table">
         <thead>
         <tr *ngFor="let row of headers;let first = first">
             <ng-container *ngFor="let header of row; ">
@@ -29,7 +28,7 @@
                     {{header.title}}
                 </th>
             </ng-container>
-            <th *ngIf="first && table.buttons?.length > 0" colspan="1" nzRight="0px" [attr.rowspan]="headers.length" style="min-width: 180px;" >
+            <th *ngIf="first && table.operationColumnButtons?.length > 0" colspan="1" nzRight="0px" [attr.rowspan]="headers.length" style="min-width: 180px;" >
                 {{'operation' | translate}}
             </th>
         </tr>
@@ -39,9 +38,12 @@
             <ng-container *ngFor="let column of dataColumns" >
                 <td *ngIf="!column.hide">{{column.formatText(data)}}</td>
             </ng-container>
-            <td nzRight="0px" style="text-align: left">
-                <ng-container *ngFor="let button of table.operationColumnButtons">
-                    <button nz-button [nzType]="button.classType" (click)="triggerButton(button, data)">{{button.text}}</button>
+            <td nzRight="0px" style="text-align: left" class="mini-spacing" *ngIf="table.operationColumnButtons?.length > 0">
+                <button nz-button nzType="primary" (click)="emit(data)" *ngIf="modalRef">选择</button>
+                <ng-container *ngIf="!modalRef">
+                    <ng-container *ngFor="let button of table.operationColumnButtons">
+                        <button nz-button [nzType]="button.classType" (click)="triggerButton(button, data)">{{button.text}}</button>
+                    </ng-container>
                 </ng-container>
             </td>
         </tr>
