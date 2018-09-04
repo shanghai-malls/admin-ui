@@ -40,7 +40,22 @@ import {DFormControlSwitchComponent} from '../builder/d-form/d-form-control-swit
 import {DFormControlUploadComponent} from '../builder/d-form/d-form-control-upload.component';
 import {DFormControlNumberComponent} from '../builder/d-form/d-form-control-number.component';
 import {VFormControlNumberComponent} from '../runner/v-form/v-form-control-number.component';
-import {Card, Cascader, Checkbox, DataPicker, DetailPanel, Form, InputNumber, List, Radio, Rate, Row, Table, TabSet} from '../public/model';
+import {
+    Card,
+    Cascader,
+    Checkbox,
+    DataPicker, DatePicker, DateRangePicker,
+    DetailPanel, DisplayText,
+    Form,
+    InputNumber,
+    List,
+    Radio,
+    Rate,
+    Row,
+    Select, Slider, Switch,
+    Table,
+    TabSet, Text, TextArea
+} from '../public/model';
 
 import {DDetailComponent} from '../builder/d-detail/d-detail.component';
 import {DFormComponent} from '../builder/d-form/d-form.component';
@@ -50,109 +65,174 @@ import {DTabsetComponent} from '../builder/d-tabset/d-tabset.component';
 
 
 export const builtInComponents = [
-    {type: 'card',          group: 'component', modelType: Card, component: VCardComponent, designerComponent: DCardComponent},
-    {type: 'detail-panel',  group: 'component', modelType: DetailPanel, component: VDetailComponent, designerComponent: DDetailComponent},
-    {type: 'form',          group: 'component', modelType: Form, component: VFormComponent, designerComponent: DFormComponent},
-    {type: 'list',          group: 'component', modelType: List, component: VListComponent, designerComponent: DListComponent},
-    {type: 'row',           group: 'component', modelType: Row, component: VRowComponent, designerComponent: DRowComponent},
-    {type: 'table',         group: 'component', modelType: Table, component: VTableComponent, designerComponent: DTableComponent},
-    {type: 'tabset',        group: 'component', modelType: TabSet, component: VTabsetComponent, designerComponent: DTabsetComponent},
+    {
+        type: 'card',
+        name: '卡片',
+        group: 'display',
+        modelType: Card,
+        component: VCardComponent,
+        designerComponent: DCardComponent
+    },
+    {
+        type: 'detail-panel',
+        name: '详情页',
+        group: 'display',
+        modelType: DetailPanel,
+        component: VDetailComponent,
+        designerComponent: DDetailComponent
+    },
+    {
+        type: 'form',
+        name: '表单容器',
+        group: 'display',
+        modelType: Form,
+        component: VFormComponent,
+        designerComponent: DFormComponent
+    },
+    {
+        type: 'list',
+        name: '列表',
+        group: 'display',
+        modelType: List,
+        component: VListComponent,
+        designerComponent: DListComponent
+    },
+    {
+        type: 'row',
+        name: '栅格系统',
+        group: 'layout',
+        modelType: Row,
+        component: VRowComponent,
+        designerComponent: DRowComponent
+    },
+    {
+        type: 'table',
+        name: '表格',
+        group: 'display',
+        modelType: Table,
+        component: VTableComponent,
+        designerComponent: DTableComponent
+    },
+    {
+        type: 'tabset',
+        name: '标签页',
+        group: 'display',
+        modelType: TabSet,
+        component: VTabsetComponent,
+        designerComponent: DTabsetComponent
+    },
 ];
 
 
 export const builtInFormControls = [
     {
         type: 'cascader',
+        name: '级联选择',
         modelType: Cascader,
         component: VFormControlCascaderComponent,
         designerComponent: DFormControlCascaderComponent
     },
     {
         type: 'checkbox',
+        name: '多选框',
         modelType: Checkbox,
         component: VFormControlCheckboxComponent,
         designerComponent: DFormControlCheckboxComponent
     },
     {
         type: 'data-picker',
+        name: '数据引用',
         modelType: DataPicker,
         component: VFormControlDataPickerComponent,
         designerComponent: DFormControlDataPickerComponent
     },
     {
         type: 'date',
-        modelType: Cascader,
+        name: '日期',
+        modelType: DatePicker,
         component: VFormControlDateComponent,
         designerComponent: DFormControlDateComponent
     },
     {
         type: 'date-range',
-        modelType: Cascader,
+        name: '日期区间',
+        modelType: DateRangePicker,
         component: VFormControlDateRangeComponent,
         designerComponent: DFormControlDateRangeComponent
     },
     {
         type: 'display-text',
-        modelType: Cascader,
+        name: '文本展示',
+        modelType: DisplayText,
         component: VFormControlDisplayTextComponent,
         designerComponent: DFormControlDisplayTextComponent
     },
     {
         type: 'number',
+        name: '数字',
         modelType: InputNumber,
         component: VFormControlNumberComponent,
         designerComponent: DFormControlNumberComponent
     },
     {
         type: 'radio',
+        name: '单选框',
         modelType: Radio,
         component: VFormControlRadioComponent,
         designerComponent: DFormControlRadioComponent
     },
     {
         type: 'rate',
+        name: '评分',
         modelType: Rate,
         component: VFormControlRateComponent,
         designerComponent: DFormControlRateComponent
     },
     {
         type: 'select',
-        modelType: Radio,
+        name: '评分',
+        modelType: Select,
         component: VFormControlSelectComponent,
         designerComponent: DFormControlSelectComponent
     },
     {
         type: 'slider',
-        modelType: Rate,
+        name: '滑动条',
+        modelType: Slider,
         component: VFormControlSliderComponent,
         designerComponent: DFormControlSliderComponent
     },
     {
         type: 'switch',
-        modelType: Radio,
+        name: '开关',
+        modelType: Switch,
         component: VFormControlSwitchComponent,
         designerComponent: DFormControlSwitchComponent
     },
     {
         type: 'text',
-        modelType: Rate,
+        name: '单行文本',
+        modelType: Text,
         component: VFormControlTextComponent,
         designerComponent: DFormControlTextComponent
     },
     {
         type: 'textarea',
-        modelType: Radio,
+        name: '多行文本',
+        modelType: TextArea,
         component: VFormControlTextareaComponent,
         designerComponent: DFormControlTextareaComponent
     },
     {
         type: 'time',
+        name: '时间',
         modelType: Rate,
         component: VFormControlTimeComponent,
         designerComponent: DFormControlTimeComponent
     },
     {
         type: 'upload-picker',
+        name: '上传',
         modelType: Rate,
         component: VFormControlUploadComponent,
         designerComponent: DFormControlUploadComponent

@@ -6,7 +6,7 @@
         <ng-container *ngIf="renderItem">
             <ng-template [ngTemplateOutlet]="renderItem" [ngTemplateOutletContext]="{ $implicit: item, index: i }"></ng-template>
         </ng-container>
-        <ng-container *ngIf="!renderItem">
+        <ng-container *ngIf="!renderItem && item.content">
             <d-part [component]="item.content"></d-part>
         </ng-container>
     </div>

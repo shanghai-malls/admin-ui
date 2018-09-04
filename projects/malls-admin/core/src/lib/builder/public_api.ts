@@ -10,7 +10,6 @@ export * from './d-table/d-table.component';
 export * from './d-table/d-header.component';
 export * from './d-table/d-column-list.component';
 export * from './d-tabset/d-tabset.component';
-export * from './d-main.component';
 export * from './d-workspace.component';
 
 

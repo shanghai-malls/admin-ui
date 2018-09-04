@@ -15,14 +15,14 @@ export const CONTROLS_INJECTION_TOKEN   = new InjectionToken<FormControlRegistra
 export class ComponentManager {
 
 
-    constructor(@Inject(COMPONENTS_INJECTION_TOKEN)     private components: ComponentRegistration[][],
-                @Inject(CONTROLS_INJECTION_TOKEN)          private items: FormControlRegistration[][]){
+    constructor(@Inject(COMPONENTS_INJECTION_TOKEN)     private componentRegistrationGroups: ComponentRegistration[][],
+                @Inject(CONTROLS_INJECTION_TOKEN)          private itemRegistrationGroups: FormControlRegistration[][]){
     }
 
     getDesignerComponent(type: string): Type<AbstractDesignerComponent>{
-        for (let components1 of this.components) {
-            if(components1) {
-                for (let registration of components1) {
+        for (let componentRegistrationGroup of this.componentRegistrationGroups) {
+            if(componentRegistrationGroup) {
+                for (let registration of componentRegistrationGroup) {
                     if(registration.type === type) {
                         return registration.designerComponent;
                     }
@@ -34,9 +34,9 @@ export class ComponentManager {
 
 
     getComponent(type: string): Type<AbstractComponent>{
-        for (let components1 of this.components) {
-            if(components1) {
-                for (let registration of components1) {
+        for (let componentRegistrationGroup of this.componentRegistrationGroups) {
+            if(componentRegistrationGroup) {
+                for (let registration of componentRegistrationGroup) {
                     if (registration.type === type) {
                         return registration.component;
                     }
@@ -47,9 +47,9 @@ export class ComponentManager {
     }
 
     getDesignerFormControlComponent(type: string): Type<AbstractDesignerFormControlComponent>{
-        for (let items1 of this.items) {
-            if(items1) {
-                for (let registration of items1) {
+        for (let itemRegistrationGroup of this.itemRegistrationGroups) {
+            if(itemRegistrationGroup) {
+                for (let registration of itemRegistrationGroup) {
                     if(registration.type === type) {
                         return registration.designerComponent;
                     }
@@ -61,9 +61,9 @@ export class ComponentManager {
     }
 
     getFormControlComponent(type: string): Type<AbstractFormControlComponent>{
-        for (let items1 of this.items) {
-            if(items1) {
-                for (let registration of items1) {
+        for (let itemRegistrationGroup of this.itemRegistrationGroups) {
+            if(itemRegistrationGroup) {
+                for (let registration of itemRegistrationGroup) {
                     if (registration.type === type) {
                         return registration.component;
                     }
@@ -73,4 +73,23 @@ export class ComponentManager {
         throw new Error(`找不到类型：${type}的表单控件组件`);
     }
 
+    getAllComponentRegistrations(): ComponentRegistration[]{
+        let registrations = [];
+        for (let componentRegistrationGroup of this.componentRegistrationGroups) {
+            if(componentRegistrationGroup && componentRegistrationGroup.length > 0) {
+                registrations.push(...componentRegistrationGroup);
+            }
+        }
+        return registrations;
+    }
+
+    getAllFormControlRegistrations(): FormControlRegistration[]{
+        let registrations = [];
+        for (let itemRegistrationGroup of this.itemRegistrationGroups) {
+            if(itemRegistrationGroup && itemRegistrationGroup.length > 0) {
+                registrations.push(...itemRegistrationGroup);
+            }
+        }
+        return registrations;
+    }
 }

@@ -32,13 +32,14 @@
                 </nz-breadcrumb>
             </div>
             <div class="content-body">
-                <router-outlet (activate)="activate($event)" ></router-outlet>
+                <!--<router-outlet (activate)="activate($event)" ></router-outlet>-->
+                <d-part *ngIf="view?.data" [component]="view?.data"></d-part>
             </div>
         </nz-content>
     </nz-layout>
     <nz-footer class="layout-footer">
         <button nz-button style="margin-right: 10px"                        (click)="revert()"><i class="anticon anticon-reload"></i>还原</button>
-        <button nz-button style="margin-right: 10px" [nzType]="'primary'"   (click)="saveView()"><i class="anticon anticon-save"></i>保存</button>
+        <button nz-button style="margin-right: 10px" [nzType]="'primary'"   (click)="saveView(modalHeader, saveBody)"><i class="anticon anticon-save"></i>保存</button>
         <button nz-button style="margin-right: 10px" [nzType]="'danger'"    (click)="deleteView()"><i class="anticon anticon-delete"></i>删除</button>
     </nz-footer>
 </nz-layout>

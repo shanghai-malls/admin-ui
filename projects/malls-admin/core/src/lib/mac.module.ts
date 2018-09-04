@@ -36,7 +36,6 @@ import {DFormControlSelectComponent} from './builder/d-form/d-form-control-selec
 import {QueryFormSettingComponent} from './builder/settings/query-form-setting.component';
 import {DButtonComponent} from './builder/d-button/d-button.component';
 import {SwitchSettingComponent} from './builder/settings/switch-setting.component';
-import {DMainComponent} from './builder/d-main.component';
 import {DFormControlCheckboxComponent} from './builder/d-form/d-form-control-checkbox.component';
 import {DFormComponent} from './builder/d-form/d-form.component';
 import {DDetailComponent} from './builder/d-detail/d-detail.component';
@@ -178,7 +177,6 @@ import {FORM_VIEW_PROCESSORS, NoopFormViewProcessor} from './public/service/form
         DRowComponent,
         DListComponent,
 
-        DMainComponent,
         DWorkspaceComponent,
 
         IconManagementComponent,
@@ -282,7 +280,6 @@ import {FORM_VIEW_PROCESSORS, NoopFormViewProcessor} from './public/service/form
         /**
          * 绑定了路由的组件，但由于放在了library中，无法静态提取，所以必须要配置在entryComponents中
          */
-        DMainComponent,
         DWorkspaceComponent,
 
         /**
@@ -342,7 +339,6 @@ import {FORM_VIEW_PROCESSORS, NoopFormViewProcessor} from './public/service/form
     ],
 
     exports: [
-        DMainComponent,
         DWorkspaceComponent,
 
         IconManagementComponent,
@@ -383,9 +379,8 @@ export class MacModule {
                 route.children = [
                     {
                         path: 'd',
-                        component: DWorkspaceComponent,
                         children: [
-                            {component: DMainComponent, path: '**'}
+                            {component: DWorkspaceComponent, path: '**'}
                         ]
                     },
                     {

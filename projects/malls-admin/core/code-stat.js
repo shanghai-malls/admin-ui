@@ -13,6 +13,7 @@ function totalLines(input) {
         if(stats.isFile()) {
             let content = fs.readFileSync(childFile);
             content = content.toString('utf-8');
+
             sum += content.split('\n').length;
         } else if(stats.isDirectory()) {
             sum += totalLines(childFile)

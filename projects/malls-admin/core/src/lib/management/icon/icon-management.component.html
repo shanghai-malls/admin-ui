@@ -11,8 +11,8 @@
         </h2>
 
         <ul class="icons">
-            <li *ngFor="let icon of icons" (click)="doSelect(icon)" >
-                <i class="{{prefix}}{{icon}} icon-item"></i>
+            <li *ngFor="let icon of filteredIcons" (click)="doSelect(icon)" >
+                <i class="icon-item {{prefix + icon}}"></i>
                 <span class="icon-text">{{icon}}</span>
             </li>
         </ul>

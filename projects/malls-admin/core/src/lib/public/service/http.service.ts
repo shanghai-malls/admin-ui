@@ -96,7 +96,7 @@ export class HttpService {
                 console.warn(resp);
                 if (options.showMessage) {
                     let message = resp.error.error + '<br/>' + resp.error.message;
-                    this.messageService.warning(message);
+                    this.messageService.error(message);
                 }
                 throw resp;
             });

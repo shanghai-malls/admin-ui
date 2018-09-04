@@ -1,11 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {AbstractControl, FormArray, FormControl, FormGroup, Validators} from '@angular/forms';
-import {ViewGenerator} from '../../public/service/view-generator';
 import {SettingService} from '../../public/service/setting.service';
-import {I18nService} from '../../public/service/i18n.service';
-import {HttpService} from '../../public/service/http.service';
-import {ViewService} from '../../public/service/view.service';
-import {MenuService} from '../../public/service/menu.service';
 import {Invisible} from '../../public/model';
 
 @Component({
@@ -16,16 +11,10 @@ import {Invisible} from '../../public/model';
 export class SettingManagementComponent implements OnInit {
 
     inEditing = false;
-    inBuilding: 'view' | 'menu';
     formGroup: FormGroup;
 
 
-    constructor(private settingsService: SettingService,
-                private i18n: I18nService,
-                private http: HttpService,
-                private viewGenerator: ViewGenerator,
-                private viewService: ViewService,
-                private menuService: MenuService) {
+    constructor(private settingsService: SettingService) {
     }
 
     ngOnInit(): void {
@@ -110,38 +99,6 @@ export class SettingManagementComponent implements OnInit {
         } else {
             this.inEditing = true;
         }
-    }
-
-
-    buildViewsFromRaml() {
-        this.inBuilding = 'view';
-        this.viewGenerator.getViews()
-            .then(this.viewService.batchSave) //save views
-            .then(()=>this.inBuilding = null)
-            .catch(error=>{
-                this.inBuilding = null;
-                console.error(error);
-            });
-
-        // this.http.get("/api/menus/get",
-        //     {hello: 'world'},
-        //     {'Content-Type': 'application/x-www-form-urlencoded'});
-        // this.http.get("/api/menus/get/query-string",
-        //     {hello: 'world'});
-        //
-        // this.http.post("/api/menus/post",
-        //     {hello: 'world'},
-        //     {'Content-Type': 'application/x-www-form-urlencoded'});
-        // this.http.post("/api/menus/post/query-string",
-        //     {hello: 'world'});
-    }
-
-    buildMenusFromModules() {
-        this.inBuilding = 'menu';
-
-        this.menuService.convertModulesToMenus()
-            .then(this.menuService.batchSave) //save menus
-            .then(()=>this.inBuilding = null);
     }
 
 }

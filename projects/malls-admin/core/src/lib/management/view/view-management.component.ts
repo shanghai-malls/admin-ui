@@ -8,6 +8,7 @@ import {LANG} from '../../translate/message-source';
 import {RouterService} from '../../public/service/router.service';
 import {Route} from '@angular/router';
 import {MacComponent} from '../../mac.component';
+import {ViewGenerator} from '../../public/service/view-generator';
 
 
 @Component({
@@ -31,7 +32,15 @@ export class ViewManagementComponent implements OnInit {
 
     staticViews: Route[];
 
-    constructor(private viewService: ViewService, private i18n: I18nService, router: RouterService, private modalService: ModalService, @Optional() public modalRef: NzModalRef) {
+    inBuilding: boolean;
+
+    constructor(private viewGenerator: ViewGenerator,
+                private viewService: ViewService,
+                private i18n: I18nService,
+                router: RouterService,
+                private modalService: ModalService,
+                @Optional() public modalRef: NzModalRef) {
+
         this.i18n.subscribe(this.queryView);
         this.staticViews = router.deepestRoutes.filter(i=>i.path && i.path.indexOf("*") === -1);
     }
@@ -104,4 +113,14 @@ export class ViewManagementComponent implements OnInit {
         }, 'warning');
     }
 
+    buildViewsFromRaml() {
+        this.inBuilding = true;
+        this.viewGenerator.getViews()
+            .then(this.viewService.batchSave) //save views
+            .then(()=>this.inBuilding = false)
+            .catch(error=>{
+                this.inBuilding = false;
+                console.error(error);
+            });
+    }
 }

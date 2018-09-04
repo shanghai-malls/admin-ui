@@ -1,6 +1,8 @@
 <div class="box-group">
     <ul class="flex-row-buttons" style="justify-content: flex-end">
-        <button nz-button [nzType]="'primary'" (click)="addMenu()">添加菜单组</button>
+        <li><button nz-button nzType="danger" [nzLoading]="inBuilding" (click)="buildMenusFromRaml()">自动构建菜单</button></li>
+        <li style="width: 8px"></li>
+        <li><button nz-button [nzType]="'primary'" (click)="addMenu()">添加菜单组</button></li>
     </ul>
 
     <nz-table [nzData]="menus" [nzBordered]="false" [nzShowPagination]="false" [nzScroll]="{x: '100%'}" class="v-table">
@@ -19,7 +21,7 @@
             <ng-container *ngFor="let item of items; let i = index;" >
                 <tr>
                     <td [nzShowExpand]="item.children && item.children.length > 0" [(nzExpand)]="item.expand"></td>
-                    <td [nzIndentSize]="level*30" >
+                    <td [nzIndentSize]="level*30">
                         <ng-container *ngIf="!item.focused">
                             <i class="{{item.icon  || 'anticon anticon-edit' }}"></i>
                         </ng-container>

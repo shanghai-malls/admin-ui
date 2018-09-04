@@ -1,0 +1,11 @@
+<nz-list [nzDataSource]="['']" [nzBordered]="list.bordered" [nzSplit]="list.split" [nzRenderItem]="item">
+    <ng-template #item let-item>
+        <ng-container *ngIf="list.content == null">
+            <nz-list-item [nzContent]="item"></nz-list-item>
+        </ng-container>
+
+        <ng-container *ngIf="list.content != null">
+            <d-part [component]="item"></d-part>
+        </ng-container>
+    </ng-template>
+</nz-list>

@@ -27,6 +27,20 @@ export class ViewService {
 
 
     getCompatibleView(inputPath: string): Promise<View>{
+        return this.findViewByPath(inputPath).then(view => {
+            if(view) {
+                return view;
+            }
+            this.messageService.error('无法找到对应的视图->' + inputPath);
+            throw new Error('无法找到对应的视图->' + inputPath);
+        });
+    }
+
+    exists(inputPath: string): Promise<boolean>{
+        return this.findViewByPath(inputPath).then(view => view != null);
+    }
+
+    private findViewByPath(inputPath: string): Promise<View>{
         return this.getViews().then(views => {
             try{
                 let lastPointPosition = inputPath.lastIndexOf('.');
@@ -49,18 +63,15 @@ export class ViewService {
                 this.messageService.error(e.message);
                 throw e;
             }
-            this.messageService.error('无法找到对应的视图->' + inputPath);
-            throw new Error('无法找到对应的视图->' + inputPath);
         });
     }
-
 
     saveOrUpdateView(view: View){
         return this.doSave({views: [view], forceUpdate: true});
     }
 
     batchSave = (input: View[]) => {
-        return this.doSave({views: input, forceUpdate: true});
+        return this.doSave({views: input, forceUpdate: false});
     };
 
     private doSave(body){

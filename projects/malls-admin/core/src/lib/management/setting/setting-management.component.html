@@ -195,7 +195,5 @@
 <ng-template #cardActions>
     <div *ngIf="formGroup" class="mini-spacing">
         <button nz-button nzType="primary" [disabled]="!formGroup.valid && inEditing" (click)="submitOrEdit()">{{inEditing? '提交': '编辑'}}</button>
-        <button nz-button nzType="danger" [disabled]="inEditing" [nzLoading]="inBuilding === 'view'" (click)="buildViewsFromRaml()">自动构建视图</button>
-        <button nz-button nzType="danger" [disabled]="inEditing" [nzLoading]="inBuilding === 'menu'" (click)="buildMenusFromModules()">自动构建菜单</button>
     </div>
 </ng-template>

@@ -49,57 +49,9 @@ export class WorkspaceComponent implements OnDestroy {
 
     receive = menus => {
         this.menus = [...menus];
-        let language = this.i18n.getLocale();
-        this.menus.push({
-            language: language,
-            path: '#expansion',
-            displayName: '扩展管理',
-            description: '扩展管理',
-            index: menus.length,
-            icon: 'anticon anticon-usb',
-            children: [
-                {
-                    language: language,
-                    path: '/management/setting',
-                    displayName: '主题定制',
-                    description: '主题定制',
-                    index: 0,
-                    icon: 'anticon anticon-skin',
-                },
-                {
-                    language: language,
-                    path: '/management/icons',
-                    displayName: '图标定制',
-                    description: '图标定制',
-                    index: 1,
-                    icon: 'anticon anticon-picture',
-                },
-                {
-                    language: language,
-                    path: '/management/menus',
-                    displayName: '菜单定制',
-                    description: '菜单定制',
-                    index: 2,
-                    icon: 'anticon anticon-menu-unfold',
-                },
-                {
-                    language: language,
-                    path: '/management/views',
-                    displayName: '视图定制',
-                    description: '视图定制',
-                    index: 3,
-                    icon: 'anticon anticon-file',
-                },
-                {
-                    language: language,
-                    path: '/management/interfaces',
-                    displayName: '完整接口列表',
-                    description: '完整接口列表',
-                    index: 4,
-                    icon: 'anticon anticon-api',
-                },
-            ]
-        });
+
+
+        this.menus.push(this.getExtendedMenu());
         this.menusForSearch = menus;
         this.subjectForSearch.pipe(delay(300)).subscribe((text) => {
             if (!text) {
@@ -126,6 +78,87 @@ export class WorkspaceComponent implements OnDestroy {
             }
             this.menusForSearch = menusForSearch;
         });
+    };
+
+    private getExtendedMenu(): Menu{
+        let extMenu: Menu = {
+            language: this.language,
+            path: '#expansion',
+            index: 0,
+            displayName: '',
+            description: '',
+            icon: 'anticon anticon-usb',
+            children: [
+                {
+                    language: this.language,
+                    path: '/management/setting',
+                    displayName: '',
+                    description: '',
+                    index: 0,
+                    icon: 'anticon anticon-skin',
+                },
+                {
+                    language: this.language,
+                    path: '/management/icons',
+                    displayName: '',
+                    description: '',
+                    index: 1,
+                    icon: 'anticon anticon-picture',
+                },
+                {
+                    language: this.language,
+                    path: '/management/menus',
+                    displayName: '',
+                    description: '',
+                    index: 2,
+                    icon: 'anticon anticon-menu-unfold',
+                },
+                {
+                    language: this.language,
+                    path: '/management/views',
+                    displayName: '',
+                    description: '',
+                    index: 3,
+                    icon: 'anticon anticon-file',
+                },
+                {
+                    language: this.language,
+                    path: '/management/interfaces',
+                    displayName: '',
+                    description: '',
+                    index: 4,
+                    icon: 'anticon anticon-api',
+                },
+            ]
+        };
+        this.setMenuText(extMenu);
+        return extMenu;
+    }
+
+    setMenuText = (extMenu: Menu) => {
+        let path = extMenu.path;
+        if (path === '#expansion') {
+            extMenu.displayName = this.language === 'en' ? 'Extended management' : '扩展管理';
+        }
+        if (path === '/management/setting') {
+            extMenu.displayName = this.language === 'en' ? 'Skin' : '主题定制';
+        }
+        if (path === '/management/icons') {
+            extMenu.displayName = this.language === 'en' ? 'Icon' : '图标定制';
+        }
+        if (path === '/management/menus') {
+            extMenu.displayName = this.language === 'en' ? 'Menu' : '菜单定制';
+        }
+        if (path === '/management/views') {
+            extMenu.displayName = this.language === 'en' ? 'View' : '视图定制';
+        }
+        if (path === '/management/interfaces') {
+            extMenu.displayName = this.language === 'en' ? 'Interface' : '完整接口列表';
+        }
+        extMenu.description = extMenu.displayName;
+        if (extMenu.children) {
+            extMenu.children.forEach(this.setMenuText);
+        }
     };
 
     private initRouterView = (event: RouterEvent) => {

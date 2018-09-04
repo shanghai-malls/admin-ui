@@ -24,6 +24,7 @@ export interface AbstractDesignerFormControlComponent<T extends FormItem=FormIte
 
 export class FormControlRegistration{
     type: string;
+    name: string;
     modelType?: Type<any>;
     component: Type<AbstractFormControlComponent>;
     designerComponent?: Type<AbstractDesignerFormControlComponent>
@@ -31,6 +32,7 @@ export class FormControlRegistration{
 
 export class ComponentRegistration{
     type: string;
+    name: string;
     group: string;
     modelType?: Type<any>;
     component: Type<AbstractComponent>;

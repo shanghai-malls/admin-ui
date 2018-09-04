@@ -15,8 +15,7 @@ import {EditableMenu, Menu} from '../../public/model';
 export class MenuManagementComponent implements OnInit {
     menus: EditableMenu[] = [];
     copyMenu: EditableMenu;
-
-    mmc = ViewManagementComponent;
+    inBuilding: boolean;
 
     constructor(private modalService: ModalService, private menuService: MenuService, private i18n: I18nService) {
 
@@ -126,4 +125,14 @@ export class MenuManagementComponent implements OnInit {
         step1().then(step2).then(step3);
     }
 
+    buildMenusFromRaml() {
+        this.inBuilding = true;
+        this.menuService.convertModulesToMenus()
+            .then(this.menuService.batchSave) //save menus
+            .then(() => this.inBuilding = false)
+            .catch((error) => {
+                this.inBuilding = false;
+                console.error(error);
+            });
+    }
 }
