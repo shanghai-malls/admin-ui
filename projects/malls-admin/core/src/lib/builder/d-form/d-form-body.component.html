@@ -4,7 +4,7 @@
             <ng-container *ngFor="let cell of row.children">
                 <ng-container *ngIf="cell.width === 0">
                     <li>
-                        <div class="hide-field-label">{{cell.content.label}}</div>
+                        <div class="fields-item-label">{{cell.content.label}}</div>
                         <i class="anticon anticon-minus-circle-o large-icon" (click)="recover(cell)"></i>
                     </li>
                 </ng-container>
@@ -21,18 +21,16 @@
 </ng-template>
 
 <ng-template #tpl4 let-cell>
-    <d-wrapper class="wrapper" [cell]="cell" [content]="content">
-        <d-form-item [item]="cell.content" (onEnter)="focusChild($event)" #content></d-form-item>
-    </d-wrapper>
+    <d-form-item [item]="cell.content" (onEnter)="focusChild($event)"></d-form-item>
 </ng-template>
 
 
-<div class="ant-modal-body d-form-body body-bg" [class.item-selected]="ds.getSelected() != null">
+<div class="ant-modal-body d-form-body body-bg">
     <ng-container [ngTemplateOutlet]="tpl3" [ngTemplateOutletContext]="{top:0}"></ng-container>
 
     <ng-container *ngFor="let row of bodies" >
         <d-row [row]="row" [renderItem]="tpl4"></d-row>
     </ng-container>
 
-    <ng-container [ngTemplateOutlet]="tpl3" ></ng-container>
+    <ng-container [ngTemplateOutlet]="tpl3"></ng-container>
 </div>

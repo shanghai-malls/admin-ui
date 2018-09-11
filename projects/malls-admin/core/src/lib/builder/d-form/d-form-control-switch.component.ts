@@ -22,7 +22,7 @@ export class DFormControlSwitchComponent implements AbstractDesignerFormControlC
     }
 
     doSetting(event: any) {
-        this.modalService.openDesignSetting('设置表单字段' + this.item.label, SwitchSettingComponent, {value: this.item});
+        this.modalService.openFormItemDesignSetting(SwitchSettingComponent, this.item);
     }
 
 }

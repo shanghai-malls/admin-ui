@@ -1,53 +1,47 @@
 import {Component, Input, OnChanges, OnInit, Optional, SimpleChanges, ViewChild} from '@angular/core';
-import {Router} from '@angular/router';
-import {VPartComponent} from '../v-part/v-part.component';
 import {VQueryFormComponent} from '../v-form/v-query-form.component';
 
-import {AbstractComponent, Button, DataColumn, extractUriParameters, formatPath, Header, Page, Table,} from '../../public/model';
+import {AbstractComponent, DataColumn, Header, Table,} from '../../public/model';
 import {ModalService} from '../../public/service/modal.service';
 import {ViewService} from '../../public/service/view.service';
 import {NzModalRef} from 'ng-zorro-antd';
-import {MacComponent} from '../../mac.component';
 import {RouterService} from '../../public/service/router.service';
+import {ComponentLifecycleListenerDelegate} from '../../public/service/component-lifecycle-listener';
+import {AbstractListComponent} from '../abstract.list.component';
 
 @Component({
     selector: 'v-table',
     templateUrl: './v-table.component.html',
     styleUrls: ['./v-table.component.less'],
 })
-export class VTableComponent implements OnInit, OnChanges, AbstractComponent<Table> {
+export class VTableComponent extends AbstractListComponent implements OnInit, OnChanges, AbstractComponent<Table> {
     @Input()
     table: Table;
 
     @Input()
     path?: string;
 
-
     @Input()
     route: string;
 
-    uriParameters: { [p: string]: string };
-
-    page: Page;
     headers: Header[][];
     dataColumns: DataColumn[];
-
-
 
     @ViewChild('queryForm')
     queryForm: VQueryFormComponent;
 
-    constructor(
-        private viewService: ViewService,
-        private modalService: ModalService,
-        private routerService: RouterService,
-        @Optional() public modalRef: NzModalRef) {
+    constructor(delegate: ComponentLifecycleListenerDelegate, viewService: ViewService,
+                modalService: ModalService, routerService: RouterService, @Optional() modalRef: NzModalRef) {
+        super(delegate,viewService,modalService,routerService, modalRef);
     }
 
     ngOnInit(): void {
-        this.page = new Page();
-        this.processHeaders();
-        this.uriParameters = extractUriParameters(this.path, this.route);
+        this.delegate.preInit(this);
+
+        this.initCommonProperties(this.table, this.path, this.route);
+        this.initHeaders();
+
+        this.delegate.postInit(this);
     }
 
     ngOnChanges(changes: SimpleChanges): void {
@@ -62,7 +56,7 @@ export class VTableComponent implements OnInit, OnChanges, AbstractComponent<Tab
         this.route = route;
     }
 
-    processHeaders() {
+    initHeaders() {
         let headers: Header[][] = [];
         let firstRow = this.table.columns.map(c => new Header(c));
 
@@ -117,55 +111,5 @@ export class VTableComponent implements OnInit, OnChanges, AbstractComponent<Tab
         return dataColumns;
     }
 
-    query() {
-        let pageRequest = {size: this.page.size, page: this.page.number - 1};
-        this.queryForm.query(pageRequest);
-    }
-
-    receive = (data) => {
-        if (data === 'cleared') {
-            this.query();
-        } else {
-            if(data instanceof Array) {
-                this.page = new Page(data);
-            } else {
-                this.page = data;
-                this.page.number += 1;
-            }
-        }
-    };
-
-    triggerButton(button: Button, data?: any) {
-        if (button.triggerType === 'modal') {
-            this.viewService.getCompatibleView(button.path).then(v => {
-                let path = formatPath(v.path, data);
-                if (this.uriParameters) {
-                    path = formatPath(path, this.uriParameters);
-                }
-                let route = v.path;
-                this.modalService.create({
-                    nzTitle: null,
-                    nzContent: VPartComponent,
-                    nzFooter: null,
-                    nzComponentParams: {path, route, component: v.data},
-                    nzOnOk: () => this.query(),
-                });
-            });
-        }
-
-        else if (button.triggerType === 'link') {
-            let path = formatPath(button.path, data);
-            if (this.uriParameters) {
-                path = formatPath(path, this.uriParameters);
-            }
-            this.routerService.navigate(path);
-        }
-    }
-
-    emit(data: any) {
-        if(this.modalRef) {
-            this.modalRef.destroy(data);
-        }
-    }
 
 }

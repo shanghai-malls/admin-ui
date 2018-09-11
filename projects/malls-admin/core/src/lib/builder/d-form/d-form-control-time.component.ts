@@ -21,6 +21,6 @@ export class DFormControlTimeComponent implements AbstractDesignerFormControlCom
     }
 
     doSetting(event: any) {
-        this.modalService.openDesignSetting('设置表单字段' + this.item.label, TimePickerSettingComponent, {value: this.item});
+        this.modalService.openFormItemDesignSetting(TimePickerSettingComponent, this.item);
     }
 }

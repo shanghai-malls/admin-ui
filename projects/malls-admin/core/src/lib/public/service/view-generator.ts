@@ -46,6 +46,8 @@ import {SettingService} from './setting.service';
 import {RamlService} from './raml.service';
 import {Inject, Injectable} from '@angular/core';
 import {VIEW_GENERATOR_CUSTOMIZER, ViewGeneratorCustomizer} from './view-generator-customizer';
+import {ViewService} from './view.service';
+
 
 @Injectable({providedIn: 'root'})
 export class ViewGenerator {
@@ -53,16 +55,18 @@ export class ViewGenerator {
     private raml: Raml;
     private setting: Setting;
 
-    constructor(private ramlService: RamlService, @Inject(VIEW_GENERATOR_CUSTOMIZER) private customizer: ViewGeneratorCustomizer,
+    constructor(private ramlService: RamlService, private viewService: ViewService,
+                @Inject(VIEW_GENERATOR_CUSTOMIZER) private customizer: ViewGeneratorCustomizer,
                 private i18n: I18nService, private settingsService: SettingService) {
         this.settingsService.subscribe(setting => this.setting = setting);
     }
 
+
     /**
      * 获取默认的视图列表，基于RAML文档转换所得
      */
-    getViews(): Promise<View[]> {
-        return this.ramlService.getRaml().then(raml => {
+    generateViews(){
+        return this.ramlService.getRaml().then<any>(raml => {
             this.raml = raml;
 
             let views = [];
@@ -73,7 +77,7 @@ export class ViewGenerator {
             if (this.customizer.processViews) {
                 return this.customizer.processViews(views);
             }
-            return views;
+            return this.viewService.batchSave(views);
         });
     }
 
@@ -141,13 +145,6 @@ export class ViewGenerator {
      */
     private processQueryResult(queryResult: Row<FormItem>) {
         if (queryResult) {
-            for (let child of queryResult.children) {
-                let item = child.content;
-                if (item instanceof ArrayField || item instanceof MapField || item instanceof FieldSet) {
-                    continue;
-                }
-                child.content = new DisplayText(item);
-            }
             this.hideFormChildren(this.setting.invisibleDetailPageProperties, queryResult.children);
         }
     }
@@ -176,6 +173,11 @@ export class ViewGenerator {
         }
     }
 
+    /**
+     * 隐藏body里的path variable
+     * @param {Form} form
+     * @param {Resource} resource
+     */
     private processForm(form: Form, resource: Resource) {
         let {queryParameters, body} = form;
 
@@ -317,7 +319,7 @@ export class ViewGenerator {
             table.buttons = buttons;
             table.showPagination = showPagination;
             table.columns = this.elementTypeToColumns(elementType, table);
-            table.operationColumnButtons = [];
+            table.operationButtons = [];
 
             if (resource.resources) {
                 let collectPathVariable = this.collectPathVariable(table.columns, []);
@@ -330,7 +332,7 @@ export class ViewGenerator {
                                 }
                             }
                         }
-                        table.operationColumnButtons.push(...itemResource.methods.map(action => this.methodToButton(itemResource, action)));
+                        table.operationButtons.push(...itemResource.methods.map(action => this.methodToButton(itemResource, action)));
                     }
                 }
             }
@@ -454,11 +456,11 @@ export class ViewGenerator {
 
 
         if (headers && headers.length > 0) {
-            form.headers = new Row({children: this.propertiesToCells(headers)});
+            form.headers = new FormBody({children: this.propertiesToCells(headers)});
         }
 
         if (queryParameters && queryParameters.length > 0) {
-            form.queryParameters = new Row({children: this.propertiesToCells(queryParameters)});
+            form.queryParameters = new FormBody({children: this.propertiesToCells(queryParameters)});
         }
 
 
@@ -547,21 +549,20 @@ export class ViewGenerator {
     private convertToFormItem(q: SimpleTypeDeclaration, prefix?: string) {
 
         let {
-            required, description,
-            name, displayName,
-            defaultValue, type,
+            name, required, description,type,
             minLength, maxLength,
+            displayName: label,
+            defaultValue: value,
             maximum: max, minimum: min
         } = q;
 
-        let def = new FormItem();
+        let def = {} as FormItem;
 
         def.field = prefix ? prefix + '.' + name : name;
-
+        def.value = value;
         def.required = required;
-        def.label = displayName;
+        def.label = label;
         def.description = description;
-        def.value = defaultValue;
 
         if (type === 'display-text') {
             return new DisplayText(def);
@@ -622,7 +623,6 @@ export class ViewGenerator {
         for (let p of elementType.properties) {
             if (this.customizer.canMappedToColumn(elementType, p)) {
                 let def: any = {
-                    type: p.type,
                     field: p.name,
                     title: p.displayName,
                     index: columns.length

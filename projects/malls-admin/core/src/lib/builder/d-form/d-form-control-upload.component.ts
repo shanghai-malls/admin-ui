@@ -24,7 +24,7 @@ export class DFormControlUploadComponent implements AbstractDesignerFormControlC
     }
 
     doSetting(event: any) {
-        this.modalService.openDesignSetting('设置表单字段' + this.item.label, UploadPickerSettingComponent, {value: this.item});
+        this.modalService.openFormItemDesignSetting(UploadPickerSettingComponent, this.item);
     }
 
 }

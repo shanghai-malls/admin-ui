@@ -1,6 +1,5 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {AbstractDesignerComponent, DetailPanel} from '../../public/model';
-import {DesignService} from '../../public/service/design.service';
 import {RowSettingComponent} from '../settings/row-setting.component';
 import {ModalService} from '../../public/service/modal.service';
 
@@ -16,7 +15,7 @@ export class DDetailComponent implements OnInit, AbstractDesignerComponent<Detai
     detailPanel: DetailPanel;
 
 
-    constructor(private modalService: ModalService, public ds: DesignService) {
+    constructor(private modalService: ModalService) {
 
     }
 

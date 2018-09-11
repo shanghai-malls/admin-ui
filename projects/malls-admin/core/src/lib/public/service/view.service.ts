@@ -1,34 +1,31 @@
 import {Injectable} from '@angular/core';
 import {HttpService} from './http.service';
 import {I18nService} from './i18n.service';
-import {Subject} from 'rxjs';
 import {NzMessageService} from 'ng-zorro-antd';
 import {isCompatible, View} from '../model';
 
 
-
 @Injectable({providedIn: 'root'})
 export class ViewService {
-    private url = "/api/views";
+    private url = '/api/views';
     private viewsGroup: { [x: string]: Promise<View[]> } = {};
-    private subject = new Subject<any[]>();
 
     constructor(private http: HttpService, private i18n: I18nService, private messageService: NzMessageService) {
-        this.i18n.subscribe(language => this.pushViews(language));
+
     }
 
-    getViews(language?: string, force?: boolean): Promise<View[]>{
+    getViews(language?: string, force?: boolean): Promise<View[]> {
         language = language || this.i18n.getLocale();
-        if(!this.viewsGroup[language] || force) {
+        if (!this.viewsGroup[language] || force) {
             this.viewsGroup[language] = this.http.get<View[]>(this.url, {params: {language}});
         }
         return this.viewsGroup[language];
     }
 
 
-    getCompatibleView(inputPath: string): Promise<View>{
+    getCompatibleView(inputPath: string): Promise<View> {
         return this.findViewByPath(inputPath).then(view => {
-            if(view) {
+            if (view) {
                 return view;
             }
             this.messageService.error('无法找到对应的视图->' + inputPath);
@@ -36,24 +33,24 @@ export class ViewService {
         });
     }
 
-    exists(inputPath: string): Promise<boolean>{
+    exists(inputPath: string): Promise<boolean> {
         return this.findViewByPath(inputPath).then(view => view != null);
     }
 
-    private findViewByPath(inputPath: string): Promise<View>{
+    private findViewByPath(inputPath: string): Promise<View> {
         return this.getViews().then(views => {
-            try{
+            try {
                 let lastPointPosition = inputPath.lastIndexOf('.');
                 let inputSuffix = lastPointPosition > 0 ? inputPath.substring(lastPointPosition) : null;
 
-                let matchedViews = views.filter(view=>isCompatible(view.path, inputPath, inputSuffix));
+                let matchedViews = views.filter(view => isCompatible(view.path, inputPath, inputSuffix));
 
-                if(matchedViews && matchedViews.length > 0) {
+                if (matchedViews && matchedViews.length > 0) {
                     for (let matchedView of matchedViews) {
-                        if(inputSuffix) {
+                        if (inputSuffix) {
 
                         }
-                        if(matchedView.path === inputPath) {
+                        if (matchedView.path === inputPath) {
                             return matchedView;
                         }
                     }
@@ -66,7 +63,7 @@ export class ViewService {
         });
     }
 
-    saveOrUpdateView(view: View){
+    saveOrUpdateView(view: View) {
         return this.doSave({views: [view], forceUpdate: true});
     }
 
@@ -74,11 +71,11 @@ export class ViewService {
         return this.doSave({views: input, forceUpdate: false});
     };
 
-    private doSave(body){
-        return this.http.post(this.url, body, {showMessage: true}).then(() => this.pushViews(this.i18n.getLocale(), true));
+    private doSave(body) {
+        return this.http.post(this.url, body, {showMessage: true}).then(() => this.getViews(this.i18n.getLocale(), true));
     }
 
-    deleteView(path: string):Promise<any> {
+    deleteView(path: string): Promise<any> {
         const params = {paths: [path], language: this.i18n.getLocale()};
         return this.http.delete(this.url, {params, showMessage: true})
             .then(() => this.getViews())
@@ -93,13 +90,7 @@ export class ViewService {
             });
     }
 
-    subscribe(next?: (value: any[]) => void, error?: (error: any) => void, complete?: () => void) {
-        this.subject.subscribe(next, error, complete);
-        this.pushViews(this.i18n.getLocale())
-    }
+    oneClickUpdate(){
 
-    private pushViews(language: string, force?: boolean){
-        this.getViews(language, force).then(views=>this.subject.next(views));
     }
-
 }

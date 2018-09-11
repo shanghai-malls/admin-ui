@@ -1,7 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {AbstractDesignerComponent, Form, FormBody, FormItem, Row} from '../../public/model';
 import {FormSettingComponent} from '../settings/form-setting.component';
-import {DesignService} from '../../public/service/design.service';
 import {ModalService} from '../../public/service/modal.service';
 
 @Component({
@@ -19,33 +18,25 @@ export class DFormComponent implements OnInit , AbstractDesignerComponent<Form>{
 
     contentType: string;
 
-    constructor(private modalService: ModalService, public ds: DesignService) {
+    constructor(private modalService: ModalService) {
     }
 
     ngOnInit(): void {
-        this.processForm();
+        this.bodies = [];
+        this.pushFormBody(this.form.headers);
+        this.pushFormBody(this.form.queryParameters);
+        if (this.form.body && this.form.body.length > 0) {
+            this.contentType = this.form.body[0].contentType;
+            this.bodies.push(...this.form.body);
+        }
+
+        this.markForm();
     }
 
     initComponent(component: Form) {
         this.form = component;
     }
 
-    /**
-     * 处理form
-     */
-    processForm() {
-        this.bodies = [];
-        this.pushFormBody(this.form.headers);
-        this.pushFormBody(this.form.queryParameters);
-        if (this.form.body && this.form.body.length > 0) {
-            this.contentType = this.form.body[0].contentType;
-            this.form.body.forEach(item=>{
-                this.pushFormBody(item);
-            })
-        }
-
-        this.markForm();
-    }
 
     /**
      * 处理form

@@ -1,11 +1,10 @@
 import {Component, HostBinding, Input, OnInit, QueryList, ViewChildren} from '@angular/core';
-import {Cell, Form, FormBody, FormItem, Row} from '../../public/model';
+import {Cell, Form, FormItem, Row} from '../../public/model';
 import {ModalService} from '../../public/service/modal.service';
 
 import {DFormItemComponent} from './d-form-item.component';
-import {DesignService} from '../../public/service/design.service';
+import {DesignerService} from '../../public/service/designer.service';
 import {QueryFormSettingComponent} from '../settings/query-form-setting.component';
-import {FormBodyProcessor} from '../../public/service/form-body-processor';
 
 @Component({
     selector: 'd-query-form',
@@ -35,26 +34,11 @@ export class DQueryFormFormComponent implements OnInit{
     buttonGroupWidth = 8;
 
 
-    constructor(private modalService: ModalService, public ds: DesignService, private formBodyProcessor: FormBodyProcessor) {
+    constructor(private modalService: ModalService, public ds: DesignerService) {
     }
 
     ngOnInit(): void {
-        this.processForm();
         this.toggleCollapse();
-    }
-
-    processForm(){
-        this.form = new Form(this.form);
-        this.processFormBody(this.form.headers);
-        this.processFormBody(this.form.queryParameters);
-    }
-
-    processFormBody(body: FormBody){
-        if(body) {
-            body.vertical = this.form.vertical;
-            body.horizontal = this.form.horizontal;
-            this.formBodyProcessor.process(body);
-        }
     }
 
     toggleCollapse() {

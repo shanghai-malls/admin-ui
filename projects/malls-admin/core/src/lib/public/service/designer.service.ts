@@ -1,9 +1,10 @@
-import {Injectable} from '@angular/core';
+import {EventEmitter, Injectable} from '@angular/core';
+import {Subscription} from 'rxjs';
 import {NzMessageService} from 'ng-zorro-antd';
 import {Cell, Component, Component as UIComponent, FormItem} from '../model';
 
 @Injectable({providedIn: 'root'})
-export class DesignService {
+export class DesignerService {
 
     private cell: Cell;
 
@@ -12,15 +13,14 @@ export class DesignService {
     }
 
     selectedCell(cell: Cell) {
+        if(this.cell == cell) {
+            cell = null;
+        }
         this.cell = cell;
     }
 
     isSelected(cell: Cell) {
         return this.cell === cell;
-    }
-
-    getSelected(){
-        return this.cell;
     }
 
     addComponentToCell(type: string) {
@@ -40,5 +40,15 @@ export class DesignService {
         }
     }
 
+
+    onSetting:  EventEmitter<Cell> = new EventEmitter<Cell>();
+
+    triggerSetting(cell: Cell) {
+        this.onSetting.emit(cell);
+    }
+
+    subscribeOnSetting(next?: (value: Cell) => void, error?: (error: any) => void, complete?: () => void) : Subscription{
+        return this.onSetting.subscribe(next, error, complete);
+    }
 }
 

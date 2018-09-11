@@ -1,12 +1,12 @@
 import {
     ArrayTypeDeclaration,
     DetailPanel,
-    Form,
+    Form, FormBody, FormItem,
     List,
     Method,
     ObjectTypeDeclaration,
     Resource,
-    RevisionType,
+    RevisionType, Row,
     Table,
     TypeDeclaration,
     View,
@@ -46,6 +46,20 @@ export class ViewGeneratorCustomizer {
         return processed;
     }
 
+    private filteredComplexTypeField(row: Row<FormItem>){
+        if(row && row.children) {
+            row.children = row.children.filter(cell => {
+                let formItem = cell.content;
+                let type = formItem.type;
+                if (type === 'fieldset' || type === 'array' || type === 'map') {
+                    console.warn(`不支持${formItem.type}类型的表单项=>${formItem.field}`);
+                    return false;
+                }
+                return true;
+            });
+        }
+    }
+
     /**
      * 处理表单视图
      * @param  form
@@ -54,43 +68,37 @@ export class ViewGeneratorCustomizer {
      * @returns
      */
     processFormView(form: Form, resource: Resource, action: Method) {
+        if(form) {
+            if(form.headers) {
+                this.filteredComplexTypeField(form.headers);
+            }
 
-        if (form.body) {
-            let responseBodies;
-            for (let m1 of resource.methods) {
-                if (m1.method === 'get') {
-                    if (m1.responses) {
-                        let response = m1.responses.find(resp => resp.code >= 200 && resp.code < 300);
-                        if (response && response.body && response.body.length > 0) {
-                            responseBodies = response.body;
-                            break;
+            if(form.queryParameters) {
+                this.filteredComplexTypeField(form.queryParameters);
+            }
+
+            if (form.body) {
+                form.body.forEach(this.filteredComplexTypeField);
+                let responseBodies;
+                for (let m1 of resource.methods) {
+                    if (m1.method === 'get') {
+                        if (m1.responses) {
+                            let response = m1.responses.find(resp => resp.code >= 200 && resp.code < 300);
+                            if (response && response.body && response.body.length > 0) {
+                                responseBodies = response.body;
+                                break;
+                            }
                         }
                     }
                 }
-            }
 
-            return action.body.map((item, i) => {
-                if (responseBodies) {
-                    let responseBody = responseBodies.find(rb => rb.type === item.type);
-                    if (responseBody) {
-                        form.body[i].autoLoader = {url: resource.qualifiedPath, accept: responseBody.name};
+                return action.body.map((item, i) => {
+                    if (responseBodies) {
+                        let responseBody = responseBodies.find(rb => rb.type === item.type);
+                        if (responseBody) {
+                            form.body[i].autoLoader = {url: resource.qualifiedPath, accept: responseBody.name};
+                        }
                     }
-                }
-            });
-        }
-    }
-
-    /**
-     * 处理列表数据
-     * @param  list
-     * @param  resource
-     * @param  action
-     */
-    processListView(list: List, resource: Resource, action: Method) {
-        if (list) {
-            if (list.itemButtons) {
-                list.itemButtons = list.itemButtons.filter(btn => {
-                    return btn.path.indexOf('.patch') === -1;
                 });
             }
         }
@@ -103,6 +111,13 @@ export class ViewGeneratorCustomizer {
      * @param action
      */
     processDetailView(detailPanel: DetailPanel, resource: Resource, action: Method) {
+        if (detailPanel) {
+            this.filteredComplexTypeField(detailPanel.queryResult);
+            if(detailPanel.queryForm) {
+                this.filteredComplexTypeField(detailPanel.queryForm.headers);
+                this.filteredComplexTypeField(detailPanel.queryForm.queryParameters);
+            }
+        }
     }
 
     /**
@@ -132,10 +147,30 @@ export class ViewGeneratorCustomizer {
      */
     processTableView(table: Table, resource: Resource, action: Method) {
         if (table) {
-            if (table.operationColumnButtons) {
-                table.operationColumnButtons = table.operationColumnButtons.filter(btn => {
-                    return btn.path.indexOf('.patch') === -1;
-                });
+            if(table.queryForm) {
+                this.filteredComplexTypeField(table.queryForm.headers);
+                this.filteredComplexTypeField(table.queryForm.queryParameters);
+            }
+            if(table.operationButtons) {
+                table.operationButtons = table.operationButtons.filter(btn => btn.path.indexOf('.patch') === -1);
+            }
+        }
+    }
+
+    /**
+     * 处理列表数据
+     * @param  list
+     * @param  resource
+     * @param  action
+     */
+    processListView(list: List, resource: Resource, action: Method) {
+        if (list) {
+            if (list.queryForm) {
+                this.filteredComplexTypeField(list.queryForm.headers);
+                this.filteredComplexTypeField(list.queryForm.queryParameters);
+            }
+            if (list.operationButtons) {
+                list.operationButtons = list.operationButtons.filter(btn => btn.path.indexOf('.patch') === -1);
             }
         }
     }

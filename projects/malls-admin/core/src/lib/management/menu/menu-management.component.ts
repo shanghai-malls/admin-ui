@@ -1,10 +1,12 @@
-import {Component, EventEmitter, OnInit} from '@angular/core';
+import {Component, EventEmitter, OnDestroy, OnInit} from '@angular/core';
 import {IconManagementComponent} from '../icon/icon-management.component';
 import {ViewManagementComponent} from '../view/view-management.component';
 import {ModalService} from '../../public/service/modal.service';
 import {I18nService} from '../../public/service/i18n.service';
 import {MenuService} from '../../public/service/menu.service';
 import {EditableMenu, Menu} from '../../public/model';
+import {MenuGenerator} from '../../public/service/menu-generator';
+import {Subscription} from 'rxjs';
 
 
 
@@ -12,18 +14,17 @@ import {EditableMenu, Menu} from '../../public/model';
     templateUrl: 'menu-management.component.html',
     styleUrls: ['../../base.less'],
 })
-export class MenuManagementComponent implements OnInit {
+export class MenuManagementComponent implements  OnInit {
     menus: EditableMenu[] = [];
     copyMenu: EditableMenu;
     inBuilding: boolean;
 
-    constructor(private modalService: ModalService, private menuService: MenuService, private i18n: I18nService) {
+    constructor( private i18n: I18nService, private modalService: ModalService, private menuService: MenuService, private menuGenerator: MenuGenerator) {
 
     }
 
     ngOnInit(): void {
-        this.menuService.getMenus().then(menus => this.menus = menus);
-        this.i18n.subscribe(language => this.menuService.getMenus(language, false).then(menus => this.menus = menus));
+        this.menuService.getMenus(this.i18n.getLocale(), false).then(menus => this.menus = menus);
     }
 
     addMenu(parent?: EditableMenu) {
@@ -127,8 +128,7 @@ export class MenuManagementComponent implements OnInit {
 
     buildMenusFromRaml() {
         this.inBuilding = true;
-        this.menuService.convertModulesToMenus()
-            .then(this.menuService.batchSave) //save menus
+        this.menuGenerator.generateMenus()
             .then(() => this.inBuilding = false)
             .catch((error) => {
                 this.inBuilding = false;

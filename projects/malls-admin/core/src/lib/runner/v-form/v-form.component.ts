@@ -1,23 +1,21 @@
 import {Component, Input, OnChanges, OnInit, Optional, SimpleChanges} from '@angular/core';
 import {NzMessageService, NzModalRef} from 'ng-zorro-antd';
-import {AbstractComponent, extractUriParameters, Form, formatPath,} from '../../public/model';
+import {AbstractComponent, AutoLoader, extractUriParameters, Form, formatPath,} from '../../public/model';
 
 import {HttpOptions, HttpService} from '../../public/service/http.service';
 import {TransformService} from '../../public/service/transform.service';
 import {AbstractFormComponent, FormGroups} from './abstract-form.component';
-import {FormBodyProcessor} from '../../public/service/form-body-processor';
-import {FormViewProcessorDelegate} from '../../public/service/form-view-processor';
+import {ComponentLifecycleListenerDelegate} from '../../public/service/component-lifecycle-listener';
+import {FormGroup} from '@angular/forms';
 
-/**
- * form group wrapper
- */
 
 @Component({
     selector: 'v-form',
     templateUrl: './v-form.component.html',
     styleUrls: ['./v-form.component.less']
 })
-export class VFormComponent extends AbstractFormComponent implements OnInit, OnChanges, AbstractComponent<Form>  {
+export class VFormComponent extends AbstractFormComponent implements OnInit, OnChanges, AbstractComponent<Form> {
+
     @Input()
     form: Form;
 
@@ -27,27 +25,32 @@ export class VFormComponent extends AbstractFormComponent implements OnInit, OnC
     @Input()
     route: string;
 
+    uriParameters: {[key: string]: string};
 
     contentType: string;
 
-    formGroups: FormGroups;
+    confirm = true;
 
-    confirm: boolean;
-
-    constructor(http: HttpService, transformer: TransformService, formBodyProcessor: FormBodyProcessor,
-                private delegate: FormViewProcessorDelegate,
+    constructor(private http: HttpService, private transformer: TransformService,
+                private delegate: ComponentLifecycleListenerDelegate,
                 private messageService: NzMessageService, @Optional() public modalRef: NzModalRef) {
-        super(http, transformer, formBodyProcessor);
+        super();
     }
 
-
     ngOnInit(): void {
-        this.form = this.processForm();
-        this.delegate.preLoad(this.form, this.route, this.path);
-        this.formGroups = this.createFormGroups(this.form);
-        if (this.form.body && this.form.body.length > 0) {
-            this.contentType = this.form.body[0].contentType;
-        }
+        this.delegate.preInit(this);
+
+        this.initUriParameters();
+
+        this.markForm();
+
+        this.initContentType();
+
+        this.createFormGroups(this.form);
+
+        this.doAutoLoad();
+
+        this.delegate.postInit(this);
     }
 
     ngOnChanges(changes: SimpleChanges): void {
@@ -62,17 +65,42 @@ export class VFormComponent extends AbstractFormComponent implements OnInit, OnC
         this.route = route;
     }
 
-    processForm(): Form{
-        let form = super.processForm(this.form);
-        this.markForm();
-        return form;
+    initUriParameters() {
+        this.uriParameters = extractUriParameters(this.path, this.route);
     }
 
-    get uriParameters(): { [p: string]: string } {
-        return extractUriParameters(this.path, this.route);
+    doAutoLoad(){
+        for (let key of Object.keys(this.formGroups)) {
+            let formGroup = this.formGroups[key];
+            let autoLoader = this.form[key].autoLoader;
+            if (autoLoader && autoLoader.url) {
+                let method = 'get';
+                let url = formatPath(autoLoader.url, this.uriParameters);
+                let options = {headers: {}};
+                if (autoLoader.accept) {
+                    options.headers = {Accept: autoLoader.accept};
+                }
+
+                this.delegate.preQuery(url, options, this);
+
+                this.http.get(url, options)
+                    .then(result => {
+                        let value = this.transformer.transform(result, url, method);
+                        this.delegate.postQuery(value, this);
+                        return value;
+                    })
+                    .then(value => {
+                        formGroup.patchValue(value);
+                    });
+            }
+        }
     }
 
-
+    initContentType(){
+        if (this.form.body && this.form.body.length > 0) {
+            this.contentType = this.form.body[0].contentType;
+        }
+    }
 
     /**
      * 标记该form对象是否为一个confirm form
@@ -85,22 +113,17 @@ export class VFormComponent extends AbstractFormComponent implements OnInit, OnC
             }
         }
 
-        this.processModalRef();
-        for (let row of array) {
+        outer: for (let row of array) {
             if (row && row.children) {
                 for (let cell of row.children) {
                     if(cell.width > 0) {
                         this.confirm = false;
-                        return;
+                        break outer;
                     }
                 }
             }
         }
-        this.confirm = true;
 
-    }
-
-    processModalRef(){
         if(this.modalRef) {
             let modalComponent = this.modalRef.getInstance();
             if(this.confirm) {
@@ -111,10 +134,6 @@ export class VFormComponent extends AbstractFormComponent implements OnInit, OnC
                 modalComponent.nzBodyStyle = {padding: 0}
             }
         }
-    }
-
-    preSubmit(formValue: any, form: Form, route: string, path: string) {
-        this.delegate.preSubmit(formValue, form, route, path);
     }
 
     submit() {
@@ -138,8 +157,6 @@ export class VFormComponent extends AbstractFormComponent implements OnInit, OnC
             }
         }
 
-        this.preSubmit(options, this.form, this.route, this.path);
-
         if(this.formGroups.queryParameters) {
             Object.assign(options.params, this.formGroups.queryParameters.value);
         }
@@ -148,13 +165,16 @@ export class VFormComponent extends AbstractFormComponent implements OnInit, OnC
             let method = this.form.method;
             let url = formatPath(this.form.path, this.uriParameters);
 
+            this.delegate.preSubmit(method, url, options, this);
 
             this.http.request(method, url, options)
-                .then(() => {
+                .then((response) => {
                     if (this.modalRef) {
                         this.modalRef.destroy();
                         this.modalRef.triggerOk();
                     }
+
+                    this.delegate.postSubmit(response, this);
                 });
 
         } catch (e) {
@@ -162,7 +182,7 @@ export class VFormComponent extends AbstractFormComponent implements OnInit, OnC
         }
     }
 
-    private toURLSearchParams(formValue: any): URLSearchParams {
+    toURLSearchParams(formValue: any): URLSearchParams {
         const searchParams = new URLSearchParams();
         for (let key of Object.keys(formValue)) {
             searchParams.set(key, formValue[key]);
@@ -170,7 +190,7 @@ export class VFormComponent extends AbstractFormComponent implements OnInit, OnC
         return searchParams;
     }
 
-    private getFormValue(flat?: boolean) {
+    getFormValue(flat?: boolean) {
         if(this.form.body) {
             let bodyIndex = this.form.body.findIndex(item => item.contentType === this.contentType);
             let value = this.formGroups.body[bodyIndex].value;

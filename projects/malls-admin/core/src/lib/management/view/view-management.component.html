@@ -33,9 +33,10 @@
             </div>
 
             <ul class="flex-row-buttons" style="justify-content: flex-end">
-                <li><button nz-button nzType="danger" [nzLoading]="inBuilding" (click)="buildViewsFromRaml()">自动构建视图</button></li>
+                <li><button nz-button nzType="primary" (click)="oneClickUpdate()">一键更新视图</button></li>
+                <li><button nz-button nzType="primary" [nzLoading]="inBuilding" (click)="buildViewsFromRaml()">自动构建视图</button></li>
                 <li style="width: 8px"></li>
-                <li><a nz-button routerLink="../../d/" nzType="primary">新建视图</a></li>
+                <!--<li><a nz-button routerLink="../../d/" nzType="default">新建视图</a></li>-->
             </ul>
             <nz-table *ngIf="displayViews" [nzData]="displayViews" [nzFrontPagination]="false"
                       [(nzPageSize)]="size" [(nzPageIndex)]="page" [nzTotal]="total" (nzPageIndexChange)="filter()" [nzScroll]="{x: '100%'}">

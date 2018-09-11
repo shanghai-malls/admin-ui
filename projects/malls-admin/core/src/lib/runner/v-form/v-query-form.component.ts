@@ -4,7 +4,7 @@ import {HttpService} from '../../public/service/http.service';
 import {TransformService} from '../../public/service/transform.service';
 import {AbstractComponent, extractUriParameters, Form, formatPath,} from '../../public/model';
 import {AbstractFormComponent} from './abstract-form.component';
-import {FormBodyProcessor} from '../../public/service/form-body-processor';
+import {ComponentLifecycleListenerDelegate} from '../../public/service/component-lifecycle-listener';
 
 @Component({
     selector: 'v-query-form',
@@ -27,6 +27,8 @@ export class VQueryFormComponent extends AbstractFormComponent implements OnInit
     @Output()
     onActions?: EventEmitter<any> = new EventEmitter();
 
+    uriParameters: {[key: string]: string};
+
     @HostBinding('class.hide')
     get hide() {
         let {queryParameters, headers} = this.form;
@@ -47,16 +49,19 @@ export class VQueryFormComponent extends AbstractFormComponent implements OnInit
 
     formGroups:{headers?: FormGroup, queryParameters?: FormGroup};
 
-    constructor(http: HttpService, transformer: TransformService, formBodyProcessor: FormBodyProcessor) {
-        super(http, transformer, formBodyProcessor);
+    constructor(private delegate: ComponentLifecycleListenerDelegate, private http: HttpService, private transformer: TransformService) {
+        super();
     }
 
     ngOnInit(): void {
-        this.form = this.processForm(this.form);
-        this.formGroups = this.createFormGroups(this.form);
+        this.delegate.preInit(this);
+
+        this.initUriParameters();
+        this.createFormGroups(this.form);
         this.query();
         this.toggleCollapse();
 
+        this.delegate.postInit(this);
     }
 
     ngOnChanges(changes: SimpleChanges): void {
@@ -71,8 +76,8 @@ export class VQueryFormComponent extends AbstractFormComponent implements OnInit
         this.route = route;
     }
 
-    get uriParameters(): { [p: string]: string } {
-        return extractUriParameters(this.path, this.route);
+    initUriParameters() {
+        this.uriParameters = extractUriParameters(this.path, this.route);
     }
 
     toggleCollapse() {
@@ -101,7 +106,7 @@ export class VQueryFormComponent extends AbstractFormComponent implements OnInit
         }
     }
 
-    private getFormValue() {
+    getFormValue() {
         let queryParams: any = {};
         if(this.formGroups.queryParameters) {
             let queryValue = this.formGroups.queryParameters.value;
@@ -148,12 +153,18 @@ export class VQueryFormComponent extends AbstractFormComponent implements OnInit
 
         let method = this.form.method;
         let url = formatPath(this.form.path, this.uriParameters);
+        let options = {params, headers, showMessage: false};
+
+        this.delegate.preQuery(url, options, this);
 
         this.http
-            .request(method, url, {params, headers, showMessage: false})
-            .then(data => this.transformer.transform(data, url, method))
-            .then(data => this.onActions.next(data))
-        ;
+            .request(method, url, )
+            .then(data => {
+                data = this.transformer.transform(data, url, method);
+                this.delegate.postQuery(data, this);
+                return data;
+            })
+            .then(data => this.onActions.next(data));
     }
 
     clear() {

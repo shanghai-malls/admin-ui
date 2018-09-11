@@ -4,7 +4,6 @@ import {Subject} from 'rxjs';
 import {Setting} from '../model';
 
 
-
 @Injectable({providedIn: 'root'})
 export class SettingService {
 
@@ -24,6 +23,7 @@ export class SettingService {
         return this.setting;
     }
 
+
     setSetting(body: Setting): Promise<Setting> {
         return this.http.post(this.url, body, {showMessage: true}).then<Setting>(setting => {
             this.setting = Promise.resolve(setting);
@@ -36,4 +36,6 @@ export class SettingService {
         this.subject.subscribe(next, error, complete);
         this.getSetting().then(settings => this.subject.next(settings));
     }
+
+
 }

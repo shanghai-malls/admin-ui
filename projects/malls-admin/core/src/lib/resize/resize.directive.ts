@@ -61,7 +61,7 @@ export class ResizeDirective implements OnInit{
 
     doResize = (event:MouseEvent)=>{
         let moveX = event.pageX - this.startX;
-        this.onResize.next({hostElement: this.el,  moveX});
+        this.onResize.emit({hostElement: this.el,  moveX});
     };
 
     stopResize = (event: MouseEvent) => {
@@ -71,7 +71,7 @@ export class ResizeDirective implements OnInit{
         document.documentElement.removeEventListener('mousemove', this.doResize, false);
 
         let moveX = event.pageX - this.startX;
-        this.onStopResize.next({hostElement: this.el,  moveX});
+        this.onStopResize.emit({hostElement: this.el,  moveX});
     };
 
 }

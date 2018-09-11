@@ -1,6 +1,6 @@
 <nz-card [nzTitle]="card.title" [nzBordered]="card.bordered" [nzExtra]="extraTemplate">
     <ng-template #title>
-        <div *ngIf="card.title || focused">
+        <div>
             <div class="title" (click)="focus(input)">
                 <span [class.hide]="focused" >{{card.title}}</span>
                 <input #input [class.hide]="!focused" nz-input [(ngModel)]="card.title" placeholder="请输入label" (blur)="blur(input)"/>
@@ -12,6 +12,6 @@
     </ng-template>
 
     <div>
-        <d-part [component]="card.content"></d-part>
+        <d-part *ngIf="card.content" [component]="card.content"></d-part>
     </div>
 </nz-card>

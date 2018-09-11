@@ -24,8 +24,10 @@
                             <pre *ngIf="list.content == null">{{item | json}}</pre>
                         </ng-template>
                         <ng-template #actions>
-                            <ng-container *ngIf="list.itemButtons">
-                                <ng-container *ngFor="let button of list.itemButtons">
+                            <button nz-button nzType="primary" (click)="emitData(item)" *ngIf="modalRef">选择</button>
+
+                            <ng-container *ngIf="list.operationButtons && modalRef">
+                                <ng-container *ngFor="let button of list.operationButtons">
                                     <button nz-button [nzType]="button.classType" (click)="triggerButton(button, item)">{{button.text}}</button>
                                 </ng-container>
                             </ng-container>

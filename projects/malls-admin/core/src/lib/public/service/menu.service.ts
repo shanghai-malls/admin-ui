@@ -23,42 +23,6 @@ export class MenuService {
         return this.menusGroup[language];
     }
 
-    convertModulesToMenus = () => {
-        const language = this.i18n.getLocale();
-        return this.http.get<any[]>('/api/modules').then(modules => {
-            let menus: Menu[] = [];
-
-            for (let index = 0; index < modules.length; index++) {
-                let module = modules[index];
-                let {path, displayName, description, children} = module;
-                let parent = path;
-
-                if(children == null || children.length === 0) {
-                    continue;
-                }
-
-                if(isContainsChinese(displayName)) {
-                    displayName = capitalize(name) + " Management"
-                }
-                if(isContainsChinese(description)) {
-                    description = displayName;
-                }
-
-                menus.push({language, path, displayName, description, index});
-
-
-                if (children) {
-                    for (let index = 0; index < children.length; index++) {
-                        let module = children[index];
-                        let {path, displayName, description} = module;
-                        menus.push({language, path, displayName, description, index, parent});
-                    }
-                }
-            }
-
-            return menus;
-        });
-    };
 
     saveMenu(menu: EditableMenu) {
         delete menu.expand;

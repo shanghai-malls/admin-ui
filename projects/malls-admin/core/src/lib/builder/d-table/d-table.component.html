@@ -47,7 +47,7 @@
             </ng-container>
             <td nzRight="0px">
                 <div class="flex-row-buttons mini-spacing" style="flex-wrap: wrap;justify-content: flex-start">
-                    <ng-container *ngFor="let button of table.operationColumnButtons">
+                    <ng-container *ngFor="let button of table.operationButtons">
                         <d-button [button]="button" [removeable]="true" (onDelete)="deleteOperationColumnButton($event)"></d-button>
                     </ng-container>
                     <button class="hover-show" nz-button [nzType]="'dashed'" (click)="addOperationColumnButton()"  title="添加按钮"><i class="anticon anticon-plus"></i></button>

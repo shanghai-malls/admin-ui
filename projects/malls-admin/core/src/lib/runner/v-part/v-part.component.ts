@@ -1,7 +1,7 @@
 import {Component, ComponentFactoryResolver, Input, OnChanges, OnInit, SimpleChanges, ViewChild, ViewContainerRef} from '@angular/core';
 import {NzMessageService} from 'ng-zorro-antd';
 import {Component as UIComponent} from '../../public/model';
-import {ComponentManager} from '../../registry/component-manager';
+import {ComponentManager} from '../../public/service/component-manager';
 
 @Component({
     selector: 'v-part',
@@ -22,12 +22,13 @@ export class VPartComponent implements OnInit, OnChanges{
     @ViewChild("container", { read: ViewContainerRef })
     container: ViewContainerRef;
 
-    constructor(private resolver: ComponentFactoryResolver, private messageService: NzMessageService, private componentManager: ComponentManager) {}
+    constructor(private resolver: ComponentFactoryResolver, private messageService: NzMessageService,
+                private componentManager: ComponentManager) {}
 
     ngOnInit(): void {
-        let component = this.componentManager.getComponent(this.component.type);
-        if(component) {
-            const factory = this.resolver.resolveComponentFactory(component);
+        let componentClass = this.componentManager.getComponent(this.component.type);
+        if(componentClass) {
+            const factory = this.resolver.resolveComponentFactory(componentClass);
             const componentRef = this.container.createComponent(factory);
             componentRef.instance.initComponent(this.component, this.path, this.route);
         } else {

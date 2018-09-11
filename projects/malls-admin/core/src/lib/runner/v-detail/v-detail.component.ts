@@ -1,6 +1,7 @@
 import {Component, Input, OnChanges, OnInit, SimpleChanges, ViewChild} from '@angular/core';
 import {AbstractComponent, DetailPanel} from '../../public/model';
 import {VQueryFormComponent} from '../v-form/v-query-form.component';
+import {ComponentLifecycleListenerDelegate} from '../../public/service/component-lifecycle-listener';
 
 @Component({
     selector: 'v-detail',
@@ -23,7 +24,13 @@ export class VDetailComponent implements OnInit, OnChanges, AbstractComponent<De
     @ViewChild('queryForm')
     queryForm: VQueryFormComponent;
 
+
+    constructor(private delegate: ComponentLifecycleListenerDelegate) {
+    }
+
     ngOnInit(): void {
+        this.delegate.preInit(this);
+
         this.result = {};
         if (this.component.tabset && this.component.queryResult) {
             let queryResult = this.component.queryResult;
@@ -31,6 +38,8 @@ export class VDetailComponent implements OnInit, OnChanges, AbstractComponent<De
                 cell.content.type !== 'fieldset' && cell.content.type !== 'array' && cell.content.type !== 'map');
 
         }
+
+        this.delegate.postInit(this);
     }
 
 
@@ -46,6 +55,7 @@ export class VDetailComponent implements OnInit, OnChanges, AbstractComponent<De
             this.queryForm.query();
         } else {
             this.result = value;
+            this.delegate.postQuery(this.result, this);
         }
     }
 

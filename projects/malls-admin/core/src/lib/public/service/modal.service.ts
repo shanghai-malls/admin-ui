@@ -1,5 +1,7 @@
 import {EventEmitter, Injectable, TemplateRef, Type} from '@angular/core';
 import {ConfirmType, ModalOptionsForService, NzModalRef, NzModalService, OnClickCallback} from 'ng-zorro-antd';
+import {FormItem} from '../model';
+import {ChoiceSettingComponent} from '../../builder/settings/choice-setting.component';
 
 
 export interface ModalCreateOptions<T = any> extends ModalOptionsForService<T> {
@@ -66,5 +68,9 @@ export class ModalService {
                 'background-color': 'rgba(0,0,0,0.05)'
             }
         });
+    }
+
+    openFormItemDesignSetting<T extends FormItem=FormItem>(componentType: Type<any>, value: T) {
+        this.openDesignSetting('设置表单字段' + value.field, componentType, {value});
     }
 }

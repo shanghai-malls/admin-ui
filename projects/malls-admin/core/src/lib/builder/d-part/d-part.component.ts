@@ -1,7 +1,7 @@
 import {Component, ComponentFactoryResolver, Input, OnInit, ViewChild, ViewContainerRef} from '@angular/core';
 import {Component as UIComponent} from '../../public/model';
 import {NzMessageService} from 'ng-zorro-antd';
-import {ComponentManager} from '../../registry/component-manager';
+import {ComponentManager} from '../../public/service/component-manager';
 
 @Component({
     selector: 'd-part',

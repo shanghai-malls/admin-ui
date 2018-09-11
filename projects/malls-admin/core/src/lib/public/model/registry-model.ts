@@ -22,20 +22,21 @@ export interface AbstractDesignerFormControlComponent<T extends FormItem=FormIte
     doSetting(event: any);
 }
 
-export class FormControlRegistration{
+
+
+export interface ComponentDefinition{
     type: string;
     name: string;
-    modelType?: Type<any>;
-    component: Type<AbstractFormControlComponent>;
-    designerComponent?: Type<AbstractDesignerFormControlComponent>
+    group: 'display' | 'layout' | 'chart' | string;
+    metamodelType?: Type<any>;
+    componentType: Type<AbstractComponent>;
+    designerComponentType?: Type<AbstractDesignerComponent>
 }
 
-export class ComponentRegistration{
+export interface FormControlDefinition{
     type: string;
     name: string;
-    group: string;
-    modelType?: Type<any>;
-    component: Type<AbstractComponent>;
-    designerComponent?: Type<AbstractDesignerComponent>
+    metamodelType?: Type<any>;
+    componentType: Type<AbstractFormControlComponent>;
+    designerComponentType?: Type<AbstractDesignerFormControlComponent>
 }
-

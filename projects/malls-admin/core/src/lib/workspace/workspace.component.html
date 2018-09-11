@@ -3,60 +3,36 @@
         <div class="wrapper">
             <div class="logo-wrapper">
                 <a [routerLink]="basePath" class="logo-link">
-                    <img alt="logo" class="logo-img" [src]=" setting?.logo || './assets/logo-full.svg'">
+                    <img alt="logo" class="logo-img" [src]="logo || './assets/logo-full.svg'">
                 </a>
             </div>
-            <div class="top-nav-wrap">
-                <ul class="top-nav">
-                    <li>
-                        <div class="item">
-                            <i class="anticon nav-icon" [class.anticon-menu-fold]="!isCollapsed" [class.anticon-menu-unfold]="isCollapsed" (click)="isCollapsed=!isCollapsed"></i>
-                        </div>
-                    </li>
 
-                </ul>
-
-                <nz-input-group nzAddOnBeforeIcon="anticon anticon-search"
-                                [class.input-group-focus]="focusSearch"
-                                [class.input-group-blur]="!focusSearch">
-                    <input nz-input [(ngModel)]="searchText" [nzAutocomplete]="auto" [placeholder]="'header.search-placeholder' | translate"
-                           (focus)="focusSearch = true" (blur)="focusSearch = false"
-                           (ngModelChange)="searchMenus($event)"/>
-                </nz-input-group>
-
-                <nz-autocomplete #auto [nzBackfill]="true" (selectionChange)="selectionChange($event)" >
-                    <ng-container *ngIf="menus != null">
-                        <nz-auto-optgroup *ngFor="let menu of menusForSearch" [nzLabel]="menu.displayName" >
-                            <nz-auto-option *ngFor="let submenu of menu.children" [nzLabel]="submenu.displayName" [nzValue]="submenu.path" >
-                                <div style="margin-left: 16px">{{submenu.displayName}}</div>
-                            </nz-auto-option>
-                        </nz-auto-optgroup>
-                    </ng-container>
-                </nz-autocomplete>
-
-                <ul class="top-nav" style="margin: 0 16px">
-                    <li>
-                        <div class="item">
-                            <nz-badge [nzCount]="0">
-                                <i class="anticon anticon-notification nav-icon" ></i>
-                            </nz-badge>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="item">
-                            <a href="/docs/index.html" style="color: #fff"><i class="anticon anticon-api nav-icon"></i></a>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="item" (click)="logout()">
-                            <i class="anticon anticon-logout nav-icon"></i>
-                        </div>
+            <div class="top-nav">
+                <ul class="nav-list">
+                    <li *ngFor="let toolbar of leftToolbars">
+                        <i class="anticon anticon-{{toolbar.icon}} nav-icon" (click)="toolbar.onclick(toolbar)"></i>
                     </li>
                 </ul>
-
+                <ng-container *ngIf="showTopSearchBar">
+                    <nz-input-group nzAddOnBeforeIcon="anticon anticon-search" [class.input-group-focus]="focusSearch" [class.input-group-blur]="!focusSearch">
+                        <input nz-input [(ngModel)]="searchText" [nzAutocomplete]="auto" [placeholder]="'header.search-placeholder' | translate"
+                               (focus)="focusSearch = true" (blur)="focusSearch = false" (ngModelChange)="searchMenus($event)"/>
+                    </nz-input-group>
+                </ng-container>
+                <ul class="nav-list">
+                    <li *ngFor="let toolbar of rightToolbars">
+                        <nz-dropdown [nzTrigger]="toolbar.triggerType || 'click'" [nzPlacement]="toolbar.placementType || 'bottomCenter'">
+                            <div nz-dropdown style="margin-top: -8px; padding: 8px 0">
+                                <i class="anticon anticon-{{toolbar.icon}} nav-icon"></i>
+                            </div>
+                            <div nz-menu>
+                                <toolbar-overlay [toolbar]="toolbar"></toolbar-overlay>
+                            </div>
+                        </nz-dropdown>
+                    </li>
+                </ul>
                 <nz-select class="language-switcher" [(ngModel)]="language" (ngModelChange)="switchLanguage($event)">
-                    <nz-option nzValue="zh" nzLabel="中文"></nz-option>
-                    <nz-option nzValue="en" nzLabel="English"></nz-option>
+                    <nz-option *ngFor="let item of languages | keyvalue" [nzValue]="item.key" [nzLabel]="item.value"></nz-option>
                 </nz-select>
             </div>
         </div>
@@ -78,6 +54,17 @@
         </nz-sider>
         <nz-content>
             <div class="content-title">
+
+
+                <nz-autocomplete #auto [nzBackfill]="true" (selectionChange)="selectionChange($event)" >
+                    <ng-container *ngIf="menus != null">
+                        <nz-auto-optgroup *ngFor="let menu of menusForSearch" [nzLabel]="menu.displayName" >
+                            <nz-auto-option *ngFor="let submenu of menu.children" [nzLabel]="submenu.displayName" [nzValue]="submenu.path" >
+                                <div style="margin-left: 16px">{{submenu.displayName}}</div>
+                            </nz-auto-option>
+                        </nz-auto-optgroup>
+                    </ng-container>
+                </nz-autocomplete>
                 <nz-breadcrumb>
                     <nz-breadcrumb-item>
                         <a [routerLink]="basePath">Home</a>

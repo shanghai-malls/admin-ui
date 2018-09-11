@@ -4,9 +4,8 @@ import {RouterEvent} from '@angular/router/src/events';
 import {Subscription} from 'rxjs';
 import {ViewService} from '../public/service/view.service';
 import {NzModalRef} from 'ng-zorro-antd';
-import {MacComponent} from '../mac.component';
 import {RouterService} from '../public/service/router.service';
-
+import {Component as UIComponent} from '../public/model';
 @Component({
     selector: 'v-main',
     template: `
@@ -24,8 +23,7 @@ export class VMainComponent implements OnDestroy {
     un: Subscription;
 
     constructor(private router: Router, private viewService: ViewService,
-                private routerService: RouterService,
-                @Optional() private modalRef: NzModalRef) {
+                private routerService: RouterService, @Optional() private modalRef: NzModalRef) {
         //如果不是模态框模式就注册路由监听
         if(!this.modalRef) {
             this.un = this.router.events.subscribe(this.initResource);
@@ -54,7 +52,7 @@ export class VMainComponent implements OnDestroy {
     }
 
     initViewData = (view) => {
-        this.component = view.data;
+        this.component = UIComponent.create(view.data);
         this.route = view.path;
     };
 

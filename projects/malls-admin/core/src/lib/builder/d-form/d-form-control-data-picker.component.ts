@@ -23,6 +23,6 @@ export class DFormControlDataPickerComponent implements AbstractDesignerFormCont
     }
 
     doSetting(event: any) {
-        this.modalService.openDesignSetting('设置表单字段' + this.item.label, DataPickerSettingComponent, {value: this.item});
+        this.modalService.openFormItemDesignSetting(DataPickerSettingComponent, this.item);
     }
 }

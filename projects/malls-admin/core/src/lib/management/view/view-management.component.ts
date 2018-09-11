@@ -1,14 +1,13 @@
-import {Component, OnInit, Optional} from '@angular/core';
+import {Component, OnDestroy, OnInit, Optional} from '@angular/core';
 import {ViewService} from '../../public/service/view.service';
 import {View} from '../../public/model';
 import {I18nService} from '../../public/service/i18n.service';
 import {ModalService} from '../../public/service/modal.service';
 import {NzModalRef} from 'ng-zorro-antd';
-import {LANG} from '../../translate/message-source';
 import {RouterService} from '../../public/service/router.service';
 import {Route} from '@angular/router';
-import {MacComponent} from '../../mac.component';
 import {ViewGenerator} from '../../public/service/view-generator';
+import {Subscription} from 'rxjs';
 
 
 @Component({
@@ -24,7 +23,7 @@ export class ViewManagementComponent implements OnInit {
 
     views: View[] = [];
     displayViews: View[];
-    languages = LANG;
+    languages: any;
 
     params: { path?: string; name?: string; } = {};
 
@@ -34,26 +33,25 @@ export class ViewManagementComponent implements OnInit {
 
     inBuilding: boolean;
 
+
     constructor(private viewGenerator: ViewGenerator,
                 private viewService: ViewService,
                 private i18n: I18nService,
-                router: RouterService,
+                private router: RouterService,
                 private modalService: ModalService,
                 @Optional() public modalRef: NzModalRef) {
-
-        this.i18n.subscribe(this.queryView);
-        this.staticViews = router.deepestRoutes.filter(i=>i.path && i.path.indexOf("*") === -1);
     }
 
     ngOnInit(): void {
-        this.queryView();
+        this.languages = this.i18n.getLocales();
+        this.staticViews = this.router.deepestRoutes.filter(i => i.path && i.path.indexOf('*') === -1);
+        this.viewService.getViews(this.i18n.getLocale()).then(this.initViews);
     }
 
-    queryView = (language?: string) => {
-        this.viewService.getViews(language).then(views => {
-            this.views = views;
-            this.filter();
-        });
+
+    initViews = (views: View[]) => {
+        this.views = views;
+        this.filter();
     };
 
 
@@ -115,12 +113,16 @@ export class ViewManagementComponent implements OnInit {
 
     buildViewsFromRaml() {
         this.inBuilding = true;
-        this.viewGenerator.getViews()
-            .then(this.viewService.batchSave) //save views
-            .then(()=>this.inBuilding = false)
-            .catch(error=>{
+        this.viewGenerator.generateViews()
+            .then(() => this.inBuilding = false)
+            .catch(error => {
                 this.inBuilding = false;
                 console.error(error);
             });
+
+    }
+
+    oneClickUpdate(){
+
     }
 }

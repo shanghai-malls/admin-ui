@@ -1,4 +1,4 @@
-import {ModuleWithProviders, NgModule} from '@angular/core';
+import {APP_INITIALIZER, ModuleWithProviders, NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {NgZorroAntdModule} from 'ng-zorro-antd';
@@ -62,7 +62,8 @@ import {InterfaceListComponent} from './management/interface/interface-list.comp
 import {DataPickerComponent} from './datapicker/data-picker.component';
 import {WorkspaceComponent} from './workspace/workspace.component';
 import {MacComponent} from './mac.component';
-import {TranslatePipe} from './translate/translate.pipe';
+
+import {TranslatePipe} from './public/pipe/translate.pipe';
 import {ENDPOINT_OF_RAML, RAML_ENDPOINT_INJECTION_TOKEN} from './public/service/raml.service';
 
 
@@ -95,12 +96,16 @@ import {VTableComponent} from './runner/v-table/v-table.component';
 import {VFormControlRichTextComponent} from './runner/v-form/v-form-control-rich-text.component';
 import {VQueryFormComponent} from './runner/v-form/v-query-form.component';
 import {ResizeDirective} from './resize/resize.directive';
-import {builtInComponents, builtInFormControls} from './registry/built-in-components';
-import {COMPONENTS_INJECTION_TOKEN, CONTROLS_INJECTION_TOKEN} from './registry/component-manager';
 import {MacModuleOptions} from './mac-module-options';
 import {VIEW_GENERATOR_CUSTOMIZER, ViewGeneratorCustomizer} from './public/service/view-generator-customizer';
-import {FORM_VIEW_PROCESSORS, NoopFormViewProcessor} from './public/service/form-view-processor';
+import {ComponentRegistrar} from './public/service/component-registrar';
+import {MENU_GENERATOR_CUSTOMIZER, MenuGeneratorCustomizer} from './public/service/menu-generator-customizer';
+import {WORKSPACE_CUSTOMIZER, WorkspaceCustomizer} from './public/service/workspace-customizer';
+import {ToolbarOverlayComponent} from './workspace/toolbar-overlay.component';
 
+export function initComponentRegistrar(register: ComponentRegistrar) {
+    return () => register.registerBuiltIn();
+}
 
 @NgModule({
     imports: [
@@ -110,13 +115,6 @@ import {FORM_VIEW_PROCESSORS, NoopFormViewProcessor} from './public/service/form
         RouterModule,
         HttpClientModule,
         NgZorroAntdModule,
-    ],
-
-    providers: [
-        {provide: RAML_ENDPOINT_INJECTION_TOKEN, useValue: ENDPOINT_OF_RAML},
-        {provide: VIEW_GENERATOR_CUSTOMIZER, useClass: ViewGeneratorCustomizer},
-        {provide: COMPONENTS_INJECTION_TOKEN, useValue: builtInComponents, multi: true},
-        {provide: CONTROLS_INJECTION_TOKEN, useValue: builtInFormControls, multi: true},
     ],
 
     declarations: [
@@ -187,6 +185,7 @@ import {FORM_VIEW_PROCESSORS, NoopFormViewProcessor} from './public/service/form
 
         DataPickerComponent,
         ResizeDirective,
+        ToolbarOverlayComponent,
         WorkspaceComponent,
         MacComponent,
 
@@ -355,18 +354,22 @@ import {FORM_VIEW_PROCESSORS, NoopFormViewProcessor} from './public/service/form
         MacComponent,
 
         VMainComponent,
-    ]
+    ],
+
+    providers: [
+        {provide: RAML_ENDPOINT_INJECTION_TOKEN, useValue: ENDPOINT_OF_RAML},
+        {provide: WORKSPACE_CUSTOMIZER, useClass: WorkspaceCustomizer},
+        {provide: VIEW_GENERATOR_CUSTOMIZER, useClass: ViewGeneratorCustomizer},
+        {provide: MENU_GENERATOR_CUSTOMIZER, useClass: MenuGeneratorCustomizer},
+        {provide: APP_INITIALIZER, useFactory: initComponentRegistrar, deps: [ComponentRegistrar], multi: true},
+    ],
 })
 export class MacModule {
     static forRoot(config: MacModuleOptions): ModuleWithProviders<MacModule> {
         return {
             ngModule: MacModule,
             providers: [
-                {provide: FORM_VIEW_PROCESSORS, useClass: config.formViewProcessor || NoopFormViewProcessor, multi: true},
-                {provide: COMPONENTS_INJECTION_TOKEN, useValue: config.components, multi: true},
-                {provide: CONTROLS_INJECTION_TOKEN, useValue: config.controls, multi: true},
                 {provide: RAML_ENDPOINT_INJECTION_TOKEN, useValue: config.endpointOfRaml || ENDPOINT_OF_RAML},
-                {provide: VIEW_GENERATOR_CUSTOMIZER, useClass: config.viewGeneratorCustomizer || ViewGeneratorCustomizer}
             ]
         };
     }
@@ -408,7 +411,7 @@ export class MacModule {
         router.resetConfig(routes);
         router.routeReuseStrategy.shouldReuseRoute = function () {
             return false;
-        }
+        };
     }
 }
 

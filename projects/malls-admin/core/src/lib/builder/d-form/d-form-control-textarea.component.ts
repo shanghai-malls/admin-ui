@@ -21,7 +21,7 @@ export class DFormControlTextareaComponent implements AbstractDesignerFormContro
     }
 
     doSetting(event: any) {
-        this.modalService.openDesignSetting('设置表单字段' + this.item.label, TextAreaSettingComponent, {value: this.item});
+        this.modalService.openFormItemDesignSetting(TextAreaSettingComponent, this.item);
     }
 
 }

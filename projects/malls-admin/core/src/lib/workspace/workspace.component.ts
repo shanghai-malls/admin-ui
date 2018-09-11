@@ -1,44 +1,75 @@
-import {Component, OnDestroy} from '@angular/core';
+import {Component, Inject, OnDestroy, OnInit} from '@angular/core';
 import {NavigationEnd, Router} from '@angular/router';
 import {RouterEvent} from '@angular/router/src/events';
 import {NzAutocompleteOptionComponent} from 'ng-zorro-antd';
 import {Subject, Subscription} from 'rxjs';
 import {delay} from 'rxjs/operators';
-import {likeIgnoreCase, Menu, Setting} from '../public/model';
+import {likeIgnoreCase, Menu} from '../public/model';
 
 import {I18nService} from '../public/service/i18n.service';
 import {SettingService} from '../public/service/setting.service';
 import {MenuService} from '../public/service/menu.service';
-import {LogoutEmitter} from '../public/service/logout-emitter';
 import {RouterService} from '../public/service/router.service';
+import {
+    ToolbarComponentProperties,
+    ToolbarProperties,
+    WORKSPACE_CUSTOMIZER,
+    WorkspaceCustomizer
+} from '../public/service/workspace-customizer';
 
 @Component({
     templateUrl: 'workspace.component.html',
     styleUrls: ['./workspace.component.less']
 })
-export class WorkspaceComponent implements OnDestroy {
+export class WorkspaceComponent implements OnInit, OnDestroy {
 
     focusSearch = false;
     isCollapsed = false;
     links: { path: string; text: string }[];
-    user = {name: 'admin'};
-    setting: Setting;
+    logo: string;
     menusForSearch: Menu[];
     subjectForSearch = new Subject<string>();
 
     basePath: string;
     menus: Menu[];
     language: string;
+    languages: any;
     searchText: string;
     currentRoute: string;
     un: Subscription;
 
-    constructor(private router: Router, private routerService: RouterService, private i18n: I18nService, private settingsService: SettingService, private menuService: MenuService, private logoutEmitter: LogoutEmitter) {
+    showTopSearchBar: boolean;
+    leftToolbars: ToolbarProperties[] = [];
+    rightToolbars: ToolbarComponentProperties[] = [];
+
+    constructor(private router: Router, private routerService: RouterService, private i18n: I18nService, private settingsService: SettingService,
+                private menuService: MenuService, @Inject(WORKSPACE_CUSTOMIZER) private customizer: WorkspaceCustomizer) {
         this.un = this.router.events.subscribe(this.initRouterView);
-        this.settingsService.subscribe(setting => this.setting = setting);
+    }
+
+    ngOnInit(): void {
+        this.settingsService.subscribe(setting => this.logo = setting.logo);
         this.menuService.subscribe(this.receive);
         this.language = this.i18n.getLocale();
-        this.basePath = routerService.basePath;
+        this.languages = this.i18n.getLocales();
+        this.basePath = this.routerService.basePath;
+
+
+        this.showTopSearchBar = this.customizer.showTopSearchBar();
+        this.leftToolbars = this.customizer.customizedLeftToolbars([
+            {
+                icon: 'menu-fold',
+                onclick: (toolbar: ToolbarProperties) => {
+                    this.isCollapsed = !this.isCollapsed;
+                    toolbar.icon = toolbar.icon === 'menu-fold'?'menu-unfold':'menu-fold'
+                }
+            },
+            {
+                icon: 'api',
+                onclick: () => location.href = '/docs/index.html'
+            },
+        ]);
+        this.rightToolbars = this.customizer.customizedRightToolbars([]);
     }
 
     ngOnDestroy(): void {
@@ -50,8 +81,10 @@ export class WorkspaceComponent implements OnDestroy {
     receive = menus => {
         this.menus = [...menus];
 
+        if(this.customizer.showManagementMenus()) {
+            this.menus.push(this.getExtendedMenu());
+        }
 
-        this.menus.push(this.getExtendedMenu());
         this.menusForSearch = menus;
         this.subjectForSearch.pipe(delay(300)).subscribe((text) => {
             if (!text) {
@@ -198,7 +231,4 @@ export class WorkspaceComponent implements OnDestroy {
         this.router.navigate([this.currentRoute]);
     }
 
-    logout() {
-        this.logoutEmitter.broadcast();
-    }
 }

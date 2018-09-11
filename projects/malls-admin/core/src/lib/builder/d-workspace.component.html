@@ -3,7 +3,7 @@
         <div class="wrapper">
             <div class="logo-wrapper">
                 <a [routerLink]="basePath" class="logo-link">
-                    <img alt="logo" class="logo-img" [src]=" setting?.logo || './assets/logo-full.svg'">
+                    <img alt="logo" class="logo-img" [src]="(setting | async)?.logo || './assets/logo-full.svg'">
                 </a>
             </div>
         </div>

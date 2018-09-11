@@ -8,10 +8,9 @@ import {RouterModule} from '@angular/router';
 import {AppComponent} from './app.component';
 
 import {MacComponent, MacModule} from 'projects/malls-admin/core/src/lib/public_api';
-import {MyFormViewProcess} from './my-form-view-process';
 import {HelloComponent} from './hello/hello.component';
-
-// from '@malls-admin/core';
+import {WORKSPACE_CUSTOMIZER} from '../../projects/malls-admin/core/src/lib/public/service/workspace-customizer';
+import {MyWorkspaceCustomizer} from './my-workspace-customizer';
 
 
 @NgModule({
@@ -23,13 +22,16 @@ import {HelloComponent} from './hello/hello.component';
         HttpClientModule,
         RouterModule.forRoot([{path: '', component: MacComponent}]),
         NgZorroAntdModule,
-        MacModule.forRoot({formViewProcessor: MyFormViewProcess, endpointOfRaml: '/api/api.json'}),
+        MacModule.forRoot({endpointOfRaml: '/api/api.json'}),
+    ],
+    providers: [
+        {provide: WORKSPACE_CUSTOMIZER, useClass: MyWorkspaceCustomizer},
     ],
     declarations: [
         AppComponent,
         HelloComponent,
     ],
-    entryComponents: [],
+    entryComponents: [HelloComponent],
     bootstrap: [
         AppComponent
     ]
@@ -37,4 +39,3 @@ import {HelloComponent} from './hello/hello.component';
 export class AppModule {
 
 }
-

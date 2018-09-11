@@ -3,23 +3,28 @@ import {
     ComponentFactoryResolver,
     ElementRef,
     EventEmitter,
-    Input, OnChanges,
+    Input,
+    OnChanges,
+    OnDestroy,
     OnInit,
-    Output, SimpleChanges,
+    Output,
+    SimpleChanges,
     ViewChild,
     ViewContainerRef
 } from '@angular/core';
 import {NzMessageService} from 'ng-zorro-antd';
-import {AbstractDesignerComponent, AbstractDesignerFormControlComponent, FormItem} from '../../public/model';
+import {AbstractDesignerComponent, AbstractDesignerFormControlComponent, Cell, FormItem} from '../../public/model';
 import {ResizeEvent} from '../../resize/resize.directive';
-import {ComponentManager} from '../../registry/component-manager';
+import {ComponentManager} from '../../public/service/component-manager';
+import {DesignerService} from '../../public/service/designer.service';
+import {Subscription} from 'rxjs';
 
 @Component({
     selector: 'd-form-item',
     templateUrl: './d-form-item.component.html',
-    styleUrls: ['./d-form-item.component.less']
+    styleUrls: ['./d-form-item.component.less'],
 })
-export class DFormItemComponent implements OnInit, OnChanges, AbstractDesignerComponent<FormItem> {
+export class DFormItemComponent implements OnInit, OnChanges, OnDestroy, AbstractDesignerComponent<FormItem> {
     private readonly el: HTMLElement;
 
     @Input()
@@ -40,9 +45,13 @@ export class DFormItemComponent implements OnInit, OnChanges, AbstractDesignerCo
 
     innerComponent: AbstractDesignerFormControlComponent;
 
+    unsetting: Subscription;
 
-    constructor(private elementRef: ElementRef, private resolver: ComponentFactoryResolver, private messageService: NzMessageService, private componentManager: ComponentManager) {
+    constructor(private elementRef: ElementRef, private resolver: ComponentFactoryResolver,
+                private messageService: NzMessageService, private componentManager: ComponentManager,
+                designerService: DesignerService) {
         this.el = elementRef.nativeElement;
+        this.unsetting = designerService.subscribeOnSetting(this.doSetting);
     }
 
     ngOnInit(): void {
@@ -64,15 +73,22 @@ export class DFormItemComponent implements OnInit, OnChanges, AbstractDesignerCo
         }
     }
 
+    ngOnDestroy(): void {
+        if (this.unsetting) {
+            this.unsetting.unsubscribe();
+        }
+    }
+
 
     initComponent(component: FormItem) {
         this.item = component;
     }
 
-    doSetting(event: any) {
-        this.innerComponent.doSetting(event);
-
-    }
+    doSetting = (event: Cell) => {
+        if (event.content === this.item) {
+            this.innerComponent.doSetting(event);
+        }
+    };
 
     focus() {
         this.focused = true;

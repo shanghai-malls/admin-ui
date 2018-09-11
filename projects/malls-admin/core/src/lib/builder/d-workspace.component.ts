@@ -1,14 +1,14 @@
 import {Component, OnDestroy, OnInit, TemplateRef} from '@angular/core';
-import {DesignService} from '../public/service/design.service';
-import {Cell, Component as UIComponent, Row, View} from '../public/model';
+import {DesignerService} from '../public/service/designer.service';
+import {Cell, Component as UIComponent, Row, Setting, View} from '../public/model';
 import {ModalService} from '../public/service/modal.service';
 import {ViewService} from '../public/service/view.service';
 import {RouterService} from '../public/service/router.service';
 import {NavigationEnd, Router, RouterEvent} from '@angular/router';
 import {Subscription} from 'rxjs';
 import {I18nService} from '../public/service/i18n.service';
-import {ComponentManager} from '../registry/component-manager';
-
+import {ComponentManager} from '../public/service/component-manager';
+import {SettingService} from '../public/service/setting.service';
 
 export interface ComponentGroup {
     icon: string;
@@ -36,37 +36,46 @@ export class DWorkspaceComponent implements OnDestroy, OnInit {
 
     language: string;
 
+    setting: Promise<Setting>;
+
     constructor(private router: Router,
                 private routerService: RouterService,
                 private modalService: ModalService,
-                private designService: DesignService,
+                private designService: DesignerService,
                 private viewService: ViewService,
                 private componentManager: ComponentManager,
-                i18nService: I18nService) {
+                i18nService: I18nService,
+                settingService: SettingService) {
         this.basePath = routerService.basePath;
         this.language = i18nService.getLocale();
+        this.setting  = settingService.getSetting();
+
         this.un = this.router.events.subscribe(this.initResource);
     }
 
     ngOnInit(): void {
-        let registrations = this.componentManager.getAllComponentRegistrations();
-
         this.groups.push({
             icon:'layout',
             name:'布局',
-            components: registrations.filter(reg=>reg.group === 'layout').map(({type,name})=>({type,name}))
+            components: this.componentManager.getComponentDefinitions('layout').map(({type,name})=>({type,name}))
         });
 
         this.groups.push({
             icon:'table',
             name:'数据展示',
-            components: registrations.filter(reg=>reg.group === 'display').map(({type,name})=>({type,name}))
+            components: this.componentManager.getComponentDefinitions('display').map(({type,name})=>({type,name}))
+        });
+
+        this.groups.push({
+            icon:'line-chart',
+            name:'报表',
+            components: this.componentManager.getComponentDefinitions('chart').map(({type,name})=>({type,name}))
         });
 
         this.groups.push({
             icon:'form',
             name:'表单控件',
-            components: this.componentManager.getAllFormControlRegistrations().map(({type,name})=>({type,name}))
+            components: this.componentManager.getFormControlDefinitions().map(({type,name})=>({type,name}))
         })
     }
 

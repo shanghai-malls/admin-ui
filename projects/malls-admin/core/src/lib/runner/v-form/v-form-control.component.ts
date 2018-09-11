@@ -2,7 +2,7 @@ import {Component, ComponentFactoryResolver, Input, OnInit, ViewChild, ViewConta
 import {FormGroup} from '@angular/forms';
 import {FormItem} from '../../public/model';
 import {NzMessageService} from 'ng-zorro-antd';
-import {ComponentManager} from '../../registry/component-manager';
+import {ComponentManager} from '../../public/service/component-manager';
 
 @Component({
     selector: 'v-form-control',

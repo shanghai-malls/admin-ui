@@ -20,7 +20,7 @@ export class DFormControlDateRangeComponent implements AbstractDesignerFormContr
     }
 
     doSetting(event: any) {
-        this.modalService.openDesignSetting('设置表单字段' + this.item.label, DatePickerSettingComponent, {value: this.item});
+        this.modalService.openFormItemDesignSetting(DatePickerSettingComponent, this.item);
     }
 
 }

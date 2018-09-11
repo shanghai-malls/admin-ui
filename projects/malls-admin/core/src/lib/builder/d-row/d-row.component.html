@@ -1,14 +1,16 @@
-<div nz-row [nzGutter]="row.horizontal * 2" nzType="flex" nzJustify="start" nzAlign="top" >
+<div nz-row class="body-bg d-row" [nzGutter]="row.horizontal * 2" nzType="flex" nzJustify="start" nzAlign="top" >
     <div nz-col *ngFor="let item of row.children; let i = index" [nzSpan]="item.width"
          [style.marginTop.px]="row.vertical"
          [style.marginBottom.px]="row.vertical" style="cursor: move"
          draggable="true" (dragstart)="dragstart(i, $event)" (dragover)="dragover($event)" (drop)="drop(i, $event)">
-        <ng-container *ngIf="renderItem">
-            <ng-template [ngTemplateOutlet]="renderItem" [ngTemplateOutletContext]="{ $implicit: item, index: i }"></ng-template>
-        </ng-container>
-        <ng-container *ngIf="!renderItem && item.content">
-            <d-part [component]="item.content"></d-part>
-        </ng-container>
+        <d-wrapper [cell]="item" class="wrapper" >
+            <ng-container *ngIf="renderItem">
+                <ng-template [ngTemplateOutlet]="renderItem" [ngTemplateOutletContext]="{ $implicit: item, index: i }"></ng-template>
+            </ng-container>
+            <ng-container *ngIf="!renderItem && item.content">
+                <d-part [component]="item.content"></d-part>
+            </ng-container>
+        </d-wrapper>
     </div>
     <ng-container *ngIf="endItem">
         <ng-template [ngTemplateOutlet]="endItem"></ng-template>

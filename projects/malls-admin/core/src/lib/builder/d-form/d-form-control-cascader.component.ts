@@ -20,7 +20,7 @@ export class DFormControlCascaderComponent implements AbstractDesignerFormContro
     }
 
     doSetting(event: any) {
-        this.modalService.openDesignSetting('设置表单字段' + this.item.label, ChoiceSettingComponent, {value: this.item});
+        this.modalService.openFormItemDesignSetting(ChoiceSettingComponent, this.item);
     }
 
 }

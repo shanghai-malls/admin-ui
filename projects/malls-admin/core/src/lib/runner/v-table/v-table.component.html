@@ -28,20 +28,20 @@
                     {{header.title}}
                 </th>
             </ng-container>
-            <th *ngIf="first && table.operationColumnButtons?.length > 0" colspan="1" nzRight="0px" [attr.rowspan]="headers.length" style="min-width: 180px;" >
+            <th *ngIf="first && table.operationButtons?.length > 0" colspan="1" nzRight="0px" [attr.rowspan]="headers.length" style="min-width: 180px;" >
                 {{'operation' | translate}}
             </th>
         </tr>
         </thead>
         <tbody>
-        <tr *ngFor="let data of page.content">
+        <tr *ngFor="let data of page.content; let i = index;">
             <ng-container *ngFor="let column of dataColumns" >
                 <td *ngIf="!column.hide">{{column.formatText(data)}}</td>
             </ng-container>
-            <td nzRight="0px" style="text-align: left" class="mini-spacing" *ngIf="table.operationColumnButtons?.length > 0">
-                <button nz-button nzType="primary" (click)="emit(data)" *ngIf="modalRef">选择</button>
+            <td nzRight="0px" style="text-align: left" class="mini-spacing" *ngIf="table.operationButtons?.length > 0">
+                <button nz-button nzType="primary" (click)="emitData(data)" *ngIf="modalRef">选择</button>
                 <ng-container *ngIf="!modalRef">
-                    <ng-container *ngFor="let button of table.operationColumnButtons">
+                    <ng-container *ngFor="let button of buttonsRows[i]">
                         <button nz-button [nzType]="button.classType" (click)="triggerButton(button, data)">{{button.text}}</button>
                     </ng-container>
                 </ng-container>

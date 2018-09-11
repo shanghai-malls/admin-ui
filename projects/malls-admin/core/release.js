@@ -45,6 +45,16 @@ function downgrade(error){
     return processVersion(false);
 }
 
+function processLess(){
+    let data = fs.readFileSync('./projects/malls-admin/core/src/mac.less', "utf-8");
+
+    fs.writeFileSync('../dist/malls-admin/core/malls-admin.less', data.replace("../../../../node_modules/", "../../"));
+
+    console.log("写入less到文件：../dist/malls-admin/core/malls-admin.less");
+
+    return writeCss(data).then(writeMinCss);
+}
+
 function writeCss(data){
     console.log("编译less代码到CSS");
     return lessc.render(data).then(({css}) => fs.writeFileSync("../dist/malls-admin/core/malls-admin.css", css))
@@ -63,17 +73,6 @@ function writeMinCss(data){
         });
 }
 
-function processLess(){
-    process.chdir("./src");
-    let data = fs.readFileSync('./styles.less', "utf-8");
-    fs.writeFileSync('../dist/malls-admin/core/malls-admin.less', data.replace("../node_modules/", "../../"));
-
-    console.log("写入less到文件：../dist/malls-admin/core/malls-admin.less");
-
-    return writeCss(data).then(writeMinCss).then(()=>{
-        process.chdir("../");
-    })
-}
 
 function buildPackage(){
     console.log("开始构建npm包");

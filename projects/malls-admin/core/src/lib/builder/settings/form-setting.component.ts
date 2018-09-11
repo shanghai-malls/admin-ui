@@ -1,6 +1,5 @@
-import {Component, Input, OnInit, Type} from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {Form, FormBody} from '../../public/model';
-import {InterfaceListComponent} from '../../management/interface/interface-list.component';
 
 @Component({
     template: `
@@ -83,7 +82,7 @@ export class FormSettingComponent  implements OnInit{
         }
     }
 
-    spacingChange(value: number, field: string){
+    spacingChange(value: number, field: 'horizontal' | 'vertical') {
         if(this.value.headers) {
             this.value.headers[field] = value;
         }

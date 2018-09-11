@@ -22,7 +22,7 @@ export class DFormControlSliderComponent implements AbstractDesignerFormControlC
     }
 
     doSetting(event: any) {
-        this.modalService.openDesignSetting('设置表单字段' + this.item.label, InputNumberSettingComponent, {value: this.item});
+        this.modalService.openFormItemDesignSetting(InputNumberSettingComponent, this.item);
     }
 
 }

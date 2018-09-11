@@ -1,8 +1,5 @@
-import {AutoLoader, Form, formatPath, FormBody,} from '../../public/model';
+import {Form, FormBody,} from '../../public/model';
 import {FormArray, FormControl, FormGroup, ValidationErrors, Validators} from '@angular/forms';
-import {HttpService} from '../../public/service/http.service';
-import {TransformService} from '../../public/service/transform.service';
-import {FormBodyProcessor} from '../../public/service/form-body-processor';
 
 export interface FormGroups {
     headers?: FormGroup;
@@ -29,73 +26,33 @@ function uniqueKeyValidator(input: FormControl): ValidationErrors | null {
 
 export abstract class AbstractFormComponent {
 
-    protected constructor(protected http: HttpService, protected transformer: TransformService, protected formBodyProcessor: FormBodyProcessor) {
+    formGroups: FormGroups;
 
-    }
-
-    abstract get uriParameters(): { [p: string]: string };
-
-    protected processForm(inputForm: Form): Form {
-        let returnForm = new Form(inputForm);
-        this.processFormBody(returnForm.headers, returnForm);
-        this.processFormBody(returnForm.queryParameters, returnForm);
-        if (returnForm.body && returnForm.body.length > 0) {
-            returnForm.body.forEach(item => this.processFormBody(item, returnForm));
-        }
-
-        return returnForm;
-    }
-
-    private processFormBody(formBody: FormBody, {vertical, horizontal}: Form) {
-        if (formBody) {
-            formBody.vertical = vertical;
-            formBody.horizontal = horizontal;
-            this.formBodyProcessor.process(formBody);
-        }
-    }
-
-    protected createFormGroups(inputForm: Form): FormGroups {
-        let formGroup: FormGroups = {};
+    createFormGroups(inputForm: Form) {
+        let formGroups: FormGroups = {};
         if (inputForm.headers) {
-            formGroup.headers = this.createFormGroup(inputForm.headers);
+            formGroups.headers = this.createFormGroup(inputForm.headers);
         }
 
         if (inputForm.queryParameters) {
-            formGroup.queryParameters = this.createFormGroup(inputForm.queryParameters);
+            formGroups.queryParameters = this.createFormGroup(inputForm.queryParameters);
         }
 
         if (inputForm.body && inputForm.body.length > 0) {
-            formGroup.body = inputForm.body.map<FormGroup>(this.createFormGroup);
+            formGroups.body = inputForm.body.map<FormGroup>(this.createFormGroup);
         }
-        return formGroup;
+        this.formGroups = formGroups;
     }
 
-    private createFormGroup = (formBody: FormBody) => {
+    createFormGroup = (formBody: FormBody) => {
         let formGroup = new FormGroup({});
         for (let cell of formBody.children) {
             this.addToFormGroup(cell, formGroup);
         }
-
-        this.processAutoLoader(formGroup, formBody.autoLoader);
-
         return formGroup;
     };
 
-    private processAutoLoader(formGroup: FormGroup, autoLoader: AutoLoader){
-        if (autoLoader && autoLoader.url) {
-            let method = 'get';
-            let url = formatPath(autoLoader.url, this.uriParameters);
-            let options = {headers: {}};
-            if (autoLoader.accept) {
-                options.headers = {Accept: autoLoader.accept};
-            }
-            this.http.get(url, options)
-                .then(result => this.transformer.transform(result, url, method))
-                .then(value => formGroup.patchValue(value));
-        }
-    }
-
-    private addToFormGroup(node: any, formGroup: FormGroup) {
+    addToFormGroup(node: any, formGroup: FormGroup) {
         if (node.field) {
             formGroup.addControl(node.field, this.formItemToControl(node));
             return;
@@ -112,7 +69,7 @@ export abstract class AbstractFormComponent {
         }
     }
 
-    private formItemToControl(node: any) {
+    formItemToControl(node: any) {
         let validators = [];
         if (node.required) {
             validators.push(Validators.required);

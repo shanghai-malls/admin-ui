@@ -5,8 +5,8 @@
             <ng-container *ngFor="let cell of row.children">
                 <ng-container *ngIf="cell.width === 0">
                     <li>
-                        <div class="hide-field-label">{{cell.content.label}}</div>
                         <i class="anticon anticon-minus-circle-o large-icon" (click)="recover(cell)"></i>
+                        <div class="fields-item-label">{{cell.content.label}}</div>
                     </li>
                 </ng-container>
             </ng-container>
@@ -14,7 +14,7 @@
     </ng-template>
 
     <ng-template #tpl2>
-        <ul class="v-list" >
+        <ul class="v-list fields-list" >
             <ng-container [ngTemplateOutlet]="tpl1" [ngTemplateOutletContext]="{row: form.headers}"></ng-container>
             <ng-container [ngTemplateOutlet]="tpl1" [ngTemplateOutletContext]="{row: form.queryParameters}"></ng-container>
         </ul>
@@ -28,13 +28,11 @@
     </ng-template>
 
     <ng-template #tpl4 let-cell>
-        <d-wrapper [cell]="cell" class="wrapper" [content]="content">
-            <d-form-item [item]="cell.content" (onEnter)="focusChild($event)" #content></d-form-item>
-        </d-wrapper>
+        <d-form-item [item]="cell.content" (onEnter)="focusChild($event)"></d-form-item>
     </ng-template>
 
 
-    <div class="ant-modal-body d-form-body" [class.item-selected]="ds.getSelected() != null">
+    <div class="ant-modal-body d-form-body">
         <ng-container [ngTemplateOutlet]="tpl3" [ngTemplateOutletContext]="{top:0}"></ng-container>
         <ng-container *ngIf="form.headers">
             <d-row [row]="form.headers" [renderItem]="tpl4"></d-row>
@@ -45,7 +43,7 @@
                 <ng-container *ngFor="let cell of form.queryParameters.children;  let i = index">
                     <div nz-col [nzSpan]="cell.width" [class.hide]="i > markCollapseIndex" [style.marginTop.px]="form.vertical" [style.marginBottom.px]="form.vertical"
                          draggable="true" (dragstart)="dragstart(i, $event)" (dragover)="dragover($event)" (drop)="drop(form.queryParameters, i, $event)">
-                        <d-wrapper [cell]="cell" class="wrapper" [content]="content">
+                        <d-wrapper [cell]="cell" >
                             <d-form-item [item]="cell.content" (onEnter)="focusChild($event)" #content>
                                 <nz-select [(ngModel)]="cell.content.op" [ngModelOptions]="{standalone: true}" class="op-select" nzDropdownClassName="op-dropdown" >
                                     <nz-option nzLabel="eq" nzValue="eq"></nz-option>

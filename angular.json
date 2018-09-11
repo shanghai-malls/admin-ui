@@ -39,7 +39,7 @@
                             ],
                             "optimization": true,
                             "outputHashing": "all",
-                            "sourceMap": false,
+                            "sourceMap": true,
                             "extractCss": true,
                             "namedChunks": false,
                             "aot": true,
@@ -58,6 +58,11 @@
                         "open": true,
                         "aot": true,
                         "hmr": true,
+                        "evalSourceMap": false,
+                        "disableHostCheck": true,
+                        "optimization": false,
+                        "progress": true,
+                        "watch": true,
                         "liveReload": true
                     },
                     "configurations": {

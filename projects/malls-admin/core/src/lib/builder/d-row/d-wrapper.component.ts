@@ -1,14 +1,14 @@
-import {Component, EventEmitter, Input, Output} from '@angular/core';
-import {AbstractDesignerComponent, Cell} from '../../public/model';
-import {DesignService} from '../../public/service/design.service';
+import {Component, EventEmitter, HostBinding, Input, Output} from '@angular/core';
+import {Cell} from '../../public/model';
+import {DesignerService} from '../../public/service/designer.service';
 import {ResizeEvent} from '../../resize/resize.directive';
 
 @Component({
     selector: 'd-wrapper',
     template: `
-        <div class="height-100" resize (onResize)="doResize($event)" (onStopResize)="stopResize()" (click)="doSelect()">
+        <div class="height-100 min-h-63" resize (onResize)="doResize($event)" (onStopResize)="stopResize()" (click)="doSelect()">
             <ng-content></ng-content>
-            <ul class="d-actions" [class.visible]="ds.isSelected(cell)">
+            <ul class="d-actions">
                 <li><i class="anticon anticon-setting"  (click)="triggerSetting()"  [class.disabled]="cell.content == null"></i></li>
                 <li><i class="anticon anticon-delete"   (click)="triggerDelete()"   ></i></li>
             </ul>
@@ -21,20 +21,19 @@ export class DWrapperComponent {
     @Input()
     cell: Cell;
 
-    @Input()
-    content: AbstractDesignerComponent;
-
-    @Output()
-    onSetting:  EventEmitter<Cell> = new EventEmitter<Cell>();
 
     @Output()
     onDelete:   EventEmitter<Cell> = new EventEmitter<Cell>();
 
-
-    constructor(public ds: DesignService){
-
+    @HostBinding('class.d-selected')
+    get isSelected() {
+        return this.ds.isSelected(this.cell);
     }
 
+
+    constructor(public ds: DesignerService){
+
+    }
 
 
     triggerDelete(){
@@ -44,22 +43,11 @@ export class DWrapperComponent {
 
 
     triggerSetting(){
-        this.onSetting.emit(this.cell);
-        if(this.content) {
-            let fun = this.content.doSetting;
-            if(fun instanceof Function){
-                this.content.doSetting(this.cell);
-            }
-        }
+        this.ds.triggerSetting(this.cell);
     }
 
     doSelect(){
-        let current = this.cell;
-        let prev = this.ds.getSelected();
-        if(prev === current) {
-            current = null;
-        }
-        this.ds.selectedCell(current);
+        this.ds.selectedCell(this.cell);
     }
 
 

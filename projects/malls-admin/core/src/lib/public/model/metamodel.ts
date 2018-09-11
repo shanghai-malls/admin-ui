@@ -1,156 +1,57 @@
 /**
  * 组件基类
  */
-export class Component {
+import {Type} from '@angular/core';
+
+export abstract class Component {
     type: string;
 
-    constructor(definition?: any) {
-        if (definition) {
-            Object.assign<Component, any>(this, definition);
-        }
+    protected constructor(definition?: any) {
+        copy(this, definition);
     }
+
+    static factories = new Map<string, Type<Component>>();
 
     static create(definition: any): Component {
         if (definition instanceof Component) {
             return definition;
         }
-        if (definition.type == 'row') {
-            return new Row(definition);
-        }
-        if (definition.type == 'cell') {
-            return new Cell(definition);
-        }
-        if (definition.type == 'card') {
-            return new Card(definition);
-        }
-        if (definition.type == 'tabset') {
-            return new TabSet(definition);
-        }
-        if (definition.type == 'tab') {
-            return new Tab(definition);
-        }
-        if (definition.type == 'table') {
-            return new Table(definition);
-        }
-        if (definition.type == 'list') {
-            return new List(definition);
-        }
-        if (definition.type == 'form') {
-            return new Form(definition);
-        }
-        if (definition.type == 'fieldset') {
-            return new FieldSet(definition);
-        }
-        if (definition.type == 'array') {
-            return new ArrayFieldSet(definition);
-        }
-        if (definition.type == 'map') {
-            return new MapFieldSet(definition);
-        }
-        if (definition.type == 'text') {
-            return new Text(definition);
-        }
-        if (definition.type == 'number') {
-            return new InputNumber(definition);
-        }
-        if (definition.type == 'textarea') {
-            return new TextArea(definition);
-        }
-        if (definition.type == 'rich-text') {
-            return new TextArea(definition);
-        }
-        if (definition.type == 'date') {
-            return new DatePicker(definition);
-        }
-        if (definition.type == 'date-range') {
-            return new DateRangePicker(definition);
-        }
-        if (definition.type == 'time') {
-            return new TimePicker(definition);
-        }
-        if (definition.type == 'switch') {
-            return new Switch(definition);
-        }
-        if (definition.type == 'slider') {
-            return new Slider(definition);
-        }
-        if (definition.type == 'rate') {
-            return new Rate(definition);
-        }
-        if (definition.type == 'select') {
-            return new Select(definition);
-        }
-        if (definition.type == 'radio') {
-            return new Radio(definition);
-        }
-        if (definition.type == 'checkbox') {
-            return new Checkbox(definition);
-        }
-        if (definition.type == 'cascader') {
-            return new Cascader(definition);
-        }
-        if (definition.type == 'upload') {
-            return new UploadPicker(definition);
-        }
-        if (definition.type == 'data-picker') {
-            return new DataPicker(definition);
-        }
-        if (definition.type == 'display-text') {
-            return new DisplayText(definition);
+        if (definition.type) {
+            let MetamodelType = Component.factories.get(definition.type);
+            if (MetamodelType) {
+                return new MetamodelType(definition);
+            }
+            throw new Error('Component.create:::不支持的组件' + definition.type);
         }
 
-        throw new Error("不支持的组件" + definition.type);
+        throw new Error('参数错误:::' + definition);
     }
 
+    static registerFactory<T extends Component>(key: string, metamodelType: Type<T>) {
+        this.factories.set(key, metamodelType);
+    }
 }
 
-export class Container<T extends Component = Component> extends Component {
+export abstract class Container<T extends Component = Component> extends Component {
     children: T[] = [];
 }
 
-export class Wrapper<T extends Component = Component> extends Component {
+export abstract class Wrapper<T extends Component = Component> extends Component {
     content: T;
     viewPath: string;
 }
 
-export class List extends Wrapper<Component> {
-    type = 'list';
-    header: string;
-    bordered: boolean;
-    split: boolean;
-    showPagination: boolean;
-    queryForm: Form;
-    buttons: Button[];
-    itemButtons: Button[];
-    constructor(def?: any) {
-        super();
-        if (def) {
-            this.header = def.header;
-            this.bordered = def.bordered;
-            this.split = def.split;
-            this.showPagination = def.showPagination;
-
-            if (def.queryForm) {
-                this.queryForm = new Form(def.queryForm);
-            }
-            if (def.buttons) {
-                this.buttons = def.buttons.map(bdef => new Button(bdef));
-            }
-            if (def.itemButtons) {
-                this.itemButtons = def.itemButtons.map(bdef => new Button(bdef));
-            }
-        }
-    }
-}
-
 export class Card extends Wrapper<Component> {
     type = 'card';
-    title: string;
+    title: string = 'card title';
     bordered: boolean = true;
 
     constructor(definition?: any) {
         super();
         copy(this, definition);
+        if (this.content) {
+            this.content = Component.create(this.content);
+        }
     }
 }
 
@@ -162,6 +63,9 @@ export class Row<C extends Component = Component> extends Container<Cell<C>> {
     constructor(definition?: any) {
         super();
         copy(this, definition);
+        if (this.children) {
+            this.children = this.children.map(child => new Cell(child));
+        }
     }
 }
 
@@ -173,6 +77,60 @@ export class Cell<T extends Component = Component> extends Wrapper<T> {
     constructor(definition?: any) {
         super();
         copy(this, definition);
+        if (this.content) {
+            this.content = <T> Component.create(this.content);
+        }
+    }
+}
+
+export class TabSet extends Container<Tab> {
+    type = 'tabset';
+
+    constructor(definition?: any) {
+        super();
+        copy(this, definition);
+        if (this.children) {
+            this.children = this.children.map(child => new Tab(child));
+        }
+    }
+}
+
+export class Tab extends Wrapper<Component> {
+    type = 'tab';
+    title: string;
+
+    constructor(definition?: any) {
+        super();
+        copy(this, definition);
+        if (this.content) {
+            this.content = Component.create(this.content);
+        }
+    }
+}
+
+export class List extends Wrapper<Component> {
+    type = 'list';
+    header: string;
+    bordered: boolean;
+    split: boolean;
+    showPagination: boolean;
+    queryForm: Form;
+    buttons: Button[];
+    operationButtons: Button[];
+
+    constructor(definition?: any) {
+        super();
+        copy(this, definition);
+
+        if (this.queryForm) {
+            this.queryForm = new Form(this.queryForm);
+        }
+        if (this.buttons) {
+            this.buttons.forEach(btn => Object.setPrototypeOf(btn, Button.prototype));
+        }
+        if (this.operationButtons) {
+            this.operationButtons.forEach(btn => Object.setPrototypeOf(btn, Button.prototype));
+        }
     }
 }
 
@@ -184,81 +142,78 @@ export class Table extends Component {
     queryForm: Form;
     buttons: Button[];
     columns: Column[];
-    operationColumnButtons: Button[];
+    operationButtons: Button[];
 
-    constructor(def?: any) {
+    constructor(definition?: any) {
         super();
-        if (def) {
-            this.showPagination = def.showPagination;
-            this.bordered = def.bordered;
-            this.header = def.header;
-
-            if (def.queryForm) {
-                this.queryForm = new Form(def.queryForm);
-            }
-            if (def.buttons) {
-                this.buttons = def.buttons.map(bdef => new Button(bdef));
-            }
-            if (def.columns) {
-                this.columns = def.columns.map(cdef => new Column(cdef))
-            }
-            if (def.operationColumnButtons) {
-                this.operationColumnButtons = def.operationColumnButtons.map(bdef => new Button(bdef));
-            }
+        copy(this, definition);
+        if (this.queryForm) {
+            this.queryForm = new Form(this.queryForm);
+        }
+        if (this.buttons) {
+            this.buttons.forEach(btn => Object.setPrototypeOf(btn, Button.prototype));
+        }
+        if (this.operationButtons) {
+            this.operationButtons.forEach(btn => Object.setPrototypeOf(btn, Button.prototype));
+        }
+        if (this.columns) {
+            this.columns.forEach(column => Object.setPrototypeOf(column, Column.prototype));
         }
     }
 }
 
-export class Column {
+export class Column extends Component{
+    type = 'column';
+
     title: string;
     field: string;
-    type: string;
-    columns: Column[];
     index: number;
     hide = false;
+    columns: Column[];
 
-
-    constructor(def: any) {
-        Object.assign<Column, any>(this, def);
-        if (def.headers) {
-            this.columns = def.headers.map(col => new Column(col));
+    constructor(definition: any) {
+        super(definition);
+        if (this.columns) {
+            this.columns = this.columns.map(col => new Column(col));
         }
     }
 }
 
-export declare type TriggerType = "link" | "modal" | 'none' ;
+export declare type TriggerType = 'link' | 'modal' | 'none' ;
 
 export declare type ClassType = 'primary' | 'default' | 'danger' | 'dashed';
 
 export class Button extends Component {
     type = 'button';
 
-    triggerType: TriggerType = 'link';
-    classType: ClassType = 'default';
+    triggerType: TriggerType;
+    classType: ClassType;
     text: string;
     description: string;
 
     path: string;
 
-    constructor(button?: any) {
+    onclick: (data?: any) => void;
+
+    constructor(definition: any) {
         super();
-        copy(this, button);
+        copy(this, definition);
     }
 
-    static modal(input: any){
+    static modal(input: any) {
         let button = new Button(input);
         button.classType = 'primary';
         button.triggerType = 'modal';
         return button;
     }
 
-    static link(input: any){
+    static link(input: any) {
         let button = new Button(input);
         button.triggerType = 'link';
         return button;
     }
 
-    static none(input: any){
+    static none(input: any) {
         let button = new Button(input);
         button.triggerType = 'none';
         return button;
@@ -271,78 +226,72 @@ export class DetailPanel extends Component {
     queryForm: Form;
     queryResult: Row<FormItem>;
     tabset: TabSet;
+
     constructor(definition?: any) {
         super();
         copy(this, definition);
+        if (this.queryForm) {
+            this.queryForm = new Form(this.queryForm);
+        }
+        if (this.queryResult) {
+            this.queryResult = new Row<FormItem>(this.queryResult);
+        }
+        if (this.tabset) {
+            this.tabset = new TabSet(this.tabset);
+        }
     }
 }
 
-
 export interface AutoLoader {
-    url?            : string;
-    accept?         : string;
+    url?: string;
+    accept?: string;
 }
 
-export class FormBody extends Row<FormItem>{
-    contentType?    : string;
-    autoLoader?     : AutoLoader;
+export class FormBody extends Row<FormItem> {
+    contentType?: string;
+    autoLoader?: AutoLoader;
+
     constructor(definition?: any) {
-        super();
-        copy(this, definition);
+        super(definition);
     }
 }
 
 export class Form extends Component {
     type = 'form';
-    title           : string;
-    path            : string;
-    method          : string;
-    accept          : string;
+    title: string;
+    path: string;
+    method: string;
+    accept: string;
 
-    collapsible     : boolean = false;
+    collapsible: boolean = false;
 
-    submitButton    : Button;
-    clearButton     : Button;
+    submitButton: Button;
+    clearButton: Button;
 
-    horizontal      = 6;
-    vertical        = 6;
+    horizontal = 6;
+    vertical = 6;
 
-    headers         : FormBody;
-    queryParameters : FormBody;
-    body            : FormBody[];
+    headers: FormBody;
+    queryParameters: FormBody;
+    body: FormBody[];
+
     constructor(definition?: any) {
         super();
         copy(this, definition);
-        if(this.headers) {
+
+        if (this.headers) {
             this.headers = new FormBody(this.headers);
         }
-        if(this.queryParameters) {
+        if (this.queryParameters) {
             this.queryParameters = new FormBody(this.queryParameters);
         }
-        if(this.body) {
-            this.body = this.body.map(item=>new FormBody(item));
+        if (this.body) {
+            this.body = this.body.map(item => new FormBody(item));
         }
     }
 }
 
-export class TabSet extends Container<Tab> {
-    type = 'tabset';
-    constructor(definition?: any) {
-        super();
-        copy(this, definition);
-    }
-}
-
-export class Tab extends Wrapper<Component> {
-    type = 'tab';
-    title: string;
-    constructor(definition?: any) {
-        super();
-        copy(this, definition);
-    }
-}
-
-export class FormItem extends Component {
+export abstract class FormItem extends Component {
     field: string;
     label: string;
     description: string;
@@ -352,7 +301,7 @@ export class FormItem extends Component {
     width: number = 16;
     op: 'ne' | 'eq' | 'ge' | 'gt' | 'le' | 'lt' | 'in' | 'like' | 'between';
 
-    constructor(definition?: any) {
+    protected constructor(definition?: any) {
         super();
         copy(this, definition);
     }
@@ -367,8 +316,10 @@ export class FieldSet extends FormItem implements Row {
 
     constructor(definition?: any) {
         super();
-        Object.assign<FieldSet, Row>(this, new Row());
         copy(this, definition);
+        if(this.children) {
+            this.children.forEach(child=>Object.setPrototypeOf(child, Cell.prototype));
+        }
     }
 }
 
@@ -381,6 +332,9 @@ export class ArrayField extends FormItem {
     constructor(definition?: any) {
         super();
         copy(this, definition);
+        if(this.items) {
+            this.items = Component.create(this.items) as FormItem;
+        }
     }
 }
 
@@ -390,9 +344,18 @@ export class MapField extends FormItem {
     val: FormItem | FieldSet;
     minLength: number;
     maxLength: number;
+
     constructor(definition?: any) {
         super();
         copy(this, definition);
+
+        if(this.key) {
+            Object.setPrototypeOf(this.key, Text.prototype);
+        }
+
+        if(this.val) {
+            this.val = Component.create(this.val) as FormItem;
+        }
     }
 }
 
@@ -401,6 +364,9 @@ export class Text extends FormItem {
     pattern: string;
     minLength: number;
     maxLength: number;
+    constructor(definition?: any) {
+        super(definition);
+    }
 }
 
 export class TextArea extends Text {
@@ -410,7 +376,7 @@ export class TextArea extends Text {
     maxRows: number = 3;
 
     get size() {
-        return {minRows: this.minRows, maxRows: this.maxRows}
+        return {minRows: this.minRows, maxRows: this.maxRows};
     }
 
     constructor(definition: any) {
@@ -422,6 +388,9 @@ export class TextArea extends Text {
 
 export class RichText extends TextArea {
     type = 'rich-text';
+    constructor(definition: any) {
+        super(definition);
+    }
 }
 
 export class InputNumber extends FormItem {
@@ -456,7 +425,7 @@ export interface Option {
 }
 
 export class Choice extends FormItem {
-    static DEFAULT_OPTIONS: Option[]= [
+    static DEFAULT_OPTIONS: Option[] = [
         {label: '选项1', value: 1},
         {label: '选项2', value: 2},
         {label: '选项3', value: 3},
@@ -476,18 +445,20 @@ export class Cascader extends Choice {
         {label: '选项2', value: 2, isLeaf: true},
         {label: '选项3', value: 3, isLeaf: true},
     ];
-    options= Cascader.DEFAULT_OPTIONS;
+    options = Cascader.DEFAULT_OPTIONS;
 
 
     constructor(definition: any) {
         super();
         copy(this, definition);
-        Cascader.updateOptionsLeaf(this.options);
+        if(this.options) {
+            Cascader.updateOptionsLeaf(this.options);
+        }
     }
 
-    static updateOptionsLeaf(options: Option[]){
+    static updateOptionsLeaf(options: Option[]) {
         for (let option of options) {
-            if(!option.children) {
+            if (!option.children) {
                 option.isLeaf = true;
             } else {
                 this.updateOptionsLeaf(option.children);
@@ -515,11 +486,11 @@ export class Checkbox extends Choice {
         Checkbox.updateOptionsChecked(this.options, this.value);
     }
 
-    static updateOptionsChecked(options: Option[], array: any[]){
-        if(array) {
+    static updateOptionsChecked(options: Option[], array: any[]) {
+        if (array) {
             for (let value of array) {
                 for (let option of options) {
-                    if(option.value == value) {
+                    if (option.value == value) {
                         option.checked = true;
                     }
                 }
@@ -532,7 +503,7 @@ export class Switch extends FormItem {
     type = 'switch';
     mode: 'switch' | 'checkbox' = 'switch';
 
-    constructor(definition: any) {
+    constructor(definition?: any) {
         super();
         copy(this, definition);
     }
@@ -571,21 +542,23 @@ export class DatePicker extends FormItem {
         super();
         copy(this, definition);
     }
-    static dateonly(def: any){
-        return new DatePicker({...def, showTime: false})
+
+    static dateonly(def: any) {
+        return new DatePicker({...def, showTime: false});
     }
 }
 
 export class DateRangePicker extends DatePicker {
     type = 'date-range';
-    static dateonly(def: any){
-        return new DateRangePicker({...def, showTime: false})
+
+    static dateonly(def: any) {
+        return new DateRangePicker({...def, showTime: false});
     }
 }
 
 export class TimePicker extends FormItem {
     type = 'time';
-    format: string = "HH:mm:ss";
+    format: string = 'HH:mm:ss';
 
     constructor(definition: any) {
         super();
@@ -600,6 +573,11 @@ export class UploadPicker extends FormItem {
     size: number = 100; //默认为100KB
     multiple: boolean; //是否允许上传多个文件
     limit: number;// 单次最大上传文件数（在允许单次上传多个文件的情况下有效）
+
+    constructor(definition?: any) {
+        super();
+        copy(this, definition);
+    }
 }
 
 export class DataPicker extends FormItem {
@@ -615,30 +593,15 @@ export class DataPicker extends FormItem {
 
 
     constructor(definition: any) {
-        super();
-        copy(this, definition);
+        super(definition);
     }
 }
 
 export class DisplayText extends FormItem {
     type = 'display-text';
-    constructor(def: any) {
-        super();
-        if(def.field){
-            this.field = def.field;
-        }
-        if(def.label){
-            this.label = def.label;
-        }
-        if(def.description){
-            this.description = def.description;
-        }
-        if(def.value){
-            this.value = def.value;
-        }
-        if(def.width){
-            this.width = def.width;
-        }
+
+    constructor(definition: any) {
+        super(definition);
     }
 }
 
@@ -683,7 +646,6 @@ export class MapFieldSet extends FieldSet {
         copy(this, definition);
     }
 }
-
 
 
 /***********************************不会被持久化的模型***********************************************/
@@ -798,13 +760,6 @@ export class DataColumn extends Column {
 
 function copy(target: any, definition?: any) {
     if (definition) {
-
         Object.assign(target, definition);
-        if (definition.children) {
-            target.children = definition.children.map(e=>Component.create(e));
-        }
-        else if(definition.content) {
-            target.content = Component.create(definition.content);
-        }
     }
 }

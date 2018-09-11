@@ -69,13 +69,13 @@ export class DTableComponent implements OnInit, AbstractDesignerComponent<Table>
     }
 
     addOperationColumnButton() {
-        this.table.operationColumnButtons.push(new Button({
+        this.table.operationButtons.push(new Button({
             text: '按钮'
         }));
     }
 
     deleteOperationColumnButton(button: Button) {
-        removeElement(this.table.operationColumnButtons, button);
+        removeElement(this.table.operationButtons, button);
     }
 
 

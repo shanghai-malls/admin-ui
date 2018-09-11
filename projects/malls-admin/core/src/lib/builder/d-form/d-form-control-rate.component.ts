@@ -22,7 +22,7 @@ export class DFormControlRateComponent implements AbstractDesignerFormControlCom
     }
 
     doSetting(event: any) {
-        this.modalService.openDesignSetting('设置表单字段' + this.item.label, RateSettingComponent, {value: this.item});
+        this.modalService.openFormItemDesignSetting(RateSettingComponent, this.item);
     }
 
 }
